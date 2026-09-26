@@ -295,5 +295,43 @@ for (const [name, buch] of Object.entries(BUCH)) {
      mitEntitaet.length === 0, mitEntitaet.join(', '));
 }
 
+console.log('\n── Was ohne JavaScript dasteht ──');
+/* ⚠ BEFUND 2026-09-26, von der Gegenprobe entlarvt: zwei Fälle blieben blind
+   („der Knopf heisst wieder Selbsttest", „der Satz ‚keine Virenprüfung'
+   verschwindet"). Ihre Wächter in smoke_pruefer.mjs lesen textContent im
+   BROWSER — und dort hat `sprache.js` den Satz längst aus dem Wörterbuch neu
+   geschrieben. Für eine Sabotage an der DATEI waren sie damit blind. Genau das
+   liest aber ein Leser ohne Skript und ein Crawler. Dieselbe Lehre steht in
+   PWA-Toolpoints CLAUDE.md („ein Wächter las den Text NACH dem Wörterbuch").
+   Gemessen wird deshalb BEIDES: der Satz in der Datei und in jeder Sprache
+   des Wörterbuchs. Gesucht wird am Element (Kennung bzw. Marke), nicht frei in
+   der Datei — der Kommentar darüber nennt dieselben Wörter. */
+{
+  const seite = lies('auslieferungspruefer.html');
+  const welt = {};
+  new Function('window', lies('assets/i18n-pruefer.js'))(welt);
+  const d = welt.PT_SEITE_I18N || {};
+  const elementText = (re) => { const m = seite.match(re); return m ? m[1] : null; };
+
+  const knopf = elementText(/<button[^>]*id="koederKnopf"[^>]*>([\s\S]*?)<\/button>/);
+  ok('der Test-Knopf steht in der Datei', knopf !== null);
+  ok(`… und heißt dort nicht „Selbsttest" (${(knopf || '').trim()})`,
+     knopf !== null && knopf.trim().length > 0 && !/Selbsttest/i.test(knopf));
+  const knopfKey = (seite.match(/id="koederKnopf"[\s\S]*?data-i18n="([^"]+)"/) || [])[1];
+  ok(`… und in keiner Sprache des Wörterbuchs (${knopfKey})`,
+     !!knopfKey && !!d.de && !!d.en &&
+     Object.keys(d).every((l) => typeof d[l][knopfKey] === 'string' && !/Selbsttest/i.test(d[l][knopfKey])));
+
+  const grenze = elementText(/<p[^>]*data-mail-grenze="keine-virenpruefung"[^>]*>([\s\S]*?)<\/p>/);
+  const flach = (t) => (t || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ');
+  ok('der Mail-Eingang sagt in der Datei, dass er KEINE Virenprüfung ist',
+     /[Kk]eine Virenprüfung/.test(flach(grenze)) && /nicht geöffnet/.test(flach(grenze)));
+  const grenzKey = (seite.match(/data-mail-grenze="keine-virenpruefung"[^>]*data-i18n-html="([^"]+)"/) || [])[1];
+  ok(`… und das Wörterbuch sagt es auf Deutsch (${grenzKey})`,
+     !!grenzKey && /[Kk]eine Virenprüfung/.test(flach(d.de && d.de[grenzKey])));
+  ok('… und auf Englisch',
+     !!grenzKey && /not a virus scan/i.test(flach(d.en && d.en[grenzKey])));
+}
+
 console.log(`\n${pass} grün · ${fail} ROT`);
 process.exitCode = fail ? 1 : 0;

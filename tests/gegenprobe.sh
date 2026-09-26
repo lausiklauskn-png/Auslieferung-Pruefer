@@ -2322,6 +2322,18 @@ probe "der Satz „keine Virenprüfung“ verschwindet von der Seite" \
       auslieferungspruefer.html \
       's|<strong>Das ist keine Virenprüfung.</strong>|<strong>Rundum geprüft.</strong>|'
 
+# ⚠ DIE WOERTERBUCH-HAELFTE (2026-09-26). Die zwei Faelle darueber waren
+# blind, weil der Browser-Waechter den Text NACH sprache.js liest. Bewacht
+# werden jetzt Datei UND Woerterbuch (tests/smoke_knoten.mjs) — und dazu
+# gehoeren diese beiden Faelle, sonst waere die zweite Haelfte eine Behauptung.
+probe "WOERTERBUCH: der englische Knopf heisst wieder Selbsttest" \
+      assets/i18n-pruefer.js \
+      's|"pr_17": "Load the test page",|"pr_17": "Selbsttest",|'
+
+probe "WOERTERBUCH: der englische Eintrag verspricht wieder eine Virenpruefung" \
+      assets/i18n-pruefer.js \
+      's|<strong>This is not a virus scan.</strong>|<strong>Fully scanned.</strong>|'
+
 probe "der Mail-Eingang fällt aus dem Offline-Vorrat" \
       sw.js \
       's|"assets/pruefer-mail.js?v=|"assets/pruefer-mail-GIBTS-NICHT.js?v=|'
