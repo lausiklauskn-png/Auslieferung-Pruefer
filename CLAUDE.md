@@ -95,9 +95,17 @@ geschlossen und mit den zwei neuen Fällen gezielt gefahren (`NUR_FALL`):
 gegen `smoke_knoten` nachgestellt: 24 rote Zeilen, jede mit dem Namen ihrer
 Zusicherung.
 
-⚠ **Ein voller Lauf über den Endstand ist NICHT gefahren** — die letzte
-Änderung fügt nur Wächter hinzu; ein Fall, der vorher fing, fängt weiter.
-Das ist eine Folgerung, keine Messung.
+✅ **DER VOLLE LAUF ÜBER DEN ENDSTAND IST GEFAHREN (2026-09-26, dritte
+Sitzung).** Hier stand: *„Ein voller Lauf über den Endstand ist NICHT
+gefahren — … Das ist eine Folgerung, keine Messung."* Jetzt ist es eine:
+Stand `72d7ccb`, Wegwerf-Kopie (`node_modules` verwiesen), 10:41–11:23 UTC
+(42 min), im echten Baum lief währenddessen **keine** Probe:
+**132 gefangen · 0 blind · 0 tote Anker** · 489 Marktplatz-Fälle nicht
+gefahren · Rückgabewert 0, direkt gelesen. Ausgangslage davor `npm test`
+grün (`smoke_pruefer` 234 grün). Prüfsumme über die Dateien der Kopie vor und
+nach dem Lauf gleich. Die drei Fälle zu „Selbsttest"/„keine Virenprüfung"
+(Datei + Wörterbuch) von Hand gegen `smoke_knoten` nachgestellt: je **genau
+eine** rote Zeile, jede mit dem Namen ihrer Zusicherung.
 
 ⚠ **Zwei Läufe passen nicht nebeneinander.** `smoke_pruefer` hört auf einem
 festen Port; wer während der Gegenprobe im echten Baum `npm test` fährt,
