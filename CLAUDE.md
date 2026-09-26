@@ -36,6 +36,7 @@ dies ein zweiter Knoten sein soll.
 
 ```bash
 npm install
+node tests/smoke_knoten.mjs           # Knoten, Kanon-Pins, ?v=, Wörterbuch — ohne Browser
 node tests/smoke_pruefer.mjs          # echter Browser + Python-Fassung
 cp -a . ../ap-kopie && cd ../ap-kopie && bash tests/gegenprobe.sh
 ```
@@ -48,19 +49,60 @@ nicht gefahren. Die vier Vorbelegungs-Fälle (`AUFKLAPP:`/`PRUEFVOR:`) fangen se
 `tests/smoke_vorbelegung.mjs` wieder — zwei davon Sicherheits-Zusicherungen,
 von Hand nachgestellt, jede rote Zeile mit ihrem Namen.
 
-⚠ **20 FÄLLE SIND IN DIESEM DEPOT UNBEWACHT, und das ist benannt, nicht behoben.**
-Ihre Wächter stehen in PWA-Toolpoints `tests/smoke.mjs` (dem Marktplatz-Smoke),
-der hier nicht mitkam:
+✅ **DIE 20 UNBEWACHTEN FÄLLE SIND BEWACHT (2026-09-26, zweite Sitzung).** Hier
+stand: *„20 Fälle sind in diesem Depot unbewacht, und das ist benannt, nicht
+behoben … Der Weg: die Prüfer-Abschnitte aus Toolpoints `smoke.mjs` hierher
+holen."* Geholt nach **`tests/smoke_knoten.mjs`** (ohne Browser, läuft in
+`npm test` zuerst):
 
-| Familie | Fälle |
+| Familie | was dort gemessen wird |
 |---|---|
-| SBKIM-Kette und Wizard des Prüfers | Pflicht-Modul fehlt · Suffix läuft auseinander · Modul 17 vor 15/16 und vor der Membran · blockierend geladen · nicht fail-soft · Wappen-Band · Beschreibung (kurz, auseinander, ohne Namen, Spore überschreibt) · Wizard-Code wandert ab · Gerätename im Panel · Relais abgeschrieben · netz.js-Reihenfolge |
-| Wörterbuch und Versionen | `&amp;` im deutschen bzw. englischen Eintrag der Fußzeile · eine Seite auf alter `?v=` |
-| Texte | Knopf heißt wieder „Selbsttest“ · Satz „keine Virenprüfung“ fehlt |
+| Knoten | alle 13 Pflicht-Module namentlich · Komma zwischen den Kettengliedern · Schublade im `<head>` vor dem Andock · Suffix in Seite und Konfig gleich · 05b als ES-Modul · 17 vor 15/16, geladen UND gestartet · nicht blockierend, fail-soft · Wappen-Band · Beschreibung (Substanz, wortgleich in beiden Wegen, eigener Name) · Wizard-Bausteine und wer im Semantik-Feld gewinnt · Gerätename per Glue · Relais abgelesen, `netz.js` davor |
+| Kanon | SHA-256-Pin auf die 13 Module und den Wizard (Sage-Fassung) |
+| Vorrat und ?v= | kein SBKIM-Modul im Vorrat · jede ?v= in Seiten, Skripten und `sw.js` gleich |
+| Wörterbuch | kein per `textContent` gesetzter Eintrag trägt eine Entität |
+| ohne JavaScript | Knopf heißt nicht „Selbsttest" · „keine Virenprüfung" steht da — in der Datei UND in jeder Sprache |
 
-Dazu ein toter Anker („es gibt wieder nichts zum Mitnehmen“). **Der Weg:** die
-Prüfer-Abschnitte aus Toolpoints `smoke.mjs` hierher holen. Bis dahin wacht
-über diese Stellen nur PWA-Toolpoint, und dort liegt eine andere Kopie.
+⚠ **DREI UNTERSCHIEDE ZU TOOLPOINT, alle benannt:** der Wizard wurde drüben
+gegen den **Marktplatz**-Wizard verglichen — den gibt es hier nicht, also
+steht ein **Pin auf die Sage-Fassung** da (wer ein Modul neu kopiert, zieht
+den Pin nach) · die ?v=-Nummern hängen **nicht** an der `CACHE_VERSION`
+(v1 gegen ?v=76, beides so übernommen) — gemessen wird, dass alle **gleich**
+sind · Wächter mit Marktplatz-Bezug (Spore des Marktplatzes, Knotenkarte)
+sind weggelassen.
+
+⚠ **UND ZWEI FÄLLE WAREN AUCH NACH DEM UMZUG BLIND** — „der Knopf heißt wieder
+Selbsttest" und „der Satz ‚keine Virenprüfung' verschwindet". Ihre Wächter
+standen sehr wohl hier (`smoke_pruefer.mjs`), lasen aber `textContent` im
+Browser, **nachdem** `sprache.js` den Satz aus dem Wörterbuch neu geschrieben
+hatte. Eine Sabotage an der Datei sahen sie nicht — und genau die Datei liest
+ein Leser ohne Skript. Dieselbe Lehre wie in Toolpoints Verfassung („ein
+Wächter las den Text NACH dem Wörterbuch"). Gemessen werden jetzt Datei **und**
+Wörterbuch; zwei Fälle `WOERTERBUCH:` bewachen die zweite Hälfte.
+
+**Der tote Anker** („es gibt wieder nichts zum Mitnehmen") ist nachgezogen:
+die Zeile `mitreihe.hidden = false` gibt es seit dem Umbau auf
+`mitreiheZeigen()` nicht mehr; sabotiert wird jetzt `mitreiheZeigen(true);`.
+
+### Gemessen am 2026-09-26 (nach dem Umzug der Wächter)
+
+`npm test` **grün** — `smoke_knoten` **129 grün · 0 ROT**, `smoke_pruefer` und
+`smoke_vorbelegung` unverändert grün. Voller Gegenprobe-Lauf in einer
+Wegwerf-Kopie (38 min, Stand `8023ead`): **128 gefangen · 2 blind · 0 tote
+Anker** · 489 Marktplatz-Fälle nicht gefahren. Die zwei blinden (oben) danach
+geschlossen und mit den zwei neuen Fällen gezielt gefahren (`NUR_FALL`):
+**6 gefangen · 0 blind**. Jede `sed`-Sabotage auf eine Prüfer-Datei einzeln
+gegen `smoke_knoten` nachgestellt: 24 rote Zeilen, jede mit dem Namen ihrer
+Zusicherung.
+
+⚠ **Ein voller Lauf über den Endstand ist NICHT gefahren** — die letzte
+Änderung fügt nur Wächter hinzu; ein Fall, der vorher fing, fängt weiter.
+Das ist eine Folgerung, keine Messung.
+
+⚠ **Zwei Läufe passen nicht nebeneinander.** `smoke_pruefer` hört auf einem
+festen Port; wer während der Gegenprobe im echten Baum `npm test` fährt,
+bekommt in der Kopie rote Proben aus dem falschen Grund. Der erste Lauf
+dieser Sitzung wurde deshalb verworfen.
 
 **Cache-Bump:** wer eine Datei aus `CORE` in `sw.js` ändert, erhöht
 `CACHE_VERSION` UND die `?v=`-Angaben in der Seite.

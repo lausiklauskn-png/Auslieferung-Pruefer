@@ -1304,9 +1304,13 @@ probe "der Selbsttest loescht wieder ohne Rueckfrage" \
       assets/pruefer-ui.js \
       's|if (quelle.value.trim() \&\& !window.confirm(|if (false \&\& !window.confirm(|'
 
+# ⚠ ANKER NACHGEZOGEN (2026-09-26): die Zeile `if (mitreihe) mitreihe.hidden =
+# false;` gibt es seit dem Umbau auf `mitreiheZeigen()` nicht mehr — der Fall
+# war ein toter Anker, kein blinder Waechter. Sabotiert wird der Aufruf nach
+# einer Pruefung; er steht genau einmal in der Datei.
 probe "es gibt wieder nichts zum Mitnehmen" \
       assets/pruefer-ui.js \
-      's|if (mitreihe) mitreihe.hidden = false;||'
+      's|    mitreiheZeigen(true);||'
 
 # ⚠ HIER STAND EINE SABOTAGE, DIE DAS FALSCHE TAUSCHTE: sie aenderte das
 # `type`-Attribut, und die ADRESSE blieb das eigene Zeichen. Der Waechter
@@ -2317,6 +2321,18 @@ probe "die Test-Mail meldet sich nicht mehr als absichtlich bösartig" \
 probe "der Satz „keine Virenprüfung“ verschwindet von der Seite" \
       auslieferungspruefer.html \
       's|<strong>Das ist keine Virenprüfung.</strong>|<strong>Rundum geprüft.</strong>|'
+
+# ⚠ DIE WOERTERBUCH-HAELFTE (2026-09-26). Die zwei Faelle darueber waren
+# blind, weil der Browser-Waechter den Text NACH sprache.js liest. Bewacht
+# werden jetzt Datei UND Woerterbuch (tests/smoke_knoten.mjs) — und dazu
+# gehoeren diese beiden Faelle, sonst waere die zweite Haelfte eine Behauptung.
+probe "WOERTERBUCH: der englische Knopf heisst wieder Selbsttest" \
+      assets/i18n-pruefer.js \
+      's|"pr_17": "Load the test page",|"pr_17": "Selbsttest",|'
+
+probe "WOERTERBUCH: der englische Eintrag verspricht wieder eine Virenpruefung" \
+      assets/i18n-pruefer.js \
+      's|<strong>This is not a virus scan.</strong>|<strong>Fully scanned.</strong>|'
 
 probe "der Mail-Eingang fällt aus dem Offline-Vorrat" \
       sw.js \
