@@ -40,6 +40,28 @@ node tests/smoke_pruefer.mjs          # echter Browser + Python-Fassung
 cp -a . ../ap-kopie && cd ../ap-kopie && bash tests/gegenprobe.sh
 ```
 
+### Gemessen am 2026-09-26
+
+`npm test` (beide Proben) **grün** · Gegenprobe über alle Fälle auf Prüfer-Dateien,
+erster Lauf: **105 gefangen · 24 blind · 1 toter Anker**, 489 Marktplatz-Fälle
+nicht gefahren. Die vier Vorbelegungs-Fälle (`AUFKLAPP:`/`PRUEFVOR:`) fangen seit
+`tests/smoke_vorbelegung.mjs` wieder — zwei davon Sicherheits-Zusicherungen,
+von Hand nachgestellt, jede rote Zeile mit ihrem Namen.
+
+⚠ **20 FÄLLE SIND IN DIESEM DEPOT UNBEWACHT, und das ist benannt, nicht behoben.**
+Ihre Wächter stehen in PWA-Toolpoints `tests/smoke.mjs` (dem Marktplatz-Smoke),
+der hier nicht mitkam:
+
+| Familie | Fälle |
+|---|---|
+| SBKIM-Kette und Wizard des Prüfers | Pflicht-Modul fehlt · Suffix läuft auseinander · Modul 17 vor 15/16 und vor der Membran · blockierend geladen · nicht fail-soft · Wappen-Band · Beschreibung (kurz, auseinander, ohne Namen, Spore überschreibt) · Wizard-Code wandert ab · Gerätename im Panel · Relais abgeschrieben · netz.js-Reihenfolge |
+| Wörterbuch und Versionen | `&amp;` im deutschen bzw. englischen Eintrag der Fußzeile · eine Seite auf alter `?v=` |
+| Texte | Knopf heißt wieder „Selbsttest“ · Satz „keine Virenprüfung“ fehlt |
+
+Dazu ein toter Anker („es gibt wieder nichts zum Mitnehmen“). **Der Weg:** die
+Prüfer-Abschnitte aus Toolpoints `smoke.mjs` hierher holen. Bis dahin wacht
+über diese Stellen nur PWA-Toolpoint, und dort liegt eine andere Kopie.
+
 **Cache-Bump:** wer eine Datei aus `CORE` in `sw.js` ändert, erhöht
 `CACHE_VERSION` UND die `?v=`-Angaben in der Seite.
 
