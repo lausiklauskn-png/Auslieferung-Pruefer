@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "description": "Auslieferungsprüfer als eigenständige PWA — 1:1-Kopie aus PWA Toolpoint (2026-09-26)",
   "scripts": {
-    "test": "node tests/smoke_pruefer.mjs",
+    "test": "node tests/alle.mjs",
+    "gegenprobe": "bash tests/gegenprobe.sh",
     "serve": "python3 -m http.server 8000"
   },
   "devDependencies": {

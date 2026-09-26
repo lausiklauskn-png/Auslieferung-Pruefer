@@ -98,7 +98,7 @@ probe_befehl() {                # probe_befehl <Beschreibung> <Datei> <Befehl>
     tot=$((tot + 1))
     zurueck "$datei"; AKTUELL=""; return
   fi
-  if timeout "$FRIST" node tests/smoke_pruefer.mjs >/dev/null 2>&1; then
+  if timeout "$FRIST" node tests/alle.mjs >/dev/null 2>&1; then
     echo "  ✗ BLIND: $was — der Smoke blieb grün, obwohl der Fehler drin war"
     rot=$((rot + 1))
   else
@@ -122,7 +122,7 @@ probe_mehr() {                  # probe_mehr <Beschreibung> "<Datei ...>" <Befeh
   for d in $dateien; do sichern "$d"; done
   ALLE_AKTUELL="$dateien"
   eval "$befehl"
-  if timeout "$FRIST" node tests/smoke_pruefer.mjs >/dev/null 2>&1; then
+  if timeout "$FRIST" node tests/alle.mjs >/dev/null 2>&1; then
     echo "  ✗ BLIND: $was — der Smoke blieb grün, obwohl der Fehler drin war"
     rot=$((rot + 1))
   else
@@ -176,7 +176,7 @@ probe() {                       # probe <Beschreibung> <Datei> <sed-Ausdruck>
     tot=$((tot + 1))
     zurueck "$datei"; AKTUELL=""; return
   fi
-  if timeout "$FRIST" node tests/smoke_pruefer.mjs >/dev/null 2>&1; then
+  if timeout "$FRIST" node tests/alle.mjs >/dev/null 2>&1; then
     echo "  ✗ BLIND: $was — der Smoke blieb grün, obwohl der Fehler drin war"
     rot=$((rot + 1))
   else
@@ -197,7 +197,7 @@ probe() {                       # probe <Beschreibung> <Datei> <sed-Ausdruck>
 echo "── Gegenprobe: jeder Fehler muss den Smoke umwerfen ──"
 
 # Der Ausgangszustand muss grün sein, sonst misst die Gegenprobe Unsinn.
-if ! timeout "$FRIST" node tests/smoke_pruefer.mjs >/dev/null 2>&1; then
+if ! timeout "$FRIST" node tests/alle.mjs >/dev/null 2>&1; then
   echo "  ✗ ABBRUCH: der Smoke ist schon vor der Gegenprobe rot."
   exit 1
 fi
