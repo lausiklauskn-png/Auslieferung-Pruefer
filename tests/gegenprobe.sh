@@ -1304,9 +1304,13 @@ probe "der Selbsttest loescht wieder ohne Rueckfrage" \
       assets/pruefer-ui.js \
       's|if (quelle.value.trim() \&\& !window.confirm(|if (false \&\& !window.confirm(|'
 
+# ⚠ ANKER NACHGEZOGEN (2026-09-26): die Zeile `if (mitreihe) mitreihe.hidden =
+# false;` gibt es seit dem Umbau auf `mitreiheZeigen()` nicht mehr — der Fall
+# war ein toter Anker, kein blinder Waechter. Sabotiert wird der Aufruf nach
+# einer Pruefung; er steht genau einmal in der Datei.
 probe "es gibt wieder nichts zum Mitnehmen" \
       assets/pruefer-ui.js \
-      's|if (mitreihe) mitreihe.hidden = false;||'
+      's|    mitreiheZeigen(true);||'
 
 # ⚠ HIER STAND EINE SABOTAGE, DIE DAS FALSCHE TAUSCHTE: sie aenderte das
 # `type`-Attribut, und die ADRESSE blieb das eigene Zeichen. Der Waechter
