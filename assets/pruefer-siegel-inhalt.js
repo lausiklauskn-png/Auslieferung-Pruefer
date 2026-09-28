@@ -20,14 +20,14 @@
   "use strict";
   window.SBKIM_SIEGEL_WIZ = {
     domain: "Auslieferung/Datenschutz/Werkzeug",
-    endpoint: "https://pwa-toolpoint.de/auslieferungspruefer.html",
+    endpoint: "https://lausiklauskn-png.github.io/Auslieferung-Pruefer/auslieferungspruefer.html",
     nodeType: "hybrid",
     nodeName: "Auslieferungsprüfer",
     /* ⚠ WORTGLEICH MIT assets/config/pruefer-netz.js. Zwei Beschreibungen ergeben
        zwei Vektoren fuer denselben Knoten — je nachdem, ueber welchen Weg die Spore
        entstand (Verbinden-Fenster oder Andock-Wizard). Ein Waechter in
        tests/smoke.mjs vergleicht beide Stellen. */
-    domainDescription: "Der Auslieferungsprüfer ist ein Werkzeug im SBKIM-Mycel und ein eigener Knoten auf pwa-toolpoint.de. Er prüft, was eine Internetseite wirklich ins Netz gibt, statt was sie zu geben vorgibt. Er findet fremde Adressen, von denen eine Seite ungefragt nachlädt, versehentlich mitgelieferte Server-Dateien, offene Zugangsdaten und Schlüssel, und Personenbezug, der dort nicht hingehört: Kontonummern werden nachgerechnet, Telefonnummern brauchen eine Ländervorwahl, und wo sich ein echtes Etikett nicht von einem vergessenen Platzhalter unterscheiden lässt, meldet er nichts. Er läuft in zwei Fassungen — eine im Browser, eine als Textleser ohne Browser — und der Unterschied zwischen beiden ist selbst ein Befund: was der Browser lädt und der Textleser nicht sieht, ist ein Versteck. Ein Link, den ein Mensch anklickt, ist kein Abruf und steht deshalb nicht in der Fundliste.",
+    domainDescription: "Der Auslieferungsprüfer ist ein Werkzeug im SBKIM-Mycel und ein eigener Knoten, zu finden im Marktplatz pwa-toolpoint.de. Er prüft, was eine Internetseite wirklich ins Netz gibt, statt was sie zu geben vorgibt. Er findet fremde Adressen, von denen eine Seite ungefragt nachlädt, versehentlich mitgelieferte Server-Dateien, offene Zugangsdaten und Schlüssel, und Personenbezug, der dort nicht hingehört: Kontonummern werden nachgerechnet, Telefonnummern brauchen eine Ländervorwahl, und wo sich ein echtes Etikett nicht von einem vergessenen Platzhalter unterscheiden lässt, meldet er nichts. Er läuft in zwei Fassungen — eine im Browser, eine als Textleser ohne Browser — und der Unterschied zwischen beiden ist selbst ein Befund: was der Browser lädt und der Textleser nicht sieht, ist ein Versteck. Ein Link, den ein Mensch anklickt, ist kein Abruf und steht deshalb nicht in der Fundliste.",
     domainKeywords: ["SBKIM-Protokoll", "Knoten", "Mycel", "SBKIM", "Auslieferungsprüfer", "Auslieferung prüfen", "was gibt meine Seite heraus", "fremde Hosts", "offene Geheimnisse", "Zugangsdaten im Quelltext", "Datenschutz", "Personenbezug", "IBAN", "Telefonnummer", "Platzhalter", "statischer Server", "GitHub Pages", "Caddy", "zwei Fassungen ein Ergebnis", "Werkzeug für Betreiber"],
     stammCategories: ["Auslieferung", "Befund", "Datenschutz"],
     guestCategories: ["Fremde Adresse", "Offenes Geheimnis", "Personenbezug"],
