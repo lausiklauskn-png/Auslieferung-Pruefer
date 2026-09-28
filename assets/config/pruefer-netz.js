@@ -32,7 +32,7 @@ window.PR_NETZ = {
 
   nodeName: "Auslieferungsprüfer",
   repoUrl: "https://github.com/lausiklauskn-png/PWA-Toolpoint",
-  endpoint: "https://pwa-toolpoint.de/auslieferungspruefer.html",
+  endpoint: "https://lausiklauskn-png.github.io/Auslieferung-Pruefer/auslieferungspruefer.html",
   domain: "Auslieferung/Datenschutz/Werkzeug",
   nodeType: "hybrid",
 
@@ -41,7 +41,7 @@ window.PR_NETZ = {
      der zu allem und zu nichts passt — und der findet dann die falschen
      Nachbarn, ohne dass es jemandem auffällt. Vorausgefüllt (Klaus 2026-09-08)
      aus dem, was dieses Werkzeug wirklich tut. */
-  beschreibung: "Der Auslieferungsprüfer ist ein Werkzeug im SBKIM-Mycel und ein eigener Knoten auf pwa-toolpoint.de. Er prüft, was eine Internetseite wirklich ins Netz gibt, statt was sie zu geben vorgibt. Er findet fremde Adressen, von denen eine Seite ungefragt nachlädt, versehentlich mitgelieferte Server-Dateien, offene Zugangsdaten und Schlüssel, und Personenbezug, der dort nicht hingehört: Kontonummern werden nachgerechnet, Telefonnummern brauchen eine Ländervorwahl, und wo sich ein echtes Etikett nicht von einem vergessenen Platzhalter unterscheiden lässt, meldet er nichts. Er läuft in zwei Fassungen — eine im Browser, eine als Textleser ohne Browser — und der Unterschied zwischen beiden ist selbst ein Befund: was der Browser lädt und der Textleser nicht sieht, ist ein Versteck. Ein Link, den ein Mensch anklickt, ist kein Abruf und steht deshalb nicht in der Fundliste.",
+  beschreibung: "Der Auslieferungsprüfer ist ein Werkzeug im SBKIM-Mycel und ein eigener Knoten, zu finden im Marktplatz pwa-toolpoint.de. Er prüft, was eine Internetseite wirklich ins Netz gibt, statt was sie zu geben vorgibt. Er findet fremde Adressen, von denen eine Seite ungefragt nachlädt, versehentlich mitgelieferte Server-Dateien, offene Zugangsdaten und Schlüssel, und Personenbezug, der dort nicht hingehört: Kontonummern werden nachgerechnet, Telefonnummern brauchen eine Ländervorwahl, und wo sich ein echtes Etikett nicht von einem vergessenen Platzhalter unterscheiden lässt, meldet er nichts. Er läuft in zwei Fassungen — eine im Browser, eine als Textleser ohne Browser — und der Unterschied zwischen beiden ist selbst ein Befund: was der Browser lädt und der Textleser nicht sieht, ist ein Versteck. Ein Link, den ein Mensch anklickt, ist kein Abruf und steht deshalb nicht in der Fundliste.",
 
   stichworte: ["SBKIM-Protokoll", "Knoten", "Mycel", "SBKIM", "Auslieferungsprüfer", "Auslieferung prüfen", "was gibt meine Seite heraus", "fremde Hosts", "offene Geheimnisse", "Zugangsdaten im Quelltext", "Datenschutz", "Personenbezug", "IBAN", "Telefonnummer", "Platzhalter", "statischer Server", "GitHub Pages", "Caddy", "zwei Fassungen ein Ergebnis", "Werkzeug für Betreiber"],
 

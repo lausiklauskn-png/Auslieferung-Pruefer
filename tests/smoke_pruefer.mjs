@@ -220,7 +220,11 @@ ok(JS.pruefe(ohneKommentar).length >= 2, "dasselbe ohne Kommentarzeichen schläg
    Grenze erklärt. Gezählt wird deshalb nur, was NICHT FUELLTEXT ist — an einer
    festen Zahl zu hängen hieße, dass ein umbrochener Satz die Probe umwirft. */
 const eigeneSeite = fs.readFileSync(path.join(WURZEL, "auslieferungspruefer.html"), "utf-8");
-const eigene = JS.pruefe(eigeneSeite, ["pwa-toolpoint.de"]);
+/* Die Seite liegt seit dem 2026-09-28 auf github.io (eigene Adresse, dorthin
+   zeigt canonical) und verlinkt den Marktplatz auf pwa-toolpoint.de. Beide
+   Wirte gehören zu ihr; im Browser steht der erste ohnehin über location.host
+   in der Erlaubt-Liste. */
+const eigene = JS.pruefe(eigeneSeite, ["lausiklauskn-png.github.io", "pwa-toolpoint.de"]);
 const ernst = eigene.filter((t) => t.kennung !== "FUELLTEXT");
 ok(ernst.length === 0,
    `die eigene Seite besteht ihren eigenen Prüfer${ernst.length ? " — offen: " + ernst.map((t) => t.zeile + " " + t.kennung).join(", ") : ""}`);

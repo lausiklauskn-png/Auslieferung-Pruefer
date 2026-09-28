@@ -23,14 +23,23 @@ kopiert aus `Kimhub/werkzeuge/auslieferung-pruefer/`.
 | `tests/smoke_pruefer.mjs` | Python-Fassung aus `werkzeuge/` statt aus einem Nachbar-Klon · zwei Abschnitte über die Marktplatz-Startseite herausgenommen (benannt an ihrer Stelle) |
 | `tests/gegenprobe.sh` | Kopie, fährt nur die Fälle auf Prüfer-Dateien |
 
-⚠ **`canonical` zeigt weiter auf pwa-toolpoint.de.** Solange beide Fassungen
-live sind, soll die Suchmaschine nur eine davon zählen.
+**Seit 2026-09-28 ist dies DIE Fassung** (Klaus: *„da sie baugleich sind, soll
+die Fassung auf PWA Toolpoint einfach nur ersetzt werden durch einen neuen
+Link"*). `canonical`, `og:url` und `endpoint` zeigen auf die eigene Adresse
+`https://lausiklauskn-png.github.io/Auslieferung-Pruefer/auslieferungspruefer.html`.
+Die Karte im Marktplatz, die „Prüf es selbst"-Knöpfe der App-Seiten auf
+pwa-toolpoint.de und family-projekt.de führen hierher; gemessen wird ab der
+nächsten Nacht diese Adresse (Kennung `markt-auslieferungspruefer` bleibt,
+der Verlauf reißt nicht ab).
 
-⚠ **Die SBKIM-Kennung ist NICHT die aus PWA Toolpoint.** Die Schublade heißt
-auch hier `auslieferungspruefer`, aber auf `github.io` ist das ein anderer
-Ursprung — der Browser legt eine eigene Identität an. `endpoint` und
-Beschreibung nennen noch pwa-toolpoint.de. Offen, bis Klaus entscheidet, ob
-dies ein zweiter Knoten sein soll.
+⚠ **Die alte Seite auf pwa-toolpoint.de steht noch** — niemand wird mehr
+dorthin geschickt, sie ist nur für alte Lesezeichen da. Sie herauszunehmen
+(samt ihren Proben dort) ist ein eigener Schritt.
+
+⚠ **Die SBKIM-Kennung ist eine eigene** — auf `github.io` legt der Browser eine
+neue Identität an; die Schublade heißt weiter `auslieferungspruefer`.
+`sbkim/pruefer-spore.json` ist noch die signierte Spore aus PWA Toolpoint und
+nennt deren Adresse; eine neue entsteht beim Signieren im Siegel dieser App.
 
 ## Prüfen
 
