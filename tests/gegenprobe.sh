@@ -2308,11 +2308,11 @@ probe "das Mailadress-Muster verliert seine Grenzen (die Seite friert bei langer
 
 probe "der Mail-Reiter fällt aus der Liste der Eingänge (ein Knopf, der nichts tut)" \
       assets/pruefer-ui.js \
-      's|"adresse", "mail"\];|"adresse"];|'
+      's|"adresse", "mail", "datei"\];|"adresse", "datei"];|'
 
 probe "die Bedienung gibt die EINGABE weiter statt des geprüften Textes (Zeile und Nummer passen nicht mehr)" \
       assets/pruefer-ui.js \
-      's|zeige(r.stellen, r.text, {|zeige(r.stellen, inhalt, {|'
+      's|, r.text, |, inhalt, |g'
 
 probe "die Test-Mail meldet sich nicht mehr als absichtlich bösartig" \
       assets/pruefer-ui.js \
@@ -3700,6 +3700,87 @@ probe 'VERWAIST: der Link auf die Uebersicht /apps/ faellt weg' \
 probe 'VERWAIST: eine einzelne Detailseite wird nicht mehr verlinkt' \
       index.html \
       's|href="apps/eigen-sage/"|href="apps/GIBTESNICHT/"|'
+
+# ── ANHANG: Anhänge und einzelne Dateien öffnen (2026-09-29) ─────────────────
+# Klaus: „Ist das nicht dann dem Auslieferungsprüfer …?" — die Prüfung steht in
+# assets/pruefer-anhang.js und wird byte-1:1 in den Sende-Prüfer kopiert.
+echo "── ANHANG: Anhänge und einzelne Dateien öffnen ──"
+
+probe "ANHANG: der Datei-Reiter fällt aus der Liste der Eingänge" \
+      assets/pruefer-ui.js \
+      's|"mail", "datei"\];|"mail"];|'
+
+probe "ANHANG: die Anhänge einer Mail werden nicht mehr geöffnet" \
+      assets/pruefer-ui.js \
+      's|^    anhaengeOeffnen(inhalt, r, opt, danach);|    /* weg */|'
+
+probe "ANHANG: „Kein Anhang wurde geöffnet“ bleibt stehen, obwohl geöffnet wurde" \
+      assets/pruefer-ui.js \
+      's|return h.replace(/⚠ Kein Anhang|return h; h.replace(/⚠ Kein Anhang|'
+
+probe "ANHANG: der Text einer Datei geht nicht mehr durch den Text-Prüfer" \
+      assets/pruefer-ui.js \
+      's|if (r.text \&\& window.PrueferFormate) {|if (false) {|'
+
+probe "ANHANG: ein spät fertiger Anhang überschreibt ein neueres Ergebnis" \
+      assets/pruefer-ui.js \
+      's|if (mein !== anhangLauf) return;|if (false) return;|'
+
+probe "ANHANG: der Datei-Prüfer wird von der Seite nicht mehr geladen" \
+      auslieferungspruefer.html \
+      's|<script src="assets/pruefer-anhang.js?v=[0-9]*"></script>||'
+
+probe "ANHANG: eine neue Kennung verliert ihren Klartext-Satz" \
+      assets/pruefer-ui.js \
+      's|    "SVG-SKRIPT": {|    "SVG-SKRIPT-ALT": {|'
+
+probe "ANHANG: Daten hinter einem PNG werden nicht mehr gesucht" \
+      assets/pruefer-anhang.js \
+      's|else if (art === "png") anhaengsel(b, pngPruefen(b, melde), melde);|else if (art === "png") pngPruefen(b, melde);|'
+
+probe "ANHANG: die Endung wird nicht mehr gegen den Dateikopf gehalten" \
+      assets/pruefer-anhang.js \
+      's|else if (ENDUNGEN\[art\] \&\& endung \&\& ENDUNGEN\[art\].indexOf(endung) < 0)|else if (false)|'
+
+probe "ANHANG: die Grenze sagt nicht mehr, dass nichts ausgeführt wird" \
+      auslieferungspruefer.html \
+      's|Anhänge werden <em>gelesen</em>, nie ausgeführt|Anhänge werden <em>gelesen</em>|'
+
+probe "ANHANG: GPS wird geraten statt im IFD0 gesucht" \
+      assets/pruefer-anhang.js \
+      's|        var gps = exifHatGps(b, i + 10, Math.min(i + 2 + len, b.length));|        var gps = true;|'
+
+probe "ANHANG: ein SVG-Skript wird übersehen" \
+      assets/pruefer-anhang.js \
+      's|if (/<script\[\\s>\]/i.test(s)) melde|if (false) melde|'
+
+probe "ANHANG: Makros in Office-Dateien werden übersehen" \
+      assets/pruefer-anhang.js \
+      's|    if (makro.length) melde("OFFICE-MAKRO"|    if (false) melde("OFFICE-MAKRO"|'
+
+probe "ANHANG: gepackte Office-Teile werden nicht entpackt" \
+      assets/pruefer-anhang.js \
+      's|new welt.DecompressionStream("deflate-raw")|new welt.DecompressionStream("deflate")|'
+
+probe "ANHANG: ein Programm wird nur an der Endung erkannt" \
+      assets/pruefer-anhang.js \
+      's|    if (b\[0\] === 0x4D \&\& b\[1\] === 0x5A) return "programm";||'
+
+probe "ANHANG: der Umbruch vor der Grenze bleibt am Anhang hängen" \
+      assets/pruefer-anhang.js \
+      's|.replace(/\\r?\\n\$/, "")), tiefe + 1);|), tiefe + 1);|'
+
+probe "ANHANG: ein RFC-2231-Name wird nicht entschlüsselt" \
+      assets/pruefer-anhang.js \
+      's|try { return decodeURIComponent(n); } catch|try { return n; } catch|'
+
+probe "ANHANG: ein zu großer Anhang wird doch geöffnet" \
+      assets/pruefer-anhang.js \
+      's|if (geschaetzt > GROESSE_MAX) {|if (false) {|'
+
+probe "ANHANG: ausMail findet keine Anhänge mehr" \
+      assets/pruefer-anhang.js \
+      's|      if (!name) return;|      return;|'
 
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"

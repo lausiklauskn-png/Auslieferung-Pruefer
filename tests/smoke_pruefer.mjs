@@ -1360,7 +1360,7 @@ if (!browser) {
      aus wie das Ergebnis des neuen Eingangs, und das ist die schlimmste Sorte
      Fehlauskunft. */
   const eingaenge = await seite.evaluate(() => {
-    const arten = ["html", "text", "pdf", "adresse", "mail"];
+    const arten = ["html", "text", "pdf", "adresse", "mail", "datei"];
     return {
       reiter: arten.filter((a) => !!document.getElementById("reiter-" + a)).length,
       felder: arten.filter((a) => !!document.getElementById("feld-" + a)).length,
@@ -1369,11 +1369,11 @@ if (!browser) {
       alleFelder: document.querySelectorAll(".pr-eingang").length,
     };
   });
-  ok(eingaenge.reiter === 5 && eingaenge.felder === 5, `fünf Eingänge (${eingaenge.reiter})`);
+  ok(eingaenge.reiter === 6 && eingaenge.felder === 6, `sechs Eingänge (${eingaenge.reiter})`);
   /* ⚠ UND KEINER ZU VIEL. Ein Reiter ohne Kasten — oder einer, den die Liste in
      `pruefer-ui.js` nicht kennt — sieht aus wie ein Eingang und tut nichts. Ein
      toter Knopf mit Beschriftung ist die schlimmere Sorte. */
-  ok(eingaenge.alleReiter === 5 && eingaenge.alleFelder === 5,
+  ok(eingaenge.alleReiter === 6 && eingaenge.alleFelder === 6,
      `und keiner mehr, als die Bedienung kennt (${eingaenge.alleReiter}/${eingaenge.alleFelder})`);
   ok(eingaenge.offen.length === 1 && eingaenge.offen[0] === "html",
      `genau einer ist offen, und es ist der HTML-Eingang (${eingaenge.offen.join()})`);
@@ -1538,8 +1538,11 @@ if (!browser) {
      Werkzeug, das mehr verspricht, als es hält, beruhigt — und das ist
      schlimmer, als gar nichts zu sagen. Der Wächter hängt an der Marke. */
   const grenze = await seite.$eval("[data-mail-grenze]", (e) => e.textContent);
-  ok(/[Kk]eine Virenprüfung/.test(grenze) && /nicht geöffnet|nicht<\/em> geöffnet|nicht geöffnet/.test(grenze.replace(/\s+/g, " ")),
-     "der Eingang sagt selbst, dass er keine Viren prüft und nichts öffnet");
+  /* ⚠ TAFEL-EVOLUTION (Klaus 2026-09-29): hier hieß die Zusage „nichts
+     öffnen". Seit assets/pruefer-anhang.js werden Anhänge gelesen — die
+     Zusage heißt jetzt „nie ausgeführt". */
+  ok(/[Kk]eine Virenprüfung/.test(grenze) && /nie ausgeführt/.test(grenze.replace(/\s+/g, " ")),
+     "der Eingang sagt selbst, dass er keine Viren prüft und nichts ausführt");
   ok(/behauptet/.test(grenze),
      "… und dass nur geprüft wird, was ein Anhang zu SEIN behauptet");
 
@@ -1549,6 +1552,103 @@ if (!browser) {
   await seite.waitForTimeout(400);   /* Sorte B: hier soll etwas AUSBLEIBEN */
   ok(fremdeRufe.length === 0,
      `die Mail-Prüfung hat nichts aus dem Netz geholt (${fremdeRufe.join(", ") || "nichts"})`);
+
+  /* ══ ANHÄNGE WERDEN GEÖFFNET (2026-09-29) ═════════════════════════════════
+   * Die Test-Mail trägt rechnung.pdf.exe mit einem MZ-Kopf. Der Name sagt
+   * „doppelte Endung" (pruefer-mail.js), der INHALT sagt „Programm"
+   * (pruefer-anhang.js). Erst das zweite beweist, dass geöffnet wurde. */
+  await seite.waitForFunction(() => [...document.querySelectorAll("#ergebnis .pr-marke")]
+    .some((m) => /^Anhang rechnung\.pdf\.exe/.test(m.textContent)), null, { timeout: 15000 }).catch(() => {});
+  const anhMarken = await seite.$$eval("#ergebnis .pr-marke", (n) => n.map((x) => x.textContent));
+  ok(anhMarken.some((m) => /^Anhang rechnung\.pdf\.exe/.test(m)),
+     `der Anhang der Test-Mail wird GEÖFFNET — sein Inhalt meldet sich unter „Anhang …“ (${anhMarken.filter((m) => /^Anhang/.test(m)).length})`);
+  const anhArten = await seite.$$eval("#ergebnis .pr-kennung", (n) => n.map((x) => x.textContent));
+  ok(anhArten.includes("ANHANG-PROGRAMM"),
+     "… und am Dateikopf als Programm erkannt, nicht nur am Namen");
+  const nachher = await seite.evaluate(() => ({
+    marke: (document.querySelector("#ergebnis [data-testmail]") || {}).getAttribute
+      ? document.querySelector("#ergebnis [data-testmail]").getAttribute("data-testmail") : null,
+    text: document.getElementById("ergebnis").textContent,
+  }));
+  ok(nachher.marke === "bestanden",
+     `nach dem Öffnen steht der Test-Mail-Satz wieder oben (${nachher.marke})`);
+  ok(!/Kein Anhang wurde geöffnet/.test(nachher.text) && /Anhänge wurden gelesen, nicht ausgeführt/.test(nachher.text),
+     "… und „Kein Anhang wurde geöffnet“ steht NICHT mehr da, sondern dass gelesen wurde");
+  ok(/in Bildpunkten versteckte Botschaften/i.test(nachher.text),
+     "… und die Grenze (Bildpunkte, Text im Bild, PDF-Seitentext) ist benannt");
+
+  /* ══ EINE DATEI PRÜFEN (2026-09-29) ═══════════════════════════════════════
+   * Drei Dateien, jede mit ihrer Gegenrichtung: ein sauberes PNG (kein Befund),
+   * ein „Foto" mit angehängtem ZIP und falscher Endung, eine SVG mit Skript und
+   * einer Mailadresse im Text. Die SVG darf dabei NICHT laufen. */
+  const MITANHANG_BROWSER = ["From: a@b.test", "Subject: Anhang", 'Content-Type: multipart/mixed; boundary="G"', "",
+    "--G", "Content-Type: text/plain", "", "Anbei.", "--G",
+    'Content-Type: application/octet-stream; name="bild.exe"',
+    'Content-Disposition: attachment; filename="bild.exe"',
+    "Content-Transfer-Encoding: base64", "", Buffer.concat([Buffer.from("MZ"), Buffer.alloc(64)]).toString("base64"),
+    "--G--"].join("\n");
+  await seite.click("#reiter-datei");
+  ok(await seite.evaluate(() => !document.getElementById("feld-datei").hidden),
+     "der Reiter „Datei prüfen“ öffnet seinen Kasten");
+  const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "base64");
+  async function dateiPruefen(name, mime, buffer) {
+    await seite.evaluate(() => { document.getElementById("ergebnis").textContent = ""; });
+    await seite.setInputFiles("#einzelDatei", { name, mimeType: mime, buffer });
+    await seite.waitForFunction(() => !!document.querySelector("#ergebnis .pr-zahl"), null, { timeout: 15000 }).catch(() => {});
+    return seite.evaluate(() => ({
+      zahl: (document.querySelector("#ergebnis .pr-zahl") || {}).textContent || "",
+      arten: [...document.querySelectorAll("#ergebnis .pr-kennung")].map((x) => x.textContent),
+      text: document.getElementById("ergebnis").textContent,
+    }));
+  }
+  const sauber = await dateiPruefen("punkt.png", "image/png", PNG);
+  ok(sauber.zahl === "kein Befund", `ein sauberes PNG meldet nichts (${sauber.zahl || "keine Zahl"})`);
+  ok(/Bildpunkten/.test(sauber.text) && /KEINE Virenprüfung/.test(sauber.text),
+     "… und sagt, was es nicht geprüft hat");
+  const getarnt = await dateiPruefen("urlaub.jpg", "image/jpeg",
+    Buffer.concat([PNG, Buffer.from("PK\x03\x04versteckt-4711")]));
+  ok(getarnt.arten.includes("BILD-ANHAENGSEL") && getarnt.arten.includes("ANHANG-TARNUNG"),
+     `ein „Foto" mit angehängtem ZIP und falscher Endung wird erkannt (${getarnt.arten.join(", ")})`);
+  await seite.evaluate(() => { delete window.__schaden; });
+  const svg = await dateiPruefen("logo.svg", "image/svg+xml", Buffer.from(
+    '<svg xmlns="http://www.w3.org/2000/svg"><script>window.__schaden="svg lief"</script>' +
+    '<text>Kontakt: max.muster@firma-4711.test</text></svg>'));
+  ok(svg.arten.includes("SVG-SKRIPT"), `ein Skript in einer SVG wird gemeldet (${svg.arten.join(", ")})`);
+  ok(svg.arten.includes("PERSONENBEZUG"),
+     "… und ihr TEXT geht durch denselben Prüfer wie eine Textdatei (Mailadresse)");
+  ok((await seite.evaluate(() => window.__schaden || null)) === null,
+     "… und das Skript der SVG ist NICHT gelaufen");
+  const svgKnoten = await seite.$$eval("#ergebnis svg, #ergebnis script", (n) => n.length);
+  ok(svgKnoten === 0, `im Ergebnis steht keine gezeichnete SVG und kein Skript (${svgKnoten})`);
+  const ohneSatz = await seite.$$eval("#ergebnis .pr-treffer", (n) => n.filter((li) => {
+    const k = li.querySelector(".pr-kopf"), m = li.querySelector(".pr-kennung");
+    return !k || (m && k.textContent.trim() === m.textContent.trim());
+  }).length);
+  ok(ohneSatz === 0, `jede Datei-Fundkarte führt mit einem Klartext-Satz, nicht mit der Kennung (${ohneSatz} ohne)`);
+
+  /* ⚠ EIN SPÄT FERTIGER ANHANG DARF KEIN NEUERES ERGEBNIS ÜBERSCHREIBEN. Die
+     Mail wird geprüft und IM SELBEN AUGENBLICK der Reiter gewechselt — der
+     Anhang wird erst danach fertig. Stünde danach „Anhang …" im Ergebnis,
+     läge ein Befund über eine Mail unter dem Reiter „Datei prüfen". */
+  await seite.evaluate((m) => {
+    document.getElementById("mailQuelle").value = m;
+    document.getElementById("reiter-mail").click();
+    document.getElementById("mailKnopf").click();
+    document.getElementById("reiter-datei").click();
+    document.getElementById("ergebnis").textContent = "";
+  }, MITANHANG_BROWSER);
+  await seite.waitForTimeout(800);   /* Sorte B: hier soll etwas AUSBLEIBEN */
+  const spaet = await seite.$$eval("#ergebnis .pr-marke", (n) => n.filter((x) => /^Anhang/.test(x.textContent)).length);
+  ok(spaet === 0, `ein spät fertiger Anhang überschreibt nichts, wenn inzwischen der Reiter gewechselt wurde (${spaet})`);
+  /* Gegenrichtung, sonst misst die Zeile darüber nichts: OHNE Wechsel kommt er an. */
+  await seite.evaluate(() => {
+    document.getElementById("reiter-mail").click();
+    document.getElementById("mailKnopf").click();
+  });
+  await seite.waitForTimeout(800);
+  const rechtzeitig = await seite.$$eval("#ergebnis .pr-marke", (n) => n.filter((x) => /^Anhang/.test(x.textContent)).length);
+  ok(rechtzeitig > 0, `… und ohne Wechsel kommt derselbe Anhang an (${rechtzeitig})`);
+  await seite.click("#reiter-mail");
 
   /* ══ DER INHALT DARF BEIM LESEN NICHTS ANRICHTEN ══════════════════════════
    *

@@ -324,8 +324,12 @@ console.log('\n── Was ohne JavaScript dasteht ──');
 
   const grenze = elementText(/<p[^>]*data-mail-grenze="keine-virenpruefung"[^>]*>([\s\S]*?)<\/p>/);
   const flach = (t) => (t || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ');
+  /* ⚠ TAFEL-EVOLUTION (Klaus 2026-09-29): hier stand „nicht geöffnet". Seit
+     assets/pruefer-anhang.js werden Anhänge GELESEN; die Zusage heißt jetzt
+     „nie ausgeführt" — und dass Bildpunkte nicht gelesen werden. */
   ok('der Mail-Eingang sagt in der Datei, dass er KEINE Virenprüfung ist',
-     /[Kk]eine Virenprüfung/.test(flach(grenze)) && /nicht geöffnet/.test(flach(grenze)));
+     /[Kk]eine Virenprüfung/.test(flach(grenze)) && /nie ausgeführt/.test(flach(grenze)) &&
+     /Bildpunkten/.test(flach(grenze)));
   const grenzKey = (seite.match(/data-mail-grenze="keine-virenpruefung"[^>]*data-i18n-html="([^"]+)"/) || [])[1];
   ok(`… und das Wörterbuch sagt es auf Deutsch (${grenzKey})`,
      !!grenzKey && /[Kk]eine Virenprüfung/.test(flach(d.de && d.de[grenzKey])));
