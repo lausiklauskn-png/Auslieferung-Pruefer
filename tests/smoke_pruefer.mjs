@@ -367,6 +367,72 @@ const keinPdf = await FM.pruefePdf(new Uint8Array([104, 97, 108, 108, 111]), [])
 ok(keinPdf.stellen.length === 0 && /keine PDF-Datei/.test(keinPdf.hinweise[0]),
    "eine Datei, die kein PDF ist, wird als solche benannt statt als sauber");
 
+/* ── eine PDF, wie Word sie schreibt (Klaus 2026-09-29) ─────────────────────
+   An einer echten Word-PDF stand „þÿMicrosoft® Word LTSC", „MicrosoftÂ®" und
+   „3 gepackte Ströme geöffnet, 2 davon NICHT lesbar". Nachgestellt mit
+   ERFUNDENEN Angaben: mehrere gepackte Ströme mit CRLF, ein ungepacktes Bild
+   dazwischen, Zeichenketten als UTF-16 mit Escapes, eine als Hex, XMP in UTF-8.
+   Die erste Probe-PDF oben hat nur EINEN Strom — dort kann der Scheinstrom aus
+   „endstream" gar nicht entstehen, deshalb war sie für den Fehler blind. */
+function wordPdf() {
+  const utf16 = (t) => {
+    const b = [0xFE, 0xFF];
+    for (const c of t) { const u = c.charCodeAt(0); b.push(u >> 8, u & 255); }
+    let o = "(";
+    for (const x of b) {
+      if (x === 0x28 || x === 0x29 || x === 0x5C) o += "\\" + String.fromCharCode(x);
+      else if (x < 32 || x > 126) o += "\\" + x.toString(8).padStart(3, "0");
+      else o += String.fromCharCode(x);
+    }
+    return o + ")";
+  };
+  const hex16 = (t) => "<FEFF" + [...t].map((c) => c.charCodeAt(0).toString(16).padStart(4, "0")).join("") + ">";
+  const teile = [Buffer.from("%PDF-1.7\r\n%\xB5\xB5\xB5\xB5\r\n", "latin1")];
+  const obj = (n, kopf, strom) => {
+    if (!strom) { teile.push(Buffer.from(`${n} 0 obj\r\n${kopf}\r\nendobj\r\n`, "latin1")); return; }
+    teile.push(Buffer.from(`${n} 0 obj\r\n${kopf.replace("LEN", strom.length)}\r\nstream\r\n`, "latin1"),
+               strom, Buffer.from("\r\nendstream\r\nendobj\r\n", "latin1"));
+  };
+  obj(1, "<</Type/Catalog/Pages 2 0 R>>");
+  obj(4, "<</Filter/FlateDecode/Length LEN>>", zlib.deflateSync(Buffer.from("BT (Seite eins) Tj ET")));
+  obj(5, "<</Type/XObject/Subtype/Image/Filter/DCTDecode/Length LEN>>",
+      Buffer.from([0xFF, 0xD8, 0xFF, 0xE0, 1, 2, 3, 4, 5, 6, 7, 8, 0xFF, 0xD9]));
+  obj(6, "<</Filter/FlateDecode/Length LEN>>", zlib.deflateSync(Buffer.from("BT (Seite zwei) Tj ET")));
+  obj(7, "<</Filter/FlateDecode/Length 8 0 R>>", zlib.deflateSync(Buffer.from("BT (Seite drei) Tj ET")));
+  obj(31, `<</Author${utf16("Erika Müller")}/Creator${utf16("Musterwort® (Probe)")}` +
+          `/Title${hex16("Übernahme Nr. 7")}/Producer(Setzer \\(Test\\) 2\\0561)>>`);
+  obj(192, "<</Type/Metadata/Subtype/XML/Length LEN>>", Buffer.from(
+    '<x:xmpmeta><pdf:Producer>Musterwort® Probe</pdf:Producer>' +
+    '<xmp:CreatorTool>Musterwort® &amp; Co</xmp:CreatorTool></x:xmpmeta>', "utf8"));
+  teile.push(Buffer.from("trailer\r\n<</Root 1 0 R/Info 31 0 R>>\r\n%%EOF\r\n", "latin1"));
+  return Buffer.concat(teile);
+}
+const wErg = await FM.pruefePdf(new Uint8Array(wordPdf()), []);
+const wSaetze = wErg.stellen.map((x) => x.satz);
+const wHin = wErg.hinweise.join(" ");
+ok(/^3 gepackte Ströme geöffnet\.$/m.test(wErg.hinweise.join("\n")),
+   `Word-PDF: genau die 3 gepackten Ströme, keiner NICHT lesbar (${wHin})`);
+ok(wSaetze.includes("Author: Erika Müller"), "Word-PDF: der Verfasser in UTF-16 wird richtig gelesen");
+ok(wSaetze.includes("Creator: Musterwort® (Probe)"),
+   `Word-PDF: UTF-16 mit geklammerten Klammern und ® (${wSaetze.filter((x) => /^Creator/.test(x))})`);
+ok(wSaetze.includes("Title: Übernahme Nr. 7"), "Word-PDF: eine Hex-Zeichenkette <FEFF…> wird gelesen");
+ok(wSaetze.includes("Producer: Setzer (Test) 2.1"), "Word-PDF: Escapes \\( \\) und \\056 werden gelesen");
+ok(wSaetze.includes("pdf:Producer: Musterwort® Probe") && wSaetze.includes("xmp:CreatorTool: Musterwort® & Co"),
+   `Word-PDF: XMP als UTF-8, Entities aufgelöst (${wSaetze.filter((x) => /:/.test(x.split(":")[0] + ":") && /Musterwort/.test(x))})`);
+ok(!wSaetze.some((x) => /þÿ|Â/.test(x)), "Word-PDF: kein þÿ und kein Â in irgendeinem Befund");
+/* Ein wirklich kaputter Strom darf den Lauf nicht mitreissen. Unter Node 22
+   rissen die unbehandelten Ablehnungen von write()/close() den ganzen Lauf mit,
+   im Browser standen sie rot in der Konsole. Gezählt wird er als NICHT lesbar. */
+const kaputt = Buffer.concat([
+  Buffer.from("%PDF-1.7\n1 0 obj\n<</Filter/FlateDecode/Length 12>>\nstream\nKEIN-DEFLATE\nendstream\nendobj\n"),
+  Buffer.from("2 0 obj\n<</Filter/FlateDecode>>\nstream\n"), zlib.deflateSync(Buffer.from("/Author (Probe Person)")),
+  Buffer.from("\nendstream\nendobj\n%%EOF\n")]);
+const kErg = await FM.pruefePdf(new Uint8Array(kaputt), []);
+ok(/2 gepackte Ströme geöffnet, 1 davon NICHT lesbar/.test(kErg.hinweise.join(" ")),
+   `ein kaputter Strom wird als NICHT lesbar gezählt, der Lauf geht weiter (${kErg.hinweise.join(" ")})`);
+ok(kErg.stellen.some((x) => x.satz === "Author: Probe Person (in einem gepackten Strom)"),
+   "… und der heile Strom dahinter wird trotzdem gelesen");
+
 /* ── und die zweite Fassung dazu ──────────────────────────────────────────
    Der Text-Eingang hat wie der HTML-Eingang einen Python-Zwilling
    (`Kimhub/werkzeuge/auslieferung-pruefer/pruefe-datei.py`). Er ist nicht

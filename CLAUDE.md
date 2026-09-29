@@ -180,7 +180,7 @@ Karte derselben Art, am Ende wieder zur ersten. Die Gesamtzahl geht durch alle.
 - ⚠ **TAFEL-EVOLUTION, BENANNT:** der Wächter „im Ergebnis steht kein anklickbarer
   Link" verbot jeden `a[href]`. Er ist geschärft, nicht gelockert: erlaubt ist
   nur `#pr-g-<Zahl>` — ein Sprung in dieselbe Seite, nie eine fremde Adresse.
-- Cache `auslieferung-pruefer-v3`, alle `?v=78`.
+- Cache damals `auslieferung-pruefer-v3`, `?v=78`.
 - Proben: `smoke_pruefer` (jede Zahl ein Link auf eine vorhandene Karte · Gesamtzahl
   durch alle · „N×" durch genau N Karten · Ziel trägt IHRE Art · Tipp landet sichtbar
   unter der Leiste · zweiter Tipp zur nächsten Karte) · Gegenprobe `NUR_FALL="SPRUNG:"`
@@ -188,6 +188,28 @@ Karte derselben Art, am Ende wieder zur ersten. Die Gesamtzahl geht durch alle.
   2026-09-29: `smoke_pruefer` **257 grün · 0 ROT**, `SPRUNG:` **4 gefangen · 0 blind**.
   Ein Fall („fremde Art") fing zuerst nur über den Weiter-Sprung; dafür steht jetzt
   ein eigener Wächter.
+
+## PDF: Zeichenketten und Ströme (Klaus 2026-09-29)
+
+Klaus hat zwei echte PDFs aus dem Sende-Prüfer geprüft: eine aus Word („þÿMicrosoft® Word
+LTSC", „MicrosoftÂ®", „3 Ströme, 2 NICHT lesbar") und eine aus Illustrator („60 Ströme,
+59 NICHT lesbar"). Die Angaben waren richtig, nur falsch gelesen worden:
+
+- **Die Zeichenketten** in `assets/pruefer-formate.js` werden jetzt richtig entschlüsselt:
+  UTF-16 mit FE FF (das war „þÿ"), Hex-Zeichenketten `<FEFF…>`, Escapes samt `\ooo` und
+  Klammern in Klammern. XMP wird als UTF-8 gelesen (das war „Â®"), Entities aufgelöst.
+- **Ströme:** es zählt nur ein `stream` direkt hinter `>>`. Vorher traf die Suche das „stream"
+  in „endstream" und erzeugte Scheinströme. Der Filter kommt aus dem eigenen Wörterbuch,
+  nicht aus den 400 Zeichen davor. Ein Deckel bleibt (400), aber er wird genannt; vorher
+  wurde bei 60 still abgeschnitten.
+- Ein kaputter Strom brach unter Node den Lauf ab (unbehandelte Ablehnung von write/close);
+  jetzt zählt er als NICHT lesbar.
+- `_meta.fassung` 2 · Cache `auslieferung-pruefer-v4`, alle `?v=79`.
+- Byte-1:1 in Sende-Pruefer (`FORMATE_SHA`) und PWA-Toolpoint.
+- Proben: `smoke_pruefer` (Word-artige Probe-PDF mit erfundenen Angaben, kaputter Strom) ·
+  Gegenprobe `NUR_FALL="PDFZK:"` (7 Fälle).
+- ⚠ Der Seitentext bleibt ungelesen (Stufe 2). An den echten PDFs selbst ist das Ergebnis
+  nicht gemessen; die liegen nur bei Klaus.
 
 ## Netzweit
 
