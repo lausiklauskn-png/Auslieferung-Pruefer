@@ -3833,6 +3833,38 @@ probe "SPRUNG: eine N×-Zahl führt auf eine Karte fremder Art" \
       assets/pruefer-ui.js \
       's|      summe.appendChild(sprung("pr-zahl", kartenJe\[k\].length + "× " + etikett, kartenJe\[k\]));|      summe.appendChild(sprung("pr-zahl", kartenJe[k].length + "× " + etikett, kartenJe[k].map(function (x) { return (x + 1) % gruppen.length; })));|'
 
+# ══ PDFTEXT: Stufe 2 D, der Seitentext eines PDFs (2026-09-29) ══
+probe "PDFTEXT: pdf.js läuft wieder MIT eval (CVE-2024-4367)" \
+      assets/pruefer-anhang.js \
+      's|isEvalSupported: false|isEvalSupported: true|'
+probe "PDFTEXT: die KI-Anweisung im Seitentext wird nicht mehr gemeldet" \
+      assets/pruefer-anhang.js \
+      's|if (st.kennung !== "KI-ANWEISUNG") return;|return;|'
+probe "PDFTEXT: der Fund nennt seine Seite nicht mehr" \
+      assets/pruefer-anhang.js \
+      's| (Seite " + x.seite + ", Zeile | (Zeile |'
+probe "PDFTEXT: Seiten ohne Textebene werden verschwiegen" \
+      assets/pruefer-anhang.js \
+      's|if (leer.length) hinweise.push(|if (false) hinweise.push(|'
+probe "PDFTEXT: über der Seiten-Grenze wird still abgeschnitten" \
+      assets/pruefer-anhang.js \
+      's|if (r.alle > r.seiten.length) hinweise.push(|if (false) hinweise.push(|'
+probe "PDFTEXT: ein nicht lesbares PDF heißt nicht mehr ungeprüft" \
+      assets/pruefer-anhang.js \
+      's|var grund = /password/|return null; var grund = /password/|'
+probe "PDFTEXT: fehlt die KI-Liste, steht nichts da" \
+      assets/pruefer-anhang.js \
+      's|if (!PM) hinweise.push(|if (!PM) void (|'
+probe "PDFTEXT: es steht nicht mehr da, wie viele Seiten gelesen wurden" \
+      assets/pruefer-anhang.js \
+      's|hinweise.push("Seitentext gelesen: "|void ("Seitentext gelesen: "|'
+probe "PDFTEXT: die App nennt die Seite eines Text-Funds nicht mehr" \
+      assets/pruefer-ui.js \
+      's|", Seite " + sx.seite + (x.zeile|(x.zeile|'
+probe "PDFTEXT: die App sagt dem Prüfer nicht, wo pdf.js liegt" \
+      assets/pruefer-ui.js \
+      's|window.PrueferAnhang.pfade({ pdfjs:|window.PrueferAnhang.pfade({ nix:|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1

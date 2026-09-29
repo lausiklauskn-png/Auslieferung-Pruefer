@@ -154,8 +154,8 @@ Reiterwechsel und jede Mail-Prüfung; ein älterer Lauf zeichnet nicht mehr.
 Gemessen in beide Richtungen (mit Wechsel: nichts · ohne: der Anhang kommt).
 
 ⚠ **BENANNTE GRENZEN:** kein Virenscanner · **in Bildpunkten versteckte
-Botschaften (Steganografie), Text im Bild und der Seitentext eines PDFs werden
-NICHT gelesen** — die Vorbereitung dafür steht im Sende-Prüfer unter
+Botschaften (Steganografie) und Text im Bild werden NICHT gelesen** (der
+Seitentext eines PDFs seit Stufe 2 D schon, siehe unten) — der Plan steht im Sende-Prüfer unter
 `docs/BRIEF_2026-09-29_anhaenge-stufe2.md`.
 
 Proben: `tests/smoke_anhang.mjs` (ohne Browser, 36 Zusicherungen, Muster in
@@ -208,8 +208,35 @@ LTSC", „MicrosoftÂ®", „3 Ströme, 2 NICHT lesbar") und eine aus Illustrato
 - Byte-1:1 in Sende-Pruefer (`FORMATE_SHA`) und PWA-Toolpoint.
 - Proben: `smoke_pruefer` (Word-artige Probe-PDF mit erfundenen Angaben, kaputter Strom) ·
   Gegenprobe `NUR_FALL="PDFZK:"` (7 Fälle).
-- ⚠ Der Seitentext bleibt ungelesen (Stufe 2). An den echten PDFs selbst ist das Ergebnis
+- ⚠ Der Seitentext wird seit Stufe 2 D gelesen (Abschnitt unten). An den echten PDFs selbst ist das Ergebnis
   nicht gemessen; die liegen nur bei Klaus.
+
+## 📄 Stufe 2 D · der Seitentext eines PDFs (Klaus 2026-09-29)
+
+Plan und Entscheidungen: `Sende-Pruefer/docs/BRIEF_2026-09-29_anhaenge-stufe2.md`
+(Reihenfolge D → A → B → E → C; Klaus: C bekommt einen eigenen Knopf mit
+„Verdacht", E liest höchstens 10 Seiten gegen, die Grenze wird benannt).
+
+- `assets/pruefer-anhang.js` liest die Textebene jeder Seite mit **pdf.js aus
+  Workflow PDF** (`../Workflow-PDF/vendor/pdfjs/`, gleiche Adresse). Die App setzt den
+  Pfad (`PrueferAnhang.pfade({pdfjs})` in `pruefer-ui.js`); pdf.js wird erst geholt,
+  wenn ein PDF kommt, und steht **nicht** im Installations-Vorrat.
+- ⚠ **`isEvalSupported: false`**: pdf.js 3.11 konnte mit einer präparierten Schrift
+  Code ausführen (CVE-2024-4367). Ein Wächter liest die Zeile, ein Gegenprobe-Fall dreht sie.
+- Anweisungen an eine KI sucht **dieselbe Liste wie der Mail-Eingang**
+  (`PrueferMail.pruefeMail`, nur `KI-ANWEISUNG`) → Befund **`PDF-KI-ANWEISUNG`** mit
+  „Seite n, Zeile z". Fehlt `pruefer-mail.js` (Sende-Prüfer), steht „ungeprüft" da.
+- Der Text geht je Seite durch `pruefeText` (Schlüssel, Mailadressen, IBAN); die Stelle
+  nennt „…, Seite n, Zeile z".
+- **Höchstens 100 Seiten** (`SEITEN_TEXT_MAX`, gewählt, nicht gemessen); dahinter
+  „Seiten 101–N wurden NICHT gelesen". Seiten ohne Textebene (Scans) werden benannt.
+  pdf.js fehlt, PDF kaputt oder mit Passwort, 60 s überschritten → „NICHT gelesen …
+  ungeprüft", nie sauber.
+- Proben: `smoke_anhang` (ohne Browser, pdf.js per `vm` aus dem Nachbar-Klon; fehlt er:
+  ⊘ nicht lauffähig) · `smoke_pruefer` (echte Seite, pdf.js von `file://` des Nachbarn) ·
+  Gegenprobe `NUR_FALL="PDFTEXT:"` (10 Fälle). Cache `auslieferung-pruefer-v5`, alle `?v=80`.
+- ⚠ Nicht gemessen: echte PDFs von Klaus, das Tablet (Zeit, Speicher bei 100 Seiten),
+  pdf.js aus dem Netz statt aus dem Nachbar-Klon.
 
 ## Netzweit
 
