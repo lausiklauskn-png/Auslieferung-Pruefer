@@ -3782,6 +3782,25 @@ probe "ANHANG: ausMail findet keine Anhänge mehr" \
       assets/pruefer-anhang.js \
       's|      if (!name) return;|      return;|'
 
+# ── SPRUNG: die Zahlen über den Befunden sind Links auf ihre Karte (2026-09-29)
+echo "── SPRUNG: Zahlen springen zur Karte ──"
+
+probe "SPRUNG: die Zahlen sind wieder nur Text" \
+      assets/pruefer-ui.js \
+      's|      var a = t("a", klasse + " pr-sprung", text);|      return t("span", klasse, text); var a;|'
+
+probe "SPRUNG: die Karte trägt keine Kennung, der Link führt ins Leere" \
+      assets/pruefer-ui.js \
+      's|      li.id = "pr-g-" + gi;||'
+
+probe "SPRUNG: ein zweiter Tipp bleibt auf derselben Karte" \
+      assets/pruefer-ui.js \
+      's|        n = (n + 1) % ziele.length;|        n = 0;|'
+
+probe "SPRUNG: eine N×-Zahl führt auf eine Karte fremder Art" \
+      assets/pruefer-ui.js \
+      's|      summe.appendChild(sprung("pr-zahl", kartenJe\[k\].length + "× " + etikett, kartenJe\[k\]));|      summe.appendChild(sprung("pr-zahl", kartenJe[k].length + "× " + etikett, kartenJe[k].map(function (x) { return (x + 1) % gruppen.length; })));|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1

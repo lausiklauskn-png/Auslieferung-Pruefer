@@ -163,6 +163,32 @@ Proben: `tests/smoke_anhang.mjs` (ohne Browser, 36 Zusicherungen, Muster in
 SVG läuft nicht, später Lauf) · Gegenprobe `NUR_FALL="ANHANG:"` (19 Fälle).
 Cache `auslieferung-pruefer-v2`, alle `?v=77`.
 
+## 🔗 Die Zahlen über den Befunden sind Links (Klaus 2026-09-29)
+
+Klaus: *„sollten die Befunde als Links zur Verfügung stehen, sodass also die
+gleich an die Stelle springen … Das ist einfacher als dahin zu scrollen."*
+
+Jede Zahl in der Zusammenfassung („18 Befunde", „2× Absender passt nicht") ist
+ein `<a href="#pr-g-N">` auf die erste Karte ihrer Art; die Karte trägt
+`id="pr-g-N"` und `data-kennung`. Ein zweiter Tipp springt zur **nächsten**
+Karte derselben Art, am Ende wieder zur ersten. Die Gesamtzahl geht durch alle.
+
+- **Ein Hash-Link, kein Skript-Sprung:** er geht ohne JavaScript, der Zurück-Knopf
+  führt zurück, und `.pr-karte:target` rahmt die angesprungene Karte ein.
+- **Unter der klebenden Kopfleiste** hält `scroll-padding-top` (`--kopf-hoehe`)
+  die Karte frei — gemessen: Karte bei 91 px, Leiste endet bei 61 px.
+- ⚠ **TAFEL-EVOLUTION, BENANNT:** der Wächter „im Ergebnis steht kein anklickbarer
+  Link" verbot jeden `a[href]`. Er ist geschärft, nicht gelockert: erlaubt ist
+  nur `#pr-g-<Zahl>` — ein Sprung in dieselbe Seite, nie eine fremde Adresse.
+- Cache `auslieferung-pruefer-v3`, alle `?v=78`.
+- Proben: `smoke_pruefer` (jede Zahl ein Link auf eine vorhandene Karte · Gesamtzahl
+  durch alle · „N×" durch genau N Karten · Ziel trägt IHRE Art · Tipp landet sichtbar
+  unter der Leiste · zweiter Tipp zur nächsten Karte) · Gegenprobe `NUR_FALL="SPRUNG:"`
+  (4 Fälle, von Hand nachgestellt, jede rote Zeile mit ihrem Namen). Gemessen
+  2026-09-29: `smoke_pruefer` **257 grün · 0 ROT**, `SPRUNG:` **4 gefangen · 0 blind**.
+  Ein Fall („fremde Art") fing zuerst nur über den Weiter-Sprung; dafür steht jetzt
+  ein eigener Wächter.
+
 ## Netzweit
 
 Freibrief · frisch von `origin/main` · Ton · kein PII · Ehrlichkeit:
