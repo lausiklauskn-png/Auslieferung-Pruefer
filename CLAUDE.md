@@ -124,6 +124,45 @@ dieser Sitzung wurde deshalb verworfen.
 **Cache-Bump:** wer eine Datei aus `CORE` in `sw.js` ändert, erhöht
 `CACHE_VERSION` UND die `?v=`-Angaben in der Seite.
 
+## 📎 Anhänge öffnen und einzelne Dateien prüfen (Klaus 2026-09-29)
+
+Klaus, als der Sende-Prüfer Anhänge prüfen lernte: *„Ist das nicht dann dem
+Auslieferungsprüfer …?"* — und auf den Vorschlag, die Prüfung hierher zu legen:
+*„bitte so"*.
+
+**`assets/pruefer-anhang.js` wird HIER gepflegt** und byte-1:1 in den
+Sende-Prüfer kopiert (dort `assets/pruefer-anhang.js`, per SHA-256 gepinnt in
+`tests/anhaenge.mjs`). Wer sie ändert, ändert sie hier, kopiert sie hinüber und
+zieht den Pin nach. Einen Python-Zwilling hat sie **nicht** — benannte Grenze.
+
+| | |
+|---|---|
+| **Eingang „Datei prüfen"** | sechster Reiter (`feld-datei`, `#einzelDatei`): Bild, SVG, Word/Excel/PowerPoint, ZIP, Programm, PDF. Gelesen wird der Dateikopf, nicht der Name; Text in der Datei geht durch `PrueferFormate.pruefeText` wie eine Textdatei |
+| **Mail-Eingang** | nach dem Mailtext werden die Anhänge ausgepackt (`ausMail`) und geprüft; Befunde stehen unter „Anhang <Name>". Über 25 MB wird nicht geöffnet, sondern benannt |
+| **Findet** | Daten hinter dem Bildende, EXIF/GPS/XMP/PNG-Text, Skripte und fremde Abrufe in SVG, Makros/Einbettungen/Verweise in Office, Programme am Dateikopf, Endung ⟷ Dateikopf; PDFs über `pruefer-formate.js` |
+
+⚠ **TAFEL-EVOLUTION, BENANNT.** Bis hierher galt: *„Ein Anhang wird nicht
+geöffnet — geprüft wird, was er zu sein behauptet."* Seit Klaus' Wort werden
+Anhänge **gelesen**, nie ausgeführt, angezeigt oder ins Netz geschickt. Geändert
+sind pr_45 und pr_56 (DE/EN), der Rat an ANHANG-GEFAEHRLICH und zwei Wächter
+(„nicht geöffnet" → „nie ausgeführt"). **`pruefer-mail.js` bleibt unverändert**
+(es hat einen Python-Zwilling); sein Satz „Kein Anhang wurde geöffnet" wird nach
+dem Öffnen in der Anzeige ersetzt, nicht verschwiegen.
+
+⚠ **Ein spät fertiger Anhang überschreibt nichts:** `anhangLauf` zählt jeden
+Reiterwechsel und jede Mail-Prüfung; ein älterer Lauf zeichnet nicht mehr.
+Gemessen in beide Richtungen (mit Wechsel: nichts · ohne: der Anhang kommt).
+
+⚠ **BENANNTE GRENZEN:** kein Virenscanner · **in Bildpunkten versteckte
+Botschaften (Steganografie), Text im Bild und der Seitentext eines PDFs werden
+NICHT gelesen** — die Vorbereitung dafür steht im Sende-Prüfer unter
+`docs/BRIEF_2026-09-29_anhaenge-stufe2.md`.
+
+Proben: `tests/smoke_anhang.mjs` (ohne Browser, 36 Zusicherungen, Muster in
+`tests/anhang-muster.mjs`) · `tests/smoke_pruefer.mjs` (Eingang, Mail-Anhänge,
+SVG läuft nicht, später Lauf) · Gegenprobe `NUR_FALL="ANHANG:"` (19 Fälle).
+Cache `auslieferung-pruefer-v2`, alle `?v=77`.
+
 ## Netzweit
 
 Freibrief · frisch von `origin/main` · Ton · kein PII · Ehrlichkeit:

@@ -244,9 +244,66 @@
     "ANHANG-GEFAEHRLICH": {
       kurz: "Anhang führt etwas aus",
       kopf: "Der Anhang ist keine Datei zum Ansehen, sondern eine zum Ausführen.",
-      rat: "⚠ Das ist KEINE Virenprüfung. Der Anhang wurde nicht geöffnet — " +
-           "gelesen wurde nur, was er zu sein behauptet. Abhilfe: nicht " +
-           "doppelklicken. Erwartest du ihn nicht, gehört er gelöscht."
+      rat: "⚠ Das ist KEINE Virenprüfung. Dieser Befund kommt vom NAMEN des " +
+           "Anhangs; was die Datei wirklich ist, steht darunter unter " +
+           "„Anhang …\". Abhilfe: nicht doppelklicken. Erwartest du ihn nicht, " +
+           "gehört er gelöscht."
+    },
+    /* ══ ANHÄNGE UND EINZELNE DATEIEN (2026-09-29) — Befunde aus
+       assets/pruefer-anhang.js. Die Datei wird dafür GELESEN, nie ausgeführt. */
+    "ANHANG-TARNUNG": {
+      kurz: "Endung täuscht",
+      kopf: "Die Datei ist etwas anderes, als ihr Name sagt.",
+      rat: "Gemessen wird der Dateikopf, nicht der Name. Abhilfe: nicht öffnen, " +
+           "beim Absender nachfragen, was er geschickt hat."
+    },
+    "ANHANG-PROGRAMM": {
+      kurz: "Programm",
+      kopf: "In der Datei steckt ein Programm oder Skript.",
+      rat: "Ein Programm gehört nicht in einen Anhang oder eine Auslieferung, " +
+           "die man nur ansehen soll. Abhilfe: nicht ausführen, löschen."
+    },
+    "BILD-ANHAENGSEL": {
+      kurz: "Daten hinter dem Bild",
+      kopf: "Hinter dem Ende des Bildes steht noch etwas.",
+      rat: "Das Bild zeigt davon nichts. Manchmal ist es harmlos (Bewegungsfoto), " +
+           "manchmal ein versteckter Anhang. Abhilfe: Bild neu speichern oder als " +
+           "Bildschirmfoto weitergeben."
+    },
+    "BILD-METADATEN": {
+      kurz: "Metadaten im Bild",
+      kopf: "Im Bild stehen Angaben, die man nicht sieht.",
+      rat: "Kamera, Uhrzeit, manchmal der Ort. Abhilfe: vor dem Weitergeben ohne " +
+           "Metadaten speichern."
+    },
+    "SVG-SKRIPT": {
+      kurz: "Skript in Grafik",
+      kopf: "Diese Grafik kann Code ausführen.",
+      rat: "Eine SVG ist Text; im Browser geöffnet läuft ein Skript darin mit. " +
+           "Abhilfe: als PNG weitergeben."
+    },
+    "SVG-VERWEIS": {
+      kurz: "Grafik holt von außen",
+      kopf: "Diese Grafik lädt etwas von einem fremden Rechner.",
+      rat: "Wer sie öffnet, meldet sich dort. Abhilfe: als PNG weitergeben."
+    },
+    "OFFICE-MAKRO": {
+      kurz: "Makro",
+      kopf: "Das Dokument enthält Makros.",
+      rat: "Makros sind Programme. Abhilfe: nicht mit Makros öffnen, beim Absender " +
+           "eine Fassung ohne Makros (docx, xlsx) erbitten."
+    },
+    "OFFICE-VERWEIS": {
+      kurz: "Dokument holt von außen",
+      kopf: "Das Dokument verweist auf etwas außerhalb.",
+      rat: "Beim Öffnen kann es nachladen — und meldet dem fremden Rechner, dass " +
+           "es geöffnet wurde. Abhilfe: Verweis entfernen oder als PDF weitergeben."
+    },
+    "OFFICE-EINBETTUNG": {
+      kurz: "eingebettete Datei",
+      kopf: "Im Dokument stecken weitere Dateien.",
+      rat: "Sie erscheinen nur, wenn man sie anklickt. Abhilfe: nachsehen, was es " +
+           "ist, oder als PDF weitergeben."
     },
     "ANHANG-DOPPELENDUNG": {
       kurz: "Anhang mit zwei Endungen",
@@ -879,9 +936,13 @@
    * Prüfung wird rot. `tests/smoke_pruefer.mjs` zählt die Reiter deshalb gegen
    * diese Liste und klickt jeden einzeln an.
    */
-  var EINGAENGE = ["html", "text", "pdf", "adresse", "mail"];
+  /* Zähler der Anhang-Prüfungen: ein später fertiger Lauf darf kein
+     neueres Ergebnis überschreiben (anhaengeOeffnen). */
+  var anhangLauf = 0;
+  var EINGAENGE = ["html", "text", "pdf", "adresse", "mail", "datei"];
 
   function zeigeEingang(art) {
+    anhangLauf++;
     EINGAENGE.forEach(function (a) {
       var feld = $("feld-" + a), reiter = $("reiter-" + a);
       if (feld) feld.hidden = (a !== art);
@@ -1018,6 +1079,53 @@
         });
     };
     leser.readAsArrayBuffer(f);
+  });
+
+  /* ── EINE DATEI PRÜFEN (2026-09-29) ─────────────────────────────────────
+   * Klaus: „Ist das nicht dann dem Auslieferungsprüfer …?" — ein Bild, eine
+   * Grafik, ein Word- oder Excel-Dokument, ein ZIP, ein Programm. Gelesen
+   * wird der Dateikopf, nicht der Name; ausgeführt wird nichts. Steckt Text
+   * darin (SVG, Office), geht er durch denselben Text-Prüfer wie der Eingang
+   * „Textdatei" — Schlüssel, Mailadressen, Kontonummern. */
+  function anhangTreffer(name, r, praefix) {
+    var aus = [];
+    r.befunde.forEach(function (b) {
+      aus.push({ stelle: praefix + name, kennung: b.kennung, satz: b.satz });
+    });
+    if (r.text && window.PrueferFormate) {
+      window.PrueferFormate.pruefeText(r.text, name, erlaubtListe()).forEach(function (x) {
+        aus.push({ stelle: praefix + name + (x.zeile ? ", Textzeile " + x.zeile : ""),
+          kennung: x.kennung, satz: x.satz });
+      });
+    }
+    return aus;
+  }
+  var einzelDatei = $("einzelDatei");
+  if (einzelDatei) einzelDatei.addEventListener("change", function () {
+    var f = this.files && this.files[0];
+    if (!f) return;
+    ergebnis.textContent = "";
+    if (!window.PrueferAnhang) {
+      ergebnis.appendChild(t("p", "feldhinweis",
+        "Der Datei-Prüfer (assets/pruefer-anhang.js) ist nicht geladen — die Datei ist ungeprüft, nicht sauber."));
+      return;
+    }
+    ergebnis.appendChild(t("p", "feldhinweis", "Die Datei wird gelesen …"));
+    f.arrayBuffer().then(function (buf) {
+      return window.PrueferAnhang.pruefe(f.name, new Uint8Array(buf));
+    }).then(function (r) {
+      zeige(anhangTreffer(f.name, r, ""), "", {
+        titel: "Auslieferungsprüfer · Datei",
+        hinweise: [f.name + " · " + r.artName + " · " + window.PrueferAnhang.gross(f.size)]
+          .concat(r.hinweise),
+        leerSatz: "Kein Befund heißt: nichts von dem gefunden, wonach dieser " +
+                  "Prüfer sucht. Es war KEINE Virenprüfung, und in Bildpunkten " +
+                  "versteckte Botschaften sucht er nicht."
+      });
+    }, function () {
+      ergebnis.textContent = "";
+      ergebnis.appendChild(t("p", "feldhinweis", "Die Datei ließ sich nicht lesen."));
+    });
   });
 
   /* ══ ADRESSE ABRUFEN — KORRIGIERT AM 2026-08-23 ══════════════════════════
@@ -1194,7 +1302,8 @@
    */
   var mailQuelle = $("mailQuelle");
 
-  function pruefeMailJetzt() {
+  function pruefeMailJetzt(danach) {
+    anhangLauf++;
     if (!window.PrueferMail || !mailQuelle) return;
     var inhalt = mailQuelle.value || "";
     if (!inhalt.trim()) {
@@ -1209,19 +1318,64 @@
        War nichts zu entpacken, ist das die Eingabe selbst. War etwas zu
        entpacken, wäre die Eingabe die falsche Vorlage — dann stünde neben
        „Zeile 24" eine ganz andere Zeile, und das ist schlimmer als keine. */
-    zeige(r.stellen, r.text, {
+    var opt = {
       titel: "Auslieferungsprüfer · E-Mail",
       hinweise: r.hinweise,
       leerSatz: "Kein Befund heißt: keine der bekannten Tarnungen, keine " +
                 "gefährliche Anhang-Endung, kein versteckter Text, keine " +
                 "Anweisung an ein Programm. Es heißt NICHT, dass die Mail echt " +
                 "ist — und es war KEINE Virenprüfung."
-    });
+    };
+    zeige(r.stellen, r.text, opt);
+    if (danach) danach(r);
+    anhaengeOeffnen(inhalt, r, opt, danach);
     return r;
   }
 
+  /* ══ ANHÄNGE ÖFFNEN (2026-09-29) — TAFEL-EVOLUTIONS-KLAUSEL, BENANNT ═════
+   * Hier stand (und steht in pruefer-mail.js weiter): ein Anhang wird nicht
+   * entpackt, gelesen wird nur, was er zu sein BEHAUPTET. Klaus hat es am
+   * 2026-09-29 anders entschieden: die Anhänge werden jetzt GELESEN — ihr
+   * Dateikopf, ihre Metadaten, ihr Text. AUSGEFÜHRT, ANGEZEIGT oder ins Netz
+   * geschickt wird weiterhin nichts; eine Datei über 25 MB wird nur benannt.
+   * pruefer-mail.js bleibt unverändert (Zwilling in Python); das Öffnen steht
+   * in assets/pruefer-anhang.js, und das Ergebnis kommt HIER dazu.
+   * Die Prüfung läuft danach — die Befunde zum Mailtext stehen sofort da. */
+  function anhaengeOeffnen(inhalt, r, opt, danach) {
+    var A = window.PrueferAnhang;
+    if (!A) return;
+    var liste = A.ausMail(inhalt);
+    if (!liste.length) return;
+    var mein = ++anhangLauf, stellen = [], hinweise = [];
+    Promise.all(liste.map(function (a) {
+      if (a.zuGross) {
+        hinweise.push("Anhang „" + a.name + "\" (" + A.gross(a.groesse) + ") ist zu groß und wurde NICHT geöffnet — ungeprüft, nicht sauber.");
+        return null;
+      }
+      return A.pruefe(a.name, a.bytes).then(function (x) {
+        stellen = stellen.concat(anhangTreffer(a.name, x, "Anhang "));
+        hinweise.push("Anhang „" + a.name + "\" geöffnet: " + x.artName + ", " + A.gross(a.groesse) + ".");
+      }, function () {
+        hinweise.push("Anhang „" + a.name + "\" ließ sich nicht lesen — ungeprüft.");
+      });
+    })).then(function () {
+      if (mein !== anhangLauf) return;          // inzwischen wurde etwas anderes geprüft
+      hinweise.push("In Bildpunkten versteckte Botschaften, Text im Bild und der Seitentext eines PDFs werden nicht gelesen.");
+      var o = {}; for (var k in opt) o[k] = opt[k];
+      /* pruefer-mail.js sagt „Kein Anhang wurde geöffnet" — das stimmt nach
+         diesem Lauf nicht mehr. Ersetzt wird der Satz, nicht verschwiegen. */
+      o.hinweise = (opt.hinweise || []).map(function (h) {
+        return h.replace(/⚠ Kein Anhang wurde geöffnet\. Geprüft ist nur, was er zu sein behauptet/,
+          "⚠ Die Anhänge wurden gelesen, nicht ausgeführt; was darin steckt, steht unter „Anhang …\"");
+      }).concat(hinweise);
+      var alle = r.stellen.concat(stellen);
+      zeige(alle, r.text, o);
+      if (danach) danach({ stellen: alle, text: r.text, hinweise: o.hinweise, anhaenge: true });
+    });
+  }
+
   var mailKnopf = $("mailKnopf");
-  if (mailKnopf) mailKnopf.addEventListener("click", pruefeMailJetzt);
+  if (mailKnopf) mailKnopf.addEventListener("click", function () { pruefeMailJetzt(); });
 
   var mailDatei = $("mailDatei");
   if (mailDatei) mailDatei.addEventListener("change", function () {
@@ -1314,8 +1468,9 @@
         "Die Test-Mail ersetzt deine Eingabe. Fortfahren?")) return;
     zeigeEingang("mail");
     if (mailQuelle) mailQuelle.value = TESTMAIL;
-    var r = pruefeMailJetzt();
-
+    /* Zweimal gezeichnet: sofort (Mailtext), dann mit den geöffneten
+       Anhängen — der Satz kommt beide Male wieder oben hin. */
+    pruefeMailJetzt(function (r) {
     var gefunden = {};
     (r ? r.stellen : []).forEach(function (x) { gefunden[x.kennung] = 1; });
     var fehlt = window.PrueferMail.BEFUNDE_MAIL.filter(function (k) { return !gefunden[k]; });
@@ -1330,6 +1485,7 @@
     var p = t("p", "feldhinweis", satz);
     p.setAttribute("data-testmail", fehlt.length ? "nicht-bestanden" : "bestanden");
     ergebnis.insertBefore(p, ergebnis.firstChild);
+    });
   });
 
   /* ══ DER EIGENE WIRT STEHT VON ANFANG AN DRIN (2026-08-23) ════════════════

@@ -36,7 +36,7 @@
      fremde Adresse. Das Werkzeug wirbt damit, dass nichts nach außen geht. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230c1016'/%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M256 104V408' stroke='%23f2b544' stroke-width='52'/%3E%3Cpath d='M96 200h118M176 162l38 38-38 38' stroke='%23f2b544' stroke-width='40'/%3E%3Cpath d='M416 312H298M336 274l-38 38 38 38' stroke='%237fb2e8' stroke-width='40'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230c1016'/%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M256 104V408' stroke='%23f2b544' stroke-width='52'/%3E%3Cpath d='M96 200h118M176 162l38 38-38 38' stroke='%23f2b544' stroke-width='40'/%3E%3Cpath d='M416 312H298M336 274l-38 38 38 38' stroke='%237fb2e8' stroke-width='40'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/style.css?v=76">
+<link rel="stylesheet" href="assets/style.css?v=77">
 <script>
 /* Thema VOR dem ersten Anstrich setzen — sonst blitzt bei jedem Aufruf kurz das
    Standard-Thema auf, bevor die gespeicherte Wahl greift. Absichtlich winzig
@@ -382,6 +382,13 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
             aria-selected="false" aria-controls="feld-mail" data-art="mail" data-i18n-html="pr_10">
       E-Mails prüfen<span class="pr-was">Tarnung, Anhänge, KI-Befehle</span>
     </button>
+    <!-- ══ EINE DATEI PRÜFEN (2026-09-29) — Klaus: „Ist das nicht dann dem
+         Auslieferungsprüfer …?" Die Prüfung steht in assets/pruefer-anhang.js
+         und wird byte-1:1 in den Sende-Prüfer kopiert. -->
+    <button class="pr-reiter" type="button" role="tab" id="reiter-datei"
+            aria-selected="false" aria-controls="feld-datei" data-art="datei" data-i18n-html="pr_61">
+      Datei prüfen<span class="pr-was">Bild, Grafik, Office, Programm</span>
+    </button>
   </div>
 
   <section class="glass pr-eingang" id="feld-html" role="tabpanel"
@@ -607,10 +614,7 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
          „Virenprüfung" verspricht und in Wahrheit einen Dateinamen liest,
          wäre die schlimmste Sorte Knopf — es beruhigt. -->
     <p class="feldhinweis" style="margin:0 0 8px" data-mail-grenze="keine-virenpruefung" data-i18n-html="pr_45">
-    <strong>Das ist keine Virenprüfung.</strong> Es gibt hier keine Signaturen
-    und keinen Entpacker. Ein Anhang wird <em>nicht</em> geöffnet — geprüft
-    wird, was er zu <em>sein behauptet</em>: sein Name, seine Endung, sein
-    angegebener Typ. Und nichts von alldem verlässt dein Gerät.</p>
+    <strong>Das ist keine Virenprüfung.</strong> Es gibt hier keine Signaturen. Anhänge werden <em>gelesen</em>, nie ausgeführt oder angezeigt: ihr Dateikopf, ihre Metadaten, ihr Text — ob sie sind, was ihr Name behauptet. In Bildpunkten versteckte Botschaften, Text im Bild und den Seitentext eines PDFs liest er nicht. Und nichts von alldem verlässt dein Gerät.</p>
 
     <!-- ⚠ KLAUS' FRAGE VOM 2026-09-09: „Es muss aber sehr sicher sein und kein
          Schaden verursachen, wenn der Inhalt vom Auslieferungsprüfer gelesen
@@ -624,6 +628,17 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
     wird nachgeladen, kein Link wird angeklickt, kein Zählpixel meldet dem
     Absender etwas. Im Ergebnis stehen die Zeilen als Text da — nichts davon
     ist anklickbar. Gespeichert wird nichts.</p>
+  </section>
+
+  <section class="glass pr-eingang" id="feld-datei" role="tabpanel"
+           aria-labelledby="reiter-datei" style="padding:20px" hidden>
+    <div class="pr-ablage">
+      <p style="margin:0 0 12px" data-i18n="pr_62">Wähle eine Datei — ein Foto, eine Grafik, ein Word- oder Excel-Dokument, ein ZIP, einen Anhang, den du bekommen hast.</p>
+      <p style="margin:0">
+        <input type="file" id="einzelDatei" style="max-width:100%">
+      </p>
+    </div>
+    <p class="feldhinweis" style="margin:16px 0 0" data-datei-grenze="liest-nur" data-i18n-html="pr_63">Gelesen wird der <strong>Dateikopf</strong>, nicht der Name: Daten hinter dem Bildende, Metadaten, Skripte in Grafiken, Makros und Verweise in Office-Dateien, Programme. Text in der Datei geht durch denselben Prüfer wie eine Textdatei. Ausgeführt wird nichts; in Bildpunkten versteckte Botschaften und Text im Bild liest er <em>nicht</em>.</p>
   </section>
 
   <section class="pr-ergebnis" id="ergebnis" aria-live="polite"></section>
@@ -680,12 +695,7 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
       nichts. An acht echten Seiten gemessen waren 27 von 58 Meldungen genau
       solche Links — eine Warnung, die man nicht mehr los wird, ist keine
       Warnung.</li>
-      <li data-i18n-html="pr_56"><strong>Bei einer E-Mail prüft er keine Viren.</strong> Kein Anhang
-      wird geöffnet, kein Archiv entpackt, kein Link angeklickt. Er liest, was
-      dasteht: ob der sichtbare Text eines Links woandershin führt als der
-      Link selbst, ob ein Anhang eine Endung trägt, die etwas ausführt, ob
-      Text unsichtbar gemacht wurde und ob darin Anweisungen an ein
-      KI-Programm stehen.</li>
+      <li data-i18n-html="pr_56"><strong>Bei einer E-Mail prüft er keine Viren.</strong> Anhänge werden gelesen, nie ausgeführt; kein Link wird angeklickt. Er liest, was dasteht: ob der sichtbare Text eines Links woandershin führt als der Link selbst, ob ein Anhang etwas anderes ist, als sein Name sagt, ob Text unsichtbar gemacht wurde und ob darin Anweisungen an ein KI-Programm stehen.</li>
       <li data-i18n-html="pr_57"><strong>Eine Mail ist kein Beweis — in keine Richtung.</strong> Ein
       Fund heißt „hier hinsehen", nicht „gefälscht": ein Rundbrief über solche
       Angriffe enthält dieselben Sätze, und eine echte Mahnung nennt auch eine
@@ -719,20 +729,22 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
 
 </main>
 
-<script src="assets/i18n-pruefer.js?v=76"></script>
-<script src="assets/sprache.js?v=76"></script>
-<script src="assets/thema.js?v=76"></script>
-<script src="assets/pruefer.js?v=76"></script>
+<script src="assets/i18n-pruefer.js?v=77"></script>
+<script src="assets/sprache.js?v=77"></script>
+<script src="assets/thema.js?v=77"></script>
+<script src="assets/pruefer.js?v=77"></script>
 <!-- ⚠ REIHENFOLGE. `pruefer-formate.js` holt sich die Fülltext-Liste aus
      `pruefer.js` — eine zweite, eigene Liste wäre eine Drift-Quelle mit Ansage.
      Und `pruefer-ui.js` steht zuletzt, weil es alle drei bedient. -->
-<script src="assets/pruefer-formate.js?v=76"></script>
-<script src="assets/pruefer-browser.js?v=76"></script>
+<script src="assets/pruefer-formate.js?v=77"></script>
+<script src="assets/pruefer-browser.js?v=77"></script>
 <!-- ⚠ NACH `pruefer-formate.js`: der Mail-Eingang leiht sich dessen
      Schlüssel-Muster und die IBAN-Prüfung, statt zweite Listen zu führen.
      Fehlt die Datei, sagt er das im Ergebnis, statt still weniger zu prüfen. -->
-<script src="assets/pruefer-mail.js?v=76"></script>
-<script src="assets/pruefer-ui.js?v=76"></script>
+<script src="assets/pruefer-mail.js?v=77"></script>
+<!-- Anhänge und einzelne Dateien öffnen — hier gepflegt, byte-1:1 im Sende-Prüfer. -->
+<script src="assets/pruefer-anhang.js?v=77"></script>
+<script src="assets/pruefer-ui.js?v=77"></script>
 <!-- ══ SBKIM — der Auslieferungsprüfer als eigener Knoten im Mycel ═══════════
      Eigene Identität, eigene Spore, das schwebende Verbinden-Fenster, die
      Status-Pille von Modul 17 und das selbstausfüllende Siegel mit dem
@@ -748,9 +760,9 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
      `netz.js` steht ZUERST: die Relais-Liste des Prüfers liest die des
      Marktplatzes ab, statt sie abzuschreiben — zwei Listen derselben
      Poststellen laufen auseinander. -->
-<script src="assets/config/netz.js?v=76"></script>
-<script src="assets/config/pruefer-netz.js?v=76"></script>
-<script src="assets/pruefer-sbkim-init.js?v=76"></script>
+<script src="assets/config/netz.js?v=77"></script>
+<script src="assets/config/pruefer-netz.js?v=77"></script>
+<script src="assets/pruefer-sbkim-init.js?v=77"></script>
 <!-- ⚠ EIGENE APP SEIT 2026-09-26: im Marktplatz registrierte die STARTSEITE den
      Service-Worker, der Prüfer nicht. Als eigenständige PWA braucht er ihn selbst,
      sonst läuft er offline nicht. -->
