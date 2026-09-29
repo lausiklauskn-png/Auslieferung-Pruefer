@@ -503,13 +503,37 @@
           ? stellenZahl + (stellenZahl === 1 ? " Befund" : " Befunde")
           : gruppen.length + (gruppen.length === 1 ? " Sache" : " Sachen") +
             " an " + stellenZahl + " Stellen");
-    summe.appendChild(t("span", "pr-zahl " + art, text1));
+    /* ══ DIE ZAHLEN SIND WEGE, KEINE BILDER (Klaus 2026-09-29) ══════════════
+       „Die Befunde sollten als Links zur Verfügung stehen, sodass die gleich an
+       die Stelle springen." Jede Zahl ist ein echter Link auf die erste Karte
+       ihrer Art (`#pr-g-N`) — er geht auch ohne Skript, und der Zurück-Knopf
+       des Browsers führt wieder hinauf. Stehen mehrere Karten derselben Art da,
+       zeigt der Link nach jedem Tipp auf die NÄCHSTE, am Ende wieder auf die
+       erste. Die klebende Kopfleiste deckt das Ziel nicht zu:
+       `scroll-padding-top` (style.css, thema.js) gilt auch hier. */
+    var kartenJe = {};
+    gruppen.forEach(function (g, i) {
+      (kartenJe[g.kennung] = kartenJe[g.kennung] || []).push(i);
+    });
+    function sprung(klasse, text, ziele) {
+      if (!ziele || !ziele.length) return t("span", klasse, text);
+      var a = t("a", klasse + " pr-sprung", text);
+      var n = 0;
+      a.href = "#pr-g-" + ziele[0];
+      a.setAttribute("data-sprung", String(ziele.length));
+      a.addEventListener("click", function () {
+        /* Der Browser folgt dem jetzigen Ziel; danach zeigt der Link weiter. */
+        n = (n + 1) % ziele.length;
+        setTimeout(function () { a.href = "#pr-g-" + ziele[n]; }, 0);
+      });
+      return a;
+    }
+    summe.appendChild(sprung("pr-zahl " + art, text1,
+      gruppen.map(function (g, i) { return i; })));
 
-    var proKennung = {};
-    gruppen.forEach(function (g) { proKennung[g.kennung] = (proKennung[g.kennung] || 0) + 1; });
-    Object.keys(proKennung).sort().forEach(function (k) {
+    Object.keys(kartenJe).sort().forEach(function (k) {
       var etikett = (KLARTEXT[k] && KLARTEXT[k].kurz) ? KLARTEXT[k].kurz : k;
-      summe.appendChild(t("span", "pr-zahl", proKennung[k] + "× " + etikett));
+      summe.appendChild(sprung("pr-zahl", kartenJe[k].length + "× " + etikett, kartenJe[k]));
     });
     ergebnis.appendChild(summe);
 
@@ -531,9 +555,11 @@
     if (VERDECKT_AUF) bericht.push(verdecktHinweis());
     bericht.push("");
 
-    gruppen.forEach(function (g) {
+    gruppen.forEach(function (g, gi) {
       var k = KLARTEXT[g.kennung] || { kopf: g.kennung, rat: "" };
       var li = t("li", "pr-treffer pr-karte");
+      li.id = "pr-g-" + gi;
+      li.setAttribute("data-kennung", g.kennung);
 
       /* Der Klartext-Satz führt. */
       li.appendChild(t("p", "pr-kopf", k.kopf));

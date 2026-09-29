@@ -1577,6 +1577,60 @@ if (!browser) {
   ok(/in Bildpunkten versteckte Botschaften/i.test(nachher.text),
      "… und die Grenze (Bildpunkte, Text im Bild, PDF-Seitentext) ist benannt");
 
+  /* ══ DIE ZAHLEN SIND LINKS AUF IHRE KARTE (Klaus 2026-09-29) ═══════════════
+   * Gemessen wird, was ein Mensch erlebt: nach dem Tipp steht die Karte der
+   * Art sichtbar UNTER der klebenden Kopfleiste. Ein Wächter nur auf `href`
+   * sähe nicht, ob der Sprung ankommt. */
+  const chips = await seite.$$eval("#ergebnis .pr-summe .pr-zahl", (n) => n.map((x) => ({
+    tag: x.tagName, href: x.getAttribute("href"), n: Number(x.getAttribute("data-sprung")),
+    text: x.textContent,
+    zielDa: !!(x.getAttribute("href") && document.getElementById(x.getAttribute("href").slice(1))),
+    zielArt: (function () {
+      const z = x.getAttribute("href") && document.getElementById(x.getAttribute("href").slice(1));
+      return z ? z.getAttribute("data-kennung") : null;
+    })(),
+  })));
+  const jeArt = await seite.$$eval("#ergebnis .pr-karte", (n) => {
+    const m = {}; n.forEach((k) => { const a = k.getAttribute("data-kennung"); m[a] = (m[a] || 0) + 1; }); return m;
+  });
+  const karten = await seite.$$eval("#ergebnis .pr-karte", (n) => n.length);
+  ok(chips.length > 2 && chips.every((c) => c.tag === "A" && /^#pr-g-\d+$/.test(c.href || "") && c.zielDa),
+     `jede Zahl über den Befunden ist ein Link auf eine Karte, die es gibt (${chips.filter((c) => c.tag === "A").length} von ${chips.length})`);
+  ok(chips[0] && chips[0].n === karten,
+     `die Gesamtzahl führt durch ALLE Karten (${chips[0] && chips[0].n} von ${karten})`);
+  ok(chips.slice(1).every((c) => { const m = /^(\d+)×/.exec(c.text); return m && Number(m[1]) === c.n; }),
+     "… und jede „N×“-Zahl durch genau N Karten");
+  const fremd = chips.slice(1).filter((c) => !c.zielArt || jeArt[c.zielArt] !== c.n);
+  ok(chips.length > 2 && fremd.length === 0,
+     `… und jede „N×“-Zahl zeigt auf eine Karte IHRER Art (${fremd.map((c) => c.text).join(" · ") || "alle passen"})`);
+  const mehrfach = chips.findIndex((c, i) => i > 0 && c.n >= 2);
+  ok(mehrfach > 0, "die Test-Mail hat eine Art mit mehreren Karten (sonst misst der Weiter-Sprung nichts)");
+  if (mehrfach > 0) {
+    const sprungMessen = async () => {
+      await seite.$$eval("#ergebnis .pr-summe .pr-zahl", (n, i) => n[i].click(), mehrfach);
+      await seite.waitForFunction(() => {
+        const id = location.hash.slice(1), k = id && document.getElementById(id);
+        if (!k) return false;
+        const oben = document.querySelector("header").getBoundingClientRect().bottom;
+        const r = k.getBoundingClientRect();
+        return r.top >= oben - 1 && r.top <= oben + 40;
+      }, null, { timeout: 5000 }).catch(() => {});
+      return seite.evaluate(() => {
+        const id = location.hash.slice(1), k = id && document.getElementById(id);
+        const oben = document.querySelector("header").getBoundingClientRect().bottom;
+        return k ? { id, kennung: k.getAttribute("data-kennung"), top: Math.round(k.getBoundingClientRect().top),
+                     oben: Math.round(oben), ziel: k.matches(":target") } : { id, kennung: null };
+      });
+    };
+    const s1 = await sprungMessen();
+    ok(s1.kennung && s1.top >= s1.oben - 1 && s1.top <= s1.oben + 40 && s1.ziel,
+       `ein Tipp auf „${chips[mehrfach].text}“ springt zur Karte, sichtbar unter der Kopfleiste (Karte ${s1.top} px, Leiste bis ${s1.oben} px)`);
+    const s2 = await sprungMessen();
+    ok(s2.id && s2.id !== s1.id && s2.kennung === s1.kennung,
+       `… ein zweiter Tipp zur NÄCHSTEN Karte derselben Art (${s1.id} → ${s2.id})`);
+    await seite.evaluate(() => { history.replaceState(null, "", location.pathname + location.search); scrollTo(0, 0); });
+  }
+
   /* ══ EINE DATEI PRÜFEN (2026-09-29) ═══════════════════════════════════════
    * Drei Dateien, jede mit ihrer Gegenrichtung: ein sauberes PNG (kein Befund),
    * ein „Foto" mit angehängtem ZIP und falscher Endung, eine SVG mit Skript und
@@ -1699,7 +1753,11 @@ if (!browser) {
     skripte: e.querySelectorAll("script").length,
     rahmen: e.querySelectorAll("iframe,object,embed").length,
     bilder: e.querySelectorAll("img,link,source").length,
-    anker: e.querySelectorAll("a[href]").length,
+    /* ⚠ TAFEL-EVOLUTION (Klaus 2026-09-29): die Zahlen über den Befunden
+       sind Sprünge auf die eigenen Karten. Erlaubt ist GENAU diese Form —
+       ein Link, der irgendwo anders hinführt (auch `javascript:`), bleibt rot. */
+    anker: [...e.querySelectorAll("a[href]")].filter((a) =>
+      !/^#pr-g-\d+$/.test(a.getAttribute("href"))).length,
     ereignisse: [...e.querySelectorAll("*")].filter((n) =>
       [...n.attributes].some((a) => /^on/i.test(a.name))).length,
   }));
