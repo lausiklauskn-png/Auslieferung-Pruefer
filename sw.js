@@ -14,7 +14,7 @@
  * CACHE-BUST: bei jeder Änderung an einer Datei aus CORE die CACHE_VERSION
  * erhöhen — und die ?v=-Angaben in der Seite mitziehen.
  */
-var CACHE_VERSION = "auslieferung-pruefer-v3";
+var CACHE_VERSION = "auslieferung-pruefer-v4";
 
 var CORE = [
   "./",
@@ -23,21 +23,21 @@ var CORE = [
   "impressum.html",
   "datenschutz.html",
   "manifest.json",
-  "assets/style.css?v=78",
+  "assets/style.css?v=79",
   "assets/marke.svg",
-  "assets/thema.js?v=78",
-  "assets/sprache.js?v=78",
-  "assets/i18n-pruefer.js?v=78",
-  "assets/i18n-recht.js?v=78",
-  "assets/config/netz.js?v=78",
-  "assets/config/pruefer-netz.js?v=78",
-  "assets/pruefer.js?v=78",
-  "assets/pruefer-formate.js?v=78",
-  "assets/pruefer-anhang.js?v=78",
-  "assets/pruefer-browser.js?v=78",
-  "assets/pruefer-mail.js?v=78",
-  "assets/pruefer-ui.js?v=78",
-  "assets/pruefer-sbkim-init.js?v=78",
+  "assets/thema.js?v=79",
+  "assets/sprache.js?v=79",
+  "assets/i18n-pruefer.js?v=79",
+  "assets/i18n-recht.js?v=79",
+  "assets/config/netz.js?v=79",
+  "assets/config/pruefer-netz.js?v=79",
+  "assets/pruefer.js?v=79",
+  "assets/pruefer-formate.js?v=79",
+  "assets/pruefer-anhang.js?v=79",
+  "assets/pruefer-browser.js?v=79",
+  "assets/pruefer-mail.js?v=79",
+  "assets/pruefer-ui.js?v=79",
+  "assets/pruefer-sbkim-init.js?v=79",
   "assets/icon-192.png",
   "assets/icon-512.png"
 ];

@@ -1709,6 +1709,36 @@ probe "frühere Speicherstände im PDF werden nicht mehr gemeldet (Geschwärztes
       assets/pruefer-formate.js \
       's|if (eofs > 1) {|if (false) {|'
 
+# ⚠ PDFZK: Klaus' Word-PDF (2026-09-29): „þÿMicrosoft®", „MicrosoftÂ®" und
+# „2 davon NICHT lesbar". Jeder Fall stellt einen der Fehler von damals wieder her.
+probe "PDFZK: das stream in endstream zählt wieder als Strom (Scheinströme, NICHT lesbar)" \
+      assets/pruefer-formate.js \
+      's#sre = />>\\s\*stream(?:\\r\\n|\\n|\\r)/g#sre = /stream\\r?\\n?/g#'
+
+probe "PDFZK: der Filter wird wieder beim Nachbarn abgelesen" \
+      assets/pruefer-formate.js \
+      's#if (!filter || filter\[1\] !== "FlateDecode") continue;#if (!/\\/FlateDecode/.test(roh.slice(Math.max(0, sm.index - 400), sm.index))) continue;#'
+
+probe "PDFZK: UTF-16 mit FE FF wird wieder als Latin-1 gelesen (þÿ)" \
+      assets/pruefer-formate.js \
+      's#if (b.length >= 2 \&\& b\[0\] === 0xFE \&\& b\[1\] === 0xFF) {#if (false) {#'
+
+probe "PDFZK: XMP wird wieder als Latin-1 gelesen (Â®)" \
+      assets/pruefer-formate.js \
+      's#ohneEntities(utf8(bytesAus(#ohneEntities((#'
+
+probe "PDFZK: Hex-Zeichenketten werden nicht mehr gelesen" \
+      assets/pruefer-formate.js \
+      's#return h \&\& text\[rest + 1\] !== "<" ? hexZk(h\[1\]) : null;#return null;#'
+
+probe "PDFZK: Oktal-Escapes werden nicht mehr aufgelöst" \
+      assets/pruefer-formate.js \
+      's#aus += String.fromCharCode(parseInt(okt, 8) \& 255);#aus += okt;#'
+
+probe "PDFZK: ein kaputter Strom reisst den Lauf wieder mit (unbehandelte Ablehnung)" \
+      assets/pruefer-formate.js \
+      's#w.write(bytes).catch(function () {}); w.close().catch(function () {});#w.write(bytes); w.close();#'
+
 # ⚠ ANKER NACHGEZOGEN AM 2026-09-08. Er zeigte auf
 # `if (ziel.origin !== location.origin) {` — die Zeile heisst seit einem Umbau
 # `var fremd = ziel.origin !== location.origin;`. Der Fall aenderte also NICHTS
