@@ -207,6 +207,17 @@
            "eine Schwärzung: alles steht weiter darin und ist wieder " +
            "sichtbar zu machen. Abhilfe: das Dokument einmal neu ausgeben."
     },
+    /* Stufe 2 D (2026-09-29): der Seitentext wird mit pdf.js gelesen und mit
+       derselben Liste geprüft wie eine Mail. */
+    "PDF-KI-ANWEISUNG": {
+      kurz: "Anweisung an ein Programm",
+      kopf: "Auf einer Seite des PDFs steht eine Anweisung an einen KI-Assistenten.",
+      rat: "Lässt jemand das PDF von einer KI zusammenfassen, könnte sie den Satz " +
+           "als Auftrag verstehen — oft steht er weiß auf weiß oder winzig klein, " +
+           "damit ein Mensch ihn übersieht. ⚠ Ein Treffer ist kein Beweis: ein " +
+           "Text ÜBER solche Angriffe enthält dieselben Sätze. Abhilfe: die Seite " +
+           "selbst ansehen und entscheiden."
+    },
 
     /* ── E-Mail ──────────────────────────────────────────────────────────
        Wie oben: die Sätze stehen HIER und nicht in `pruefer-mail.js`. Dort
@@ -1118,13 +1129,27 @@
     r.befunde.forEach(function (b) {
       aus.push({ stelle: praefix + name, kennung: b.kennung, satz: b.satz });
     });
-    if (r.text && window.PrueferFormate) {
+    if (r.seiten && window.PrueferFormate) {
+      /* PDF: je Seite, damit ein Fund seine Seite nennt statt einer Zeile
+         über alle Seiten hinweg. */
+      r.seiten.forEach(function (sx) {
+        window.PrueferFormate.pruefeText(sx.text, name, erlaubtListe()).forEach(function (x) {
+          aus.push({ stelle: praefix + name + ", Seite " + sx.seite + (x.zeile ? ", Zeile " + x.zeile : ""),
+            kennung: x.kennung, satz: x.satz });
+        });
+      });
+    } else if (r.text && window.PrueferFormate) {
       window.PrueferFormate.pruefeText(r.text, name, erlaubtListe()).forEach(function (x) {
         aus.push({ stelle: praefix + name + (x.zeile ? ", Textzeile " + x.zeile : ""),
           kennung: x.kennung, satz: x.satz });
       });
     }
     return aus;
+  }
+  /* pdf.js liegt neben Workflow PDF auf derselben Adresse (github.io) und wird
+     erst geholt, wenn ein PDF kommt — nicht im Installations-Vorrat. */
+  if (window.PrueferAnhang && window.PrueferAnhang.pfade) {
+    try { window.PrueferAnhang.pfade({ pdfjs: new URL("../Workflow-PDF/vendor/pdfjs/", location.href).href }); } catch (_e) {}
   }
   var einzelDatei = $("einzelDatei");
   if (einzelDatei) einzelDatei.addEventListener("change", function () {
@@ -1386,7 +1411,7 @@
       });
     })).then(function () {
       if (mein !== anhangLauf) return;          // inzwischen wurde etwas anderes geprüft
-      hinweise.push("In Bildpunkten versteckte Botschaften, Text im Bild und der Seitentext eines PDFs werden nicht gelesen.");
+      hinweise.push("In Bildpunkten versteckte Botschaften und Text im Bild werden nicht gelesen.");
       var o = {}; for (var k in opt) o[k] = opt[k];
       /* pruefer-mail.js sagt „Kein Anhang wurde geöffnet" — das stimmt nach
          diesem Lauf nicht mehr. Ersetzt wird der Satz, nicht verschwiegen. */
