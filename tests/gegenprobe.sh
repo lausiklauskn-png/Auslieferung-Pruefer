@@ -1711,9 +1711,11 @@ probe "frühere Speicherstände im PDF werden nicht mehr gemeldet (Geschwärztes
 
 # ⚠ PDFZK: Klaus' Word-PDF (2026-09-29): „þÿMicrosoft®", „MicrosoftÂ®" und
 # „2 davon NICHT lesbar". Jeder Fall stellt einen der Fehler von damals wieder her.
+# ⚠ Der erste Fall nimmt ZWEI Riegel: `>>` vor stream und das Weitersuchen hinter
+# endstream decken einander. Nur einer weg war BLIND (gemessen 2026-09-29).
 probe "PDFZK: das stream in endstream zählt wieder als Strom (Scheinströme, NICHT lesbar)" \
       assets/pruefer-formate.js \
-      's#sre = />>\\s\*stream(?:\\r\\n|\\n|\\r)/g#sre = /stream\\r?\\n?/g#'
+      's#sre = />>\\s\*stream(?:\\r\\n|\\n|\\r)/g#sre = /stream\\r?\\n?/g#; s#sre.lastIndex = ende + 9;#sre.lastIndex = ende;#'
 
 probe "PDFZK: der Filter wird wieder beim Nachbarn abgelesen" \
       assets/pruefer-formate.js \
