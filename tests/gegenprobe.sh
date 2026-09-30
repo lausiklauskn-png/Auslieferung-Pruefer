@@ -3871,7 +3871,7 @@ probe "VORLAGEN: eine Textdatei wird wieder nicht als Text geprüft" \
       's|else if (art === "text") text = |else if (false) text = |'
 probe "VORLAGEN: ein Namensraum (xmlns) gilt wieder als fremde Adresse" \
       assets/pruefer-formate.js \
-      's|if (NAMENSRAUM_WIRTE\[wirt\] \|\| VOR_XMLNS.test(zeile.slice(0, am.index))) continue;|if (false) continue;|'
+      's|if (NAMENSRAUM_WIRTE\[wirt\] .. VOR_XMLNS.test(zeile.slice(0, am.index))) continue;|if (false) continue;|'
 probe "VORLAGEN: ein JPEG im PDF-Eingang ist wieder ein sauberes PDF" \
       assets/pruefer-ui.js \
       's|if (String.fromCharCode.apply(null, kopf) !== "%PDF-") {|if (false) {|'
@@ -3888,7 +3888,7 @@ probe "ALLEIN: pdf.js im eigenen Ordner ist verändert" \
       '1s|^|/* x */|'
 probe "ALLEIN: ein PDF im HTML-Eingang landet wieder als HTML im Quelltext" \
       assets/pruefer-ui.js \
-      's|if (pdf \|\| binaer) {|if (false) {|'
+      's|if (pdf .. binaer) {|if (false) {|'
 
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
