@@ -3967,6 +3967,29 @@ probe "VERSTECKT: der PDF-Eingang lässt den Befund wieder weg" \
       assets/pruefer-ui.js \
       's# .. b.kennung === "PDF-VERSTECKTER-TEXT"; })#; })#'
 
+# ══ HTMLANH: HTML-Anhänge (2026-09-30) ══
+probe "HTMLANH: eine HTML-Datei wird nicht mehr als HTML-Seite erkannt" \
+      assets/pruefer-anhang.js \
+      's|test(anf)) return "html";|test(anf)) return "unbekannt";|'
+probe "HTMLANH: der HTML-Prüfer wird für den Anhang nicht gefragt" \
+      assets/pruefer-anhang.js \
+      's|else if (art === "html") text = htmlPruefen(b, melde, hinweise, stand);|else if (art === "html") text = "";|'
+probe "HTMLANH: fremde Adressen werden aus dem Ergebnis nicht übernommen" \
+      assets/pruefer-anhang.js \
+      's|var HTML_UEBERNOMMEN = \["FREMDE-ADRESSE"\];|var HTML_UEBERNOMMEN = [];|'
+probe "HTMLANH: jede Art des Webseiten-Prüfers wird übernommen (Fehlalarm bei harmlosen Seiten)" \
+      assets/pruefer-anhang.js \
+      's|if (HTML_UEBERNOMMEN.indexOf(x.kennung) >= 0) melde|melde|'
+probe "HTMLANH: fehlt pruefer.js, heißt die Seite still sauber" \
+      assets/pruefer-anhang.js \
+      's|hinweise.push("Der HTML-Prüfer (assets/pruefer.js) ist nicht geladen|void ("Der HTML-Prüfer (assets/pruefer.js) ist nicht geladen|'
+probe "HTMLANH: der Quelltext statt des sichtbaren Textes geht weiter (Linkziele als Adresse)" \
+      assets/pruefer-anhang.js \
+      's|return entitaeten(sichtbar)|return t; entitaeten(sichtbar)|'
+probe "HTMLANH: fehlt pruefer.js, steht oben wieder „Text im Bild ungeprüft“" \
+      assets/pruefer-ui.js \
+      's|ungeprueftSatz: r.art === "html" ? "HTML-Seite ungeprüft" : "",|ungeprueftSatz: "",|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1

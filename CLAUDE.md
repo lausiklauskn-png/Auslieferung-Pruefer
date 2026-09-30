@@ -416,3 +416,27 @@ seiner Stelle ohnehin Schrift.
   (0D, 3E, sauberes PDF, hängende Erkennung, 12 Seiten) · Gegenprobe
   `NUR_FALL="VERSTECKT:"` (8 Fälle). Cache v19, alle `?v=92`.
 - ⚠ Nicht gemessen: das Tablet (Zeit, Speicher), echte PDFs von Klaus.
+
+## 🌐 HTML-Anhänge (2026-09-30)
+
+Eine Datei, die mit `<!DOCTYPE html` oder `<html` beginnt (Kommentare davor erlaubt),
+heißt **„HTML-Seite"** (`artVon`, geprüft **vor** der Text-Erkennung) und geht durch den
+vorhandenen HTML-Prüfer `assets/pruefer.js` — nicht neu erfunden. Gilt für den Eingang
+„Foto · Datei prüfen" und für Mail-Anhänge.
+
+- Übernommen wird **nur FREMDE-ADRESSE** (`HTML_UEBERNOMMEN`: Skript, Zählpixel, Formular an
+  einen fremden Rechner), jede mit „(Zeile n)". Alles andere des Webseiten-Prüfers (etwa
+  „<img> ohne alt") ist für einen Anhang ein Fehlalarm.
+- Weiter an die Textsuche geht nur der **sichtbare** Text (ohne Kommentare, Skripte, Stile,
+  Tags, Entitäten aufgelöst). Mit dem Quelltext meldete die Oberfläche die Linkziele einer
+  harmlosen Seite als fremde Adressen — so im Browser gefunden, nicht durch Nachdenken.
+- Fehlt `pruefer.js`: Hinweis „nicht geladen … ungeprüft, nicht sauber", und ohne Fund steht
+  oben **„HTML-Seite ungeprüft"** (`ungeprueftSatz`), nicht „Text im Bild ungeprüft".
+- Nie ausgeführt oder angezeigt; die Probe setzt ein Skript in die Datei und misst, dass es
+  nicht lief. Eine `.txt`, die `<html>` nur erwähnt, bleibt Text.
+- **Byte-1:1 in den Sende-Prüfer** (`pruefer.js` dort gepinnt als `HTML_SHA`).
+
+Gemessen (2026-09-30): `smoke_anhang` **99 grün** · `smoke_pruefer` **324 grün** ·
+Gegenprobe `NUR_FALL="HTMLANH:"` in einer Kopie **7 schlagen an · 0 blind · 0 tote Anker**,
+jeder Fall von Hand nachgestellt, jede rote Zeile mit ihrem Namen. Cache v20, `?v=93`.
+⚠ Nicht gemessen: echte HTML-Anhänge aus Klaus' Postfach, das Tablet.

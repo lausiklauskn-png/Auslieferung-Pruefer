@@ -57,6 +57,34 @@ for (const packen of [true, false]) {
 }
 r = await p("ok.docx", M.docxSauber());
 ok("Word ohne Makro und Verweis: kein Befund", r.befunde.length === 0 && /Angebot/.test(r.text || ""), JSON.stringify(r));
+/* HTML-Anhang (2026-09-30): erkannt am Dateikopf, geprüft vom vorhandenen HTML-Prüfer. */
+r = await p("rechnung.html", Buffer.from(M.HTML_BOESE));
+ok("HTML: als HTML-Seite erkannt (am Anfang <!DOCTYPE html)", r.art === "html" && r.artName === "HTML-Seite", r.art + " " + r.artName);
+ok("HTML: ein Skript von einem fremden Rechner wird gemeldet (FREMDE-ADRESSE, abgreifer.example)",
+   r.befunde.some((x) => x.kennung === "FREMDE-ADRESSE" && /<script src>.*abgreifer\.example/.test(x.satz)), JSON.stringify(r.befunde));
+ok("HTML: ein Zählpixel wird gemeldet (FREMDE-ADRESSE, zaehler.example)",
+   r.befunde.some((x) => x.kennung === "FREMDE-ADRESSE" && /<img src>.*zaehler\.example/.test(x.satz)), JSON.stringify(r.befunde));
+ok("HTML: ein Formular an einen fremden Rechner wird gemeldet", r.befunde.some((x) => /<form action>/.test(x.satz)), JSON.stringify(r.befunde));
+ok("HTML: jede Meldung nennt ihre Zeile", r.befunde.length > 0 && r.befunde.every((x) => /\(Zeile \d+\)$/.test(x.satz)), JSON.stringify(r.befunde));
+ok("HTML: der sichtbare Text geht an die Textprüfung weiter, das Markup nicht", /Bitte melden Sie sich an/.test(r.text || "") && !/abgreifer|<script/.test(r.text || ""), r.text);
+r = await p("einladung.html", Buffer.from(M.HTML_SAUBER));
+ok("HTML ohne fremde Abrufe: kein Befund (ein <a href> ist kein Abruf, ein lokales Bild ohne alt auch nicht)", r.art === "html" && r.befunde.length === 0, JSON.stringify(r.befunde));
+ok("… und die Seite gilt nicht als ungeprüft", !r.bildUngeprueft);
+ok("… und ein Linkziel steht nicht im weitergegebenen Text (sonst hielte die Textprüfung es für eine Adresse)", /herzlich ein/.test(r.text || "") && !/verein\.example/.test(r.text || ""), r.text);
+r = await p("zettel.txt", Buffer.from("Notiz: im Mail stand <html> und <!DOCTYPE html> mitten im Satz.\n"));
+ok("eine .txt, die <html> nur erwähnt, bleibt eine Textdatei", r.art === "text", r.art);
+r = await p("seite.txt", Buffer.from(M.HTML_BOESE));
+ok("… eine HTML-Seite mit Endung .txt wird am Inhalt erkannt und geprüft", r.art === "html" && r.befunde.some((x) => x.kennung === "FREMDE-ADRESSE"), r.art);
+r = await p("kommentar.html", Buffer.from("<!-- gespeichert -->\n" + M.HTML_BOESE.replace("<!DOCTYPE html>\n", "")));
+ok("… auch mit Kommentar davor und ohne DOCTYPE (<html …>)", r.art === "html", r.art);
+{
+  const H = globalThis.Auslieferungspruefer; delete globalThis.Auslieferungspruefer;
+  r = await p("rechnung.html", Buffer.from(M.HTML_BOESE));
+  globalThis.Auslieferungspruefer = H;
+  ok("HTML ohne pruefer.js: „ungeprüft, nicht sauber“, nie kein Befund",
+     r.bildUngeprueft === true && r.hinweise.some((h) => /HTML-Prüfer.*nicht geladen.*ungeprüft/.test(h)), JSON.stringify(r.hinweise));
+}
+
 r = await p("r.pdf", M.PDF_BOESE);
 ok("PDF: JavaScript und Aktion beim Öffnen werden gemeldet (über pruefer-formate.js)", kennungen(r).includes("PDF-AKTION"), JSON.stringify(r.befunde));
 ok("PDF ohne pdf.js: der Seitentext heißt „NICHT gelesen … ungeprüft“, nie sauber", r.hinweise.some((h) => /Seitentext des PDFs wurde NICHT gelesen.*ungeprüft/.test(h)) && r.text === null, JSON.stringify(r.hinweise));
