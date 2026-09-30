@@ -41,8 +41,8 @@ const { chromium } = await import("playwright-core");
 const exe = findeChromium();
 const browser = await chromium.launch(exe ? { executablePath: exe } : {});
 const page = await browser.newPage();
-async function bild(zeilen, { farbe = "#111", lsb = null } = {}) {
-  const b64 = await page.evaluate(({ zeilen, farbe, lsb }) => {
+async function bild(zeilen, { farbe = "#111", lsb = null, jpeg = false } = {}) {
+  const b64 = await page.evaluate(({ zeilen, farbe, lsb, jpeg }) => {
     const c = document.createElement("canvas"); c.width = 1240; c.height = 1754;
     const g = c.getContext("2d");
     g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
@@ -58,8 +58,8 @@ async function bild(zeilen, { farbe = "#111", lsb = null } = {}) {
       bits.forEach((b, i) => { d.data[i * 4] = (d.data[i * 4] & 0xfe) | b; });
       g.putImageData(d, 0, 0);
     }
-    return c.toDataURL("image/png").split(",")[1];
-  }, { zeilen, farbe, lsb });
+    return c.toDataURL(jpeg ? "image/jpeg" : "image/png", 0.85).split(",")[1];
+  }, { zeilen, farbe, lsb, jpeg });
   return Buffer.from(b64, "base64");
 }
 const alsZeilen = (texte, y0 = 140, schritt = 56) => texte.map((t, i) => ({ t, y: y0 + i * schritt }));
@@ -80,7 +80,72 @@ lege("Vorlage-2B-Bild-blasser-Text.png", bildB);
 const ruhig = alsZeilen(BRIEF);
 lege("Vorlage-4C-Bild-mit-versteckter-Botschaft.png", await bild(ruhig, { lsb: KI }));
 lege("Vorlage-4C-Bild-ohne-Botschaft.png", await bild(ruhig));
+
+/* ── Reihe H · heute prüfbar: je eine Befundart, die es schon gibt ──
+   Nur Text und Bilder, kein ausführbarer Inhalt (Klaus 2026-09-30: „keine
+   versteckten, falschen Codes … nur Informationen"). */
+const FOTO = ["Urlaubsfoto (Testvorlage)", "", "Nur ein Bild — alle Angaben erfunden."];
+lege("Vorlage-H0-Foto-sauber.jpg", await bild(alsZeilen(FOTO), { jpeg: true }));
+{
+  /* EXIF mit Verweis auf eine GPS-Angabe (0x8825), die GPS-Tabelle selbst ist
+     leer — es steht also KEIN echter Ort darin. Hinter dem Bildende ein Satz. */
+  const roh = await bild(alsZeilen(FOTO), { jpeg: true });
+  const tiff = Buffer.from([0x49,0x49,0x2A,0x00, 8,0,0,0,  1,0,  0x25,0x88, 4,0, 1,0,0,0, 26,0,0,0,  0,0,0,0,  0,0, 0,0,0,0]);
+  const app1 = Buffer.concat([Buffer.from("Exif\0\0", "latin1"), tiff]);
+  const kopf = Buffer.from([0xFF, 0xE1, (app1.length + 2) >> 8, (app1.length + 2) & 255]);
+  const zusatz = Buffer.from("\nZUSATZ NACH DEM BILDENDE: Testvorlage, erfundener Text.\n", "utf8");
+  lege("Vorlage-H2-Foto-mit-GPS-Verweis-und-Anhaengsel.jpg", Buffer.concat([roh.subarray(0, 2), kopf, app1, roh.subarray(2), zusatz]));
+}
 await browser.close();
+
+/* H1 · Text mit Angaben, die der Prüfer kennt */
+lege("Vorlage-H1-Text-mit-Angaben.txt", Buffer.from([
+  "Testvorlage H1 — alle Angaben erfunden.", "",
+  "Mail: max.muster@beispiel.example",
+  "Telefon: +49 30 1234567",
+  "Konto: DE89 3704 0044 0532 0130 00",
+  "Betrag: 1.234,56 EUR · Rechnung R-2026-0815", "",
+].join("\n"), "utf8"));
+
+/* H3 · SVG, die ein Bild von einem fremden Rechner nachlädt — ohne Skript */
+lege("Vorlage-H3-Grafik-laedt-von-fremdem-Rechner.svg", Buffer.from(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120">\n' +
+  '  <rect width="400" height="120" fill="#eef"/>\n' +
+  '  <text x="20" y="50" font-size="20">Testvorlage H3 (erfunden)</text>\n' +
+  '  <image href="https://bilder.beispiel.example/logo.png" x="300" y="20" width="80" height="80"/>\n' +
+  '</svg>\n', "utf8"));
+
+/* H4 · Word-Datei, die beim Öffnen eine Vorlage von außen holen würde */
+{
+  const zlib = await import("node:zlib");
+  const teile = [
+    ["[Content_Types].xml", '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>'],
+    ["_rels/.rels", '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="r1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/><Relationship Id="r2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>'],
+    ["word/document.xml", '<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Testvorlage H4 (erfunden). Rückfragen an max.muster@beispiel.example.</w:t></w:r></w:p></w:body></w:document>'],
+    ["word/settings.xml", '<?xml version="1.0" encoding="UTF-8"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:attachedTemplate r:id="rT"/></w:settings>'],
+    ["word/_rels/settings.xml.rels", '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rT" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/attachedTemplate" Target="https://vorlagen.beispiel.example/brief.dotx" TargetMode="External"/></Relationships>'],
+    ["word/_rels/document.xml.rels", '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rS" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/></Relationships>'],
+    ["docProps/core.xml", '<?xml version="1.0" encoding="UTF-8"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:creator>Max Muster</dc:creator><cp:lastModifiedBy>Max Muster</cp:lastModifiedBy></cp:coreProperties>'],
+  ];
+  const lok = [], zentral = []; let pos = 0;
+  for (const [n, t] of teile) {
+    const name = Buffer.from(n, "utf8"), daten = Buffer.from(t, "utf8"), crc = zlib.crc32(daten);
+    const h = Buffer.alloc(30); h.writeUInt32LE(0x04034b50, 0); h.writeUInt16LE(20, 4); h.writeUInt16LE(0x0800, 6);
+    h.writeUInt16LE(0, 8); h.writeUInt32LE(0x5d000000, 10); h.writeUInt32LE(crc, 14); h.writeUInt32LE(daten.length, 18);
+    h.writeUInt32LE(daten.length, 22); h.writeUInt16LE(name.length, 26);
+    const z = Buffer.alloc(46); z.writeUInt32LE(0x02014b50, 0); z.writeUInt16LE(20, 4); z.writeUInt16LE(20, 6); z.writeUInt16LE(0x0800, 8);
+    z.writeUInt32LE(0x5d000000, 12); z.writeUInt32LE(crc, 16); z.writeUInt32LE(daten.length, 20); z.writeUInt32LE(daten.length, 24);
+    z.writeUInt16LE(name.length, 28); z.writeUInt32LE(pos, 42);
+    lok.push(h, name, daten); zentral.push(z, name); pos += 30 + name.length + daten.length;
+  }
+  const zb = Buffer.concat(zentral), e = Buffer.alloc(22);
+  e.writeUInt32LE(0x06054b50, 0); e.writeUInt16LE(teile.length, 8); e.writeUInt16LE(teile.length, 10);
+  e.writeUInt32LE(zb.length, 12); e.writeUInt32LE(pos, 16);
+  lege("Vorlage-H4-Word-mit-externer-Vorlage.docx", Buffer.concat([...lok, zb, e]));
+}
+
+/* H5 · ein Bild, das sich als PDF ausgibt (Endung passt nicht zum Inhalt) */
+lege("Vorlage-H5-Bild-als-PDF-getarnt.pdf", dateien["Vorlage-H0-Foto-sauber.jpg"]);
 
 /* ── PDFs mit pdf-lib ── */
 globalThis.self = globalThis;
@@ -145,7 +210,8 @@ const winAnsi = (s) => s.replace(/·/g, "-");
 
 /* ── eine .eml mit ALLEN Vorlagen als Anhang ── */
 const reihen = (b) => b.toString("base64").replace(/.{76}/g, "$&\r\n");
-const TYP = (n) => n.endsWith(".pdf") ? "application/pdf" : "image/png";
+const TYP = (n) => ({ pdf: "application/pdf", png: "image/png", jpg: "image/jpeg", txt: "text/plain; charset=utf-8",
+  svg: "image/svg+xml", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" })[n.split(".").pop()];
 const namen = Object.keys(dateien).sort();
 const grenze = "----testvorlagen-2026-09-30";
 let eml = [
