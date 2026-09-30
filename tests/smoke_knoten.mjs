@@ -337,5 +337,34 @@ console.log('\n── Was ohne JavaScript dasteht ──');
      !!grenzKey && /not a virus scan/i.test(flach(d.en && d.en[grenzKey])));
 }
 
+/* ══ EIGENSTÄNDIG: pdf.js liegt im eigenen Ordner (Klaus 2026-09-30) ═════════
+   „Der Prüfer soll gar nicht mehr von Workflow PDF abhängen." Vorher holte die
+   Seite pdf.js von ../Workflow-PDF/vendor/pdfjs/ — wurde das Nachbar-Depot
+   umbenannt, war der Seitentext jedes PDFs ungeprüft. */
+{
+  const PDFJS_PINS = {
+    'vendor/pdfjs/pdf.min.js':        '978fd1b2d134a98e98966186a97777bebf87d8e770dadab1ece3687e21a5aa6c',
+    'vendor/pdfjs/pdf.worker.min.js': '38cde5311957b86bc3669f93e7d2566de333a90055ed6635bef60d9bf00e96f2',
+  };
+  for (const [p, h] of Object.entries(PDFJS_PINS)) {
+    ok(`${p} liegt im eigenen Ordner, unverändert (pdf.js 3.11.174, Apache-2.0)`, da(p) && sha(p) === h, da(p) ? sha(p) : 'fehlt');
+  }
+  const ui = lies('assets/pruefer-ui.js');
+  ok('die Seite holt pdf.js aus dem EIGENEN Ordner (pfade → vendor/pdfjs/)',
+     /pfade\(\{\s*pdfjs:\s*new URL\("vendor\/pdfjs\/", location\.href\)/.test(ui));
+  /* Gesucht wird in allem, was ausgeliefert wird — Kommentare ausgenommen,
+     sonst verböte der Wächter den Satz, der erklärt, woher es früher kam. */
+  const ohneKommentar = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/<!--[\s\S]*?-->/g, '');
+  const ausgeliefert = ['auslieferungspruefer.html', 'index.html', 'sw.js',
+    ...readdirSync(new URL('assets/', ROOT)).filter(f => f.endsWith('.js')).map(f => 'assets/' + f)];
+  const fremd = ausgeliefert.filter(f => /Workflow-PDF/.test(ohneKommentar(lies(f))));
+  ok(`keine ausgelieferte Datei holt etwas aus ../Workflow-PDF/ (${ausgeliefert.length} Dateien geprüft)`,
+     fremd.length === 0 && ausgeliefert.length > 10, fremd.join(', '));
+  ok('pdf-lib (nur zum Bauen der Proben) liegt in tests/vendor/, nicht auf der Seite',
+     da('tests/vendor/pdf-lib.min.js') && !da('vendor/pdf-lib.min.js'));
+  ok('die Herkunft der mitgelieferten Bibliotheken steht in THIRD_PARTY.md',
+     da('THIRD_PARTY.md') && /3\.11\.174/.test(lies('THIRD_PARTY.md')) && /Apache/.test(lies('THIRD_PARTY.md')));
+}
+
 console.log(`\n${pass} grün · ${fail} ROT`);
 process.exitCode = fail ? 1 : 0;

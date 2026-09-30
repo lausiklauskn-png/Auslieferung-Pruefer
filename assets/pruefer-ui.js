@@ -1170,10 +1170,14 @@
     }
     return aus;
   }
-  /* pdf.js liegt neben Workflow PDF auf derselben Adresse (github.io) und wird
-     erst geholt, wenn ein PDF kommt — nicht im Installations-Vorrat. */
+  /* pdf.js liegt seit 2026-09-30 IM EIGENEN ORDNER vendor/pdfjs/ (Klaus: „Der
+     Prüfer soll gar nicht mehr von Workflow PDF abhängen"). Vorher kam es von
+     ../Workflow-PDF/ — fiel das weg oder wurde umbenannt, war der Seitentext
+     ungeprüft (das stand dann auch da). Es wird
+     erst geholt, wenn ein PDF kommt, und liegt nicht im Installations-Vorrat
+     (1,5 MB); der fetch-Zweig von sw.js legt es beim ersten Abruf ab. */
   if (window.PrueferAnhang && window.PrueferAnhang.pfade) {
-    try { window.PrueferAnhang.pfade({ pdfjs: new URL("../Workflow-PDF/vendor/pdfjs/", location.href).href }); } catch (_e) {}
+    try { window.PrueferAnhang.pfade({ pdfjs: new URL("vendor/pdfjs/", location.href).href }); } catch (_e) {}
   }
   var einzelDatei = $("einzelDatei");
   if (einzelDatei) einzelDatei.addEventListener("change", function () {
