@@ -301,3 +301,33 @@ die Sätze, steht jeder an seiner Stelle (`.pr-stellensatz`), im Fach und im
 Bericht stehen alle. „N×" nennt die STELLEN der Art, der Link geht durch ihre
 Karten (Tafel-Evolution: vorher die Karten). Gegenprobe `NUR_FALL="GRUPPE:"`
 (3 Fälle). Cache v13, `?v=88`.
+
+## 🔤 Stufe 2 A · Text im Bild lesen (2026-09-30)
+
+Bilder (PNG, JPEG, WebP, GIF) und gescannte PDF-Seiten gehen durch die
+Texterkennung **auf dem Gerät**: Tesseract.js 7.0.0 (deu/eng/rus) liegt
+**byte-gleich aus Workflow-PDF** unter `vendor/tesseract/` (21 MB, SHA-gepinnt in
+`smoke_knoten`, Lizenzen in THIRD_PARTY.md), **nicht** im Installations-Vorrat —
+der Worker legt es beim ersten Bild ab. Die App setzt den Pfad
+(`pfade({tesseract})` in `pruefer-ui.js`).
+
+| | |
+|---|---|
+| Befund | **`BILD-KI-ANWEISUNG`** („Anweisung im Bild"), dieselbe Liste wie im Mail-Eingang; Stelle „Bildtext Zeile n" bzw. „Seite n, Bildtext Zeile n" |
+| Angaben | der Bildtext geht durch `pruefeText` (Mail, IBAN, Schlüssel …) |
+| nichts gelesen | **„Text im Bild ungeprüft"** (gestrichelt, Warnfarbe) — nie „kein Befund". Ein Bild ohne Text sieht genauso aus |
+| Grenzen (gewählt, nicht gemessen) | `OCR_FRIST` 90 s je Bild · `OCR_SEITEN_MAX` 10 Scan-Seiten · Zeilen unter `OCR_SICHER` 60 % verworfen · lange Kante ≤ 3000 px |
+| `file://` | die Texterkennung läuft nicht (der Worker hängt) → sofort „ungeprüft", mit Grund |
+
+**Gemessen im Browser (2026-09-30, lokal):** 1A-Bild 3,3 s (erstes, mit Laden) →
+Anweisung Zeile 9 + Mail/IBAN · 1A-Scan-PDF 1,9 s → Seite 1 Zeile 9 · H0 0,5 s,
+Text gelesen, kein Befund (die Gegenrichtung) · 4C mit und ohne Botschaft gleich
+(Steganografie ist Schritt C) · **2B: die blasse Zeile wird NICHT gefunden** — das
+ist Schritt B. `smoke_pruefer` 291 grün · `smoke_anhang` 64 · `smoke_knoten` 153.
+
+⚠ **Tafel-Evolution:** der Wächter „sauberes PNG → kein Befund" ist ersetzt
+durch „→ Text im Bild ungeprüft" (das Bild trägt keinen lesbaren Text).
+
+⚠ **Nicht gemessen:** Zeit und Speicher am Tablet; echte Fotos von Klaus.
+
+Gegenprobe `NUR_FALL="OCR:"` (7 Fälle), gefahren in einer Kopie (Stand des ersten Commits): **7 schlagen an · 0 blind · 0 tote Anker**. Die roten Zeilen sind nicht einzeln von Hand gelesen.

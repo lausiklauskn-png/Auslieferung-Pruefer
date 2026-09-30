@@ -3895,6 +3895,29 @@ probe "ALLEIN: ein PDF im HTML-Eingang landet wieder als HTML im Quelltext" \
       assets/pruefer-ui.js \
       's|if (pdf .. binaer) {|if (false) {|'
 
+# ══ OCR: Text im Bild lesen (Stufe 2 A, 2026-09-30) ══
+probe "OCR: ein Bild geht wieder nicht durch die Texterkennung" \
+      assets/pruefer-anhang.js \
+      's|if (/^(png.jpeg.webp.gif)$/.test(art)) weiter = weiter.then|if (false) weiter = weiter.then|'
+probe "OCR: eine Anweisung im Bild wird nicht mehr gemeldet" \
+      assets/pruefer-anhang.js \
+      's|melde("BILD-KI-ANWEISUNG", st.satz|void ("BILD-KI-ANWEISUNG", st.satz|'
+probe "OCR: nichts gelesen heisst wieder sauber statt ungeprüft" \
+      assets/pruefer-anhang.js \
+      's|      if (!r.zeilen.length) {$|      if (!r.zeilen.length) { return null;|'
+probe "OCR: unsichere Zeilen zählen wieder mit" \
+      assets/pruefer-anhang.js \
+      's|if (!(li.confidence >= OCR_SICHER)) { unsicher++; return; }|if (false) { unsicher++; return; }|'
+probe "OCR: gescannte PDF-Seiten werden nicht mehr gelesen" \
+      assets/pruefer-anhang.js \
+      's|return scanSeitenLesen(r.doc, leer, melde, hinweise, stand).then|return Promise.resolve({ seiten: [] }).then|'
+probe "OCR: die Anzeige sagt wieder kein Befund statt ungeprüft" \
+      assets/pruefer-ui.js \
+      's|var ungeprueft = !treffer.length .. !opt.erwartet .. !!opt.ungeprueft;|var ungeprueft = false;|'
+probe "OCR: die Stelle nennt nicht mehr Bildtext" \
+      assets/pruefer-ui.js \
+      's|(r.textQuelle === "bild" ? ", Bildtext Zeile " : ", Textzeile ")|", Textzeile "|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1

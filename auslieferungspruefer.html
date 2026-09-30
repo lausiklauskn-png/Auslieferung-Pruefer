@@ -31,10 +31,10 @@
      Goldrand), aber Paket statt Brief und Waldgrün statt Navy. Als Datei aus
      dem eigenen Ordner, nie von einer fremden Adresse. Vorher (2026-08-23 bis
      2026-09-30): ein Pfosten mit zwei Pfeilen, inline als SVG. -->
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=88">
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=88">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=88">
-<link rel="stylesheet" href="assets/style.css?v=88">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=89">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=89">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=89">
+<link rel="stylesheet" href="assets/style.css?v=89">
 <script>
 /* Thema VOR dem ersten Anstrich setzen — sonst blitzt bei jedem Aufruf kurz das
    Standard-Thema auf, bevor die gespeicherte Wahl greift. Absichtlich winzig
@@ -150,6 +150,7 @@ catch (e) {}
 }
 .pr-zahl.pr-sauber { border-color: var(--ok); color: var(--ok); }
 .pr-zahl.pr-befund  { border-color: var(--warn); color: var(--warn); }
+.pr-zahl.pr-ungeprueft { border-color: var(--warn); color: var(--warn); border-style: dashed; }
 /* Erwartete Funde sind kein Alarm — siehe § Die Test-Seite in der Datei. */
 .pr-zahl.pr-erwartet { border-color: var(--ok); color: var(--ok); }
 /* Die Zahlen sind Links auf ihre Karte (Klaus 2026-09-29). Sie sehen aus wie
@@ -620,7 +621,7 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
          „Virenprüfung" verspricht und in Wahrheit einen Dateinamen liest,
          wäre die schlimmste Sorte Knopf — es beruhigt. -->
     <p class="feldhinweis" style="margin:0 0 8px" data-mail-grenze="keine-virenpruefung" data-i18n-html="pr_45">
-    <strong>Das ist keine Virenprüfung.</strong> Es gibt hier keine Signaturen. Anhänge werden <em>gelesen</em>, nie ausgeführt oder angezeigt: ihr Dateikopf, ihre Metadaten, ihr Text — ob sie sind, was ihr Name behauptet. In Bildpunkten versteckte Botschaften und Text im Bild liest er nicht; den Seitentext eines PDFs liest er (bis 100 Seiten). Und nichts von alldem verlässt dein Gerät.</p>
+    <strong>Das ist keine Virenprüfung.</strong> Es gibt hier keine Signaturen. Anhänge werden <em>gelesen</em>, nie ausgeführt oder angezeigt: ihr Dateikopf, ihre Metadaten, ihr Text — ob sie sind, was ihr Name behauptet. In Bildpunkten versteckte Botschaften liest er nicht. Den Seitentext eines PDFs liest er (bis 100 Seiten), Text in Bildern und Scans mit einer Texterkennung auf dem Gerät. Und nichts von alldem verlässt dein Gerät.</p>
 
     <!-- ⚠ KLAUS' FRAGE VOM 2026-09-09: „Es muss aber sehr sicher sein und kein
          Schaden verursachen, wenn der Inhalt vom Auslieferungsprüfer gelesen
@@ -644,7 +645,7 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
         <input type="file" id="einzelDatei" style="max-width:100%">
       </p>
     </div>
-    <p class="feldhinweis" style="margin:16px 0 0" data-datei-grenze="liest-nur" data-i18n-html="pr_63">Gelesen wird der <strong>Dateikopf</strong>, nicht der Name: Daten hinter dem Bildende, Metadaten, Skripte in Grafiken, Makros und Verweise in Office-Dateien, Programme. Text in der Datei geht durch denselben Prüfer wie eine Textdatei. Ausgeführt wird nichts; in Bildpunkten versteckte Botschaften und Text im Bild liest er <em>nicht</em>.</p>
+    <p class="feldhinweis" style="margin:16px 0 0" data-datei-grenze="liest-nur" data-i18n-html="pr_63">Gelesen wird der <strong>Dateikopf</strong>, nicht der Name: Daten hinter dem Bildende, Metadaten, Skripte in Grafiken, Makros und Verweise in Office-Dateien, Programme. Text in der Datei geht durch denselben Prüfer wie eine Textdatei. Text im Bild liest eine Texterkennung auf dem Gerät. Ausgeführt wird nichts; in Bildpunkten versteckte Botschaften liest er <em>nicht</em>.</p>
   </section>
 
   <section class="pr-ergebnis" id="ergebnis" aria-live="polite"></section>
@@ -735,22 +736,22 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
 
 </main>
 
-<script src="assets/i18n-pruefer.js?v=88"></script>
-<script src="assets/sprache.js?v=88"></script>
-<script src="assets/thema.js?v=88"></script>
-<script src="assets/pruefer.js?v=88"></script>
+<script src="assets/i18n-pruefer.js?v=89"></script>
+<script src="assets/sprache.js?v=89"></script>
+<script src="assets/thema.js?v=89"></script>
+<script src="assets/pruefer.js?v=89"></script>
 <!-- ⚠ REIHENFOLGE. `pruefer-formate.js` holt sich die Fülltext-Liste aus
      `pruefer.js` — eine zweite, eigene Liste wäre eine Drift-Quelle mit Ansage.
      Und `pruefer-ui.js` steht zuletzt, weil es alle drei bedient. -->
-<script src="assets/pruefer-formate.js?v=88"></script>
-<script src="assets/pruefer-browser.js?v=88"></script>
+<script src="assets/pruefer-formate.js?v=89"></script>
+<script src="assets/pruefer-browser.js?v=89"></script>
 <!-- ⚠ NACH `pruefer-formate.js`: der Mail-Eingang leiht sich dessen
      Schlüssel-Muster und die IBAN-Prüfung, statt zweite Listen zu führen.
      Fehlt die Datei, sagt er das im Ergebnis, statt still weniger zu prüfen. -->
-<script src="assets/pruefer-mail.js?v=88"></script>
+<script src="assets/pruefer-mail.js?v=89"></script>
 <!-- Anhänge und einzelne Dateien öffnen — hier gepflegt, byte-1:1 im Sende-Prüfer. -->
-<script src="assets/pruefer-anhang.js?v=88"></script>
-<script src="assets/pruefer-ui.js?v=88"></script>
+<script src="assets/pruefer-anhang.js?v=89"></script>
+<script src="assets/pruefer-ui.js?v=89"></script>
 <!-- ══ SBKIM — der Auslieferungsprüfer als eigener Knoten im Mycel ═══════════
      Eigene Identität, eigene Spore, das schwebende Verbinden-Fenster, die
      Status-Pille von Modul 17 und das selbstausfüllende Siegel mit dem
@@ -766,9 +767,9 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
      `netz.js` steht ZUERST: die Relais-Liste des Prüfers liest die des
      Marktplatzes ab, statt sie abzuschreiben — zwei Listen derselben
      Poststellen laufen auseinander. -->
-<script src="assets/config/netz.js?v=88"></script>
-<script src="assets/config/pruefer-netz.js?v=88"></script>
-<script src="assets/pruefer-sbkim-init.js?v=88"></script>
+<script src="assets/config/netz.js?v=89"></script>
+<script src="assets/config/pruefer-netz.js?v=89"></script>
+<script src="assets/pruefer-sbkim-init.js?v=89"></script>
 <!-- ⚠ EIGENE APP SEIT 2026-09-26: im Marktplatz registrierte die STARTSEITE den
      Service-Worker, der Prüfer nicht. Als eigenständige PWA braucht er ihn selbst,
      sonst läuft er offline nicht. -->

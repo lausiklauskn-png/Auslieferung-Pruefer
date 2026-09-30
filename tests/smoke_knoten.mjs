@@ -366,5 +366,36 @@ console.log('\n── Was ohne JavaScript dasteht ──');
      da('THIRD_PARTY.md') && /3\.11\.174/.test(lies('THIRD_PARTY.md')) && /Apache/.test(lies('THIRD_PARTY.md')));
 }
 
+/* ══ EIGENSTÄNDIG: Tesseract liegt im eigenen Ordner (Stufe 2 A, 2026-09-30) ═
+   Byte-gleich aus Workflow-PDF/vendor/tesseract/ (Tesseract.js 7.0.0, deu/eng/rus,
+   21 MB). Nicht im Installations-Vorrat: der fetch-Zweig von sw.js legt die
+   Dateien beim ersten Bild ab. */
+{
+  const TESS_PINS = {
+    'vendor/tesseract/LICENSE-Apache-2.0.txt': 'c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08',
+    'vendor/tesseract/lang/deu.traineddata': '19d219bbb6672c869d20a9636c6816a81eb9a71796cb93ebe0cb1530e2cdb22d',
+    'vendor/tesseract/lang/eng.traineddata': '7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2',
+    'vendor/tesseract/lang/rus.traineddata': 'e16e5e036cce1d9ec2b00063cf8b54472625b9e14d893a169e2b0dedeb4df225',
+    'vendor/tesseract/tesseract-core-lstm.wasm.js': 'eef5f8b2f8e20e150680b20adaec4a60babafee3adbe8a94583c81fee46e8680',
+    'vendor/tesseract/tesseract-core-relaxedsimd-lstm.wasm.js': '861a536cf9ef8e63cb644d57bab39c388f37f7d6b6f60024b741c5f6b39a59b3',
+    'vendor/tesseract/tesseract-core-simd-lstm.wasm.js': 'c58b46a4c796c0b8afccf77591d5b875b6896b45d402bbce8caa6f5362447b38',
+    'vendor/tesseract/tesseract.min.js': '000c27d9cd0def655f77b36c72a389c0ab13793aa31cb4d7aab56d09c0afbc7e',
+    'vendor/tesseract/tesseract.min.js.LICENSE.txt': 'cdf963ced7d25a0f98901a547647b4d6e2dbe0197fd78c87a059a87b0e542fe2',
+    'vendor/tesseract/worker.min.js': '576b7df7e3393e137e51849357c9adb53fe7ac1bb69bfa06cf3d61520f182c6d',
+    'vendor/tesseract/worker.min.js.LICENSE.txt': '45f54171aeaa1d10c0c1a66f374b7bba1f02472b1487fbe892eec04f840002ac',
+  };
+  for (const [p, h] of Object.entries(TESS_PINS)) {
+    ok(`${p} liegt im eigenen Ordner, unverändert (Tesseract.js 7.0.0)`, da(p) && sha(p) === h, da(p) ? sha(p) : 'fehlt');
+  }
+  const ui = lies('assets/pruefer-ui.js');
+  ok('die Seite holt die Texterkennung aus dem EIGENEN Ordner (pfade → vendor/tesseract/)',
+     /tesseract:\s*new URL\("vendor\/tesseract\/", location\.href\)/.test(ui));
+  const sw = lies('sw.js'), core = (sw.match(/var CORE = \[([\s\S]*?)\];/) || [])[1] || '';
+  ok('Tesseract steht NICHT im Installations-Vorrat (21 MB gehören nicht auf den Weg zum ersten Bild)',
+     core.length > 50 && !/tesseract/i.test(core));
+  ok('THIRD_PARTY.md nennt Tesseract.js 7.0.0, die Sprachdaten und die Lizenz',
+     /Tesseract\.js 7\.0\.0/.test(lies('THIRD_PARTY.md')) && /traineddata/.test(lies('THIRD_PARTY.md')) && /tessdata_fast/.test(lies('THIRD_PARTY.md')));
+}
+
 console.log(`\n${pass} grün · ${fail} ROT`);
 process.exitCode = fail ? 1 : 0;
