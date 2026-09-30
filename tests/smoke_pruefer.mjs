@@ -2148,14 +2148,15 @@ if (!browser) {
     }, [...fs.readFileSync(path.join(WURZEL, "testvorlagen", "Vorlage-1A-Bild-mit-Text.png"))]);
     ok(haengt.u && haengt.h.some((h) => /ungeprüft.*Zeit abgelaufen/.test(h)),
        `eine hängende Texterkennung endet an der Frist als „ungeprüft" (${haengt.h.join(" | ")})`);
-    /* Beide Durchgänge teilen sich EINE Frist: der erste braucht 250 ms, der
-       zweite hängt. Mit getrennten Fristen (400 + 400) wäre er erst nach
-       650 ms aus, mit geteilter nach rund 400. */
+    /* Beide Durchgänge teilen sich EINE Frist: der erste braucht 150 ms, der
+       zweite hängt. Die Frist zählt ab dem Dekodieren des Bildes. Mit getrennten
+       Fristen wäre er erst nach Dekodieren + 150 + 800 ms aus, mit geteilter
+       nach rund 800. (Zuerst 250/400: Dekodieren + 250 lag knapp an 400.) */
     const geteilt = await ohneTess.evaluate(async (by) => {
-      PrueferAnhang.ocrFrist(400);
+      PrueferAnhang.ocrFrist(800);
       let n = 0;
       window.Tesseract = { createWorker: async () => ({ terminate() {}, recognize: () => ++n === 1
-        ? new Promise((ok) => setTimeout(() => ok({ data: { blocks: [{ paragraphs: [{ lines: [{ text: "Sehr geehrte Frau Beispiel", confidence: 95 }] }] }] } }), 250))
+        ? new Promise((ok) => setTimeout(() => ok({ data: { blocks: [{ paragraphs: [{ lines: [{ text: "Sehr geehrte Frau Beispiel", confidence: 95 }] }] }] } }), 150))
         : new Promise(() => {}) }) };
       const t = performance.now();
       const r = await PrueferAnhang.pruefe("brief.png", new Uint8Array(by));
@@ -2163,7 +2164,7 @@ if (!browser) {
     }, [...fs.readFileSync(path.join(WURZEL, "testvorlagen", "Vorlage-4C-Bild-ohne-Botschaft.png"))]);
     ok(geteilt.h.some((h) => /Blasser Text ungeprüft.*Zeit abgelaufen/.test(h)) && geteilt.h.some((h) => /Text im Bild gelesen: 1 Zeile/.test(h)),
        `hängt der zweite Durchgang: „Blasser Text ungeprüft“, der erste bleibt gelesen (${geteilt.h.join(" | ")})`);
-    ok(geteilt.ms < 620, `… und beide Durchgänge teilen sich EINE Frist (${Math.round(geteilt.ms)} ms, getrennt wären es rund 760)`);
+    ok(geteilt.ms < 1000, `… und beide Durchgänge teilen sich EINE Frist (${Math.round(geteilt.ms)} ms, getrennt wären es über 1100)`);
     await ohneTess.close();
   }
   /* ══ DER KNOTEN MONTIERT WIRKLICH (2026-09-08) ════════════════════════════
