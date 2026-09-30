@@ -3918,6 +3918,26 @@ probe "OCR: die Stelle nennt nicht mehr Bildtext" \
       assets/pruefer-ui.js \
       's|(r.textQuelle === "bild" ? ", Bildtext Zeile " : ", Textzeile ")|", Textzeile "|'
 
+# ══ BLASS: blasser Text im Bild (Stufe 2 B, 2026-09-30) ══
+probe "BLASS: der zweite Lesedurchgang fällt still weg" \
+      assets/pruefer-anhang.js \
+      's|var z2 = gestreckt(quelle),|var z2 = null,|'
+probe "BLASS: die Kontrast-Spreizung tut nichts mehr" \
+      assets/pruefer-anhang.js \
+      's|var g = 255 - Math.min(255, Math.max(0, p - grau.j.) . KONTRAST_VERST);|var g = grau[j];|'
+probe "BLASS: der Befund sagt nicht mehr blass" \
+      assets/pruefer-anhang.js \
+      's|" (blass, erst nach Kontrast-Spreizung lesbar: Bildtext Zeile "|" (Bildtext Zeile "|'
+probe "BLASS: jede Zeile des zweiten Durchgangs gilt als blass" \
+      assets/pruefer-anhang.js \
+      's|return ws.filter(function (w) { return bekannt.w.; }).length . 2 < ws.length;|return true;|'
+probe "BLASS: der zweite Durchgang bekommt eine eigene Frist" \
+      assets/pruefer-anhang.js \
+      's|bildLesen(z2, bis)|bildLesen(z2)|'
+probe "BLASS: ein Ausfall des zweiten Durchgangs wird verschwiegen" \
+      assets/pruefer-anhang.js \
+      's|if (r2.fehlt) hinweise.push(|if (false) hinweise.push(|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1

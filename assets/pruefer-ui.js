@@ -228,7 +228,9 @@
            "den Satz als Auftrag verstehen. Gelesen hat ihn hier eine " +
            "Texterkennung auf dem Gerät — sie kann sich verlesen. ⚠ Ein Treffer " +
            "ist kein Beweis: ein Bild ÜBER solche Angriffe zeigt dieselben Sätze. " +
-           "Abhilfe: das Bild selbst ansehen und entscheiden."
+           "Abhilfe: das Bild selbst ansehen und entscheiden. Steht „blass“ " +
+           "an der Stelle, ist der Satz hellgrau auf hellem Grund und mit bloßem " +
+           "Auge kaum zu sehen — genau das ist der Trick (Stufe 2 B)."
     },
 
     /* ── E-Mail ──────────────────────────────────────────────────────────

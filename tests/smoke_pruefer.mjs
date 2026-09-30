@@ -2107,6 +2107,24 @@ if (!browser) {
     const scanPdf = await ocrPruefen("#pdfDatei", "Vorlage-1A-PDF-Scan-ohne-Textebene.pdf", "application/pdf");
     ok(scanPdf.arten.includes("BILD-KI-ANWEISUNG"),
        `… auch im PDF-Eingang (${scanPdf.arten.join(", ") || scanPdf.zahl})`);
+    /* ══ BLASSER TEXT — Stufe 2 B (2026-09-30): Vorlage 2B trägt dieselbe
+       Anweisung in Hellgrau (#ececec). Der erste Durchgang liest sie nicht,
+       der zweite nach der Kontrast-Spreizung schon. Gegenrichtung: H0 (Foto)
+       und beide 4C-Bilder bekommen keinen KI-Befund, 1A bleibt bei Zeile 9. */
+    const b2 = await ocrPruefen("#einzelDatei", "Vorlage-2B-Bild-blasser-Text.png", "image/png");
+    ok(b2.arten.includes("BILD-KI-ANWEISUNG") && /blass, erst nach Kontrast-Spreizung/.test(b2.text),
+       `Vorlage 2B: die blasse Anweisung wird gefunden, mit „blass“ (${b2.arten.join(", ") || b2.zahl})`);
+    ok(/Text im Bild gelesen: 8 Zeile/.test(b2.text) && /Blasser Text: 1 Zeile/.test(b2.text),
+       "… der erste Durchgang liest 8 Zeilen, der zweite genau eine mehr");
+    ok(/blass, erst nach Kontrast-Spreizung lesbar: Bildtext Zeile 9\)/.test(b2.text), "… mit der Stelle „Bildtext Zeile 9“");
+    const h0 = await ocrPruefen("#einzelDatei", "Vorlage-H0-Foto-sauber.jpg", "image/jpeg");
+    ok(!h0.arten.includes("BILD-KI-ANWEISUNG") && !/Blasser Text: \d+ Zeile/.test(h0.text) && /Blasser Text: der zweite Lesedurchgang/.test(h0.text),
+       `Gegenrichtung (H0, sauberes Foto): kein Befund aus dem zweiten Durchgang (${h0.arten.join(", ") || h0.zahl})`);
+    const c4 = await ocrPruefen("#einzelDatei", "Vorlage-4C-Bild-mit-versteckter-Botschaft.png", "image/png");
+    ok(!c4.arten.includes("BILD-KI-ANWEISUNG") && !/Blasser Text: \d+ Zeile/.test(c4.text),
+       `Gegenrichtung (4C mit Botschaft in den Bildpunkten): kein KI-Befund, keine blasse Zeile (${c4.arten.join(", ") || c4.zahl})`);
+    ok(!/blass/.test(a1.text.split("Blasser Text:")[0]) && /Blasser Text: der zweite Lesedurchgang mit mehr Kontrast fand keine weitere Zeile/.test(a1.text),
+       "Vorlage 1A: die sichtbare Anweisung heißt NICHT blass, der zweite Durchgang findet nichts dazu");
     /* Nie still: kommt die Texterkennung nicht an, steht „ungeprüft" da. */
     const ohneTess = await browser.newPage();
     await ohneTess.goto("http://127.0.0.1:8213/auslieferungspruefer.html");
@@ -2130,6 +2148,22 @@ if (!browser) {
     }, [...fs.readFileSync(path.join(WURZEL, "testvorlagen", "Vorlage-1A-Bild-mit-Text.png"))]);
     ok(haengt.u && haengt.h.some((h) => /ungeprüft.*Zeit abgelaufen/.test(h)),
        `eine hängende Texterkennung endet an der Frist als „ungeprüft" (${haengt.h.join(" | ")})`);
+    /* Beide Durchgänge teilen sich EINE Frist: der erste braucht 250 ms, der
+       zweite hängt. Mit getrennten Fristen (400 + 400) wäre er erst nach
+       650 ms aus, mit geteilter nach rund 400. */
+    const geteilt = await ohneTess.evaluate(async (by) => {
+      PrueferAnhang.ocrFrist(400);
+      let n = 0;
+      window.Tesseract = { createWorker: async () => ({ terminate() {}, recognize: () => ++n === 1
+        ? new Promise((ok) => setTimeout(() => ok({ data: { blocks: [{ paragraphs: [{ lines: [{ text: "Sehr geehrte Frau Beispiel", confidence: 95 }] }] }] } }), 250))
+        : new Promise(() => {}) }) };
+      const t = performance.now();
+      const r = await PrueferAnhang.pruefe("brief.png", new Uint8Array(by));
+      return { ms: performance.now() - t, h: r.hinweise };
+    }, [...fs.readFileSync(path.join(WURZEL, "testvorlagen", "Vorlage-4C-Bild-ohne-Botschaft.png"))]);
+    ok(geteilt.h.some((h) => /Blasser Text ungeprüft.*Zeit abgelaufen/.test(h)) && geteilt.h.some((h) => /Text im Bild gelesen: 1 Zeile/.test(h)),
+       `hängt der zweite Durchgang: „Blasser Text ungeprüft“, der erste bleibt gelesen (${geteilt.h.join(" | ")})`);
+    ok(geteilt.ms < 620, `… und beide Durchgänge teilen sich EINE Frist (${Math.round(geteilt.ms)} ms, getrennt wären es rund 760)`);
     await ohneTess.close();
   }
   /* ══ DER KNOTEN MONTIERT WIRKLICH (2026-09-08) ════════════════════════════
