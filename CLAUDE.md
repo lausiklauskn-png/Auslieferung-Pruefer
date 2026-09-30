@@ -32,9 +32,9 @@ pwa-toolpoint.de und family-projekt.de führen hierher; gemessen wird ab der
 nächsten Nacht diese Adresse (Kennung `markt-auslieferungspruefer` bleibt,
 der Verlauf reißt nicht ab).
 
-⚠ **Die alte Seite auf pwa-toolpoint.de steht noch** — niemand wird mehr
-dorthin geschickt, sie ist nur für alte Lesezeichen da. Sie herauszunehmen
-(samt ihren Proben dort) ist ein eigener Schritt.
+✅ **Die alte Seite auf pwa-toolpoint.de leitet seit 2026-09-30 hierher weiter**
+(PWA-Toolpoint #155, samt `?adresse=`). Die Prüfer-Dateien liegen dort nicht
+mehr; eine byte-1:1-Pflicht nach PWA-Toolpoint gibt es seitdem nicht mehr.
 
 ⚠ **Die SBKIM-Kennung ist eine eigene** — auf `github.io` legt der Browser eine
 neue Identität an; die Schublade heißt weiter `auslieferungspruefer`.
@@ -258,3 +258,21 @@ zieht die grüne Zeile dort nach.** Die LSB-Botschaft in 4C ist aus der
 gespeicherten PNG nachgelesen (72 Bytes, wörtlich).
 
 **Reiter heißt „Foto · Datei prüfen"** (Klaus 2026-09-30: „als Erstnutzer … würde ich mich nicht versucht fühlen, da ein JPEG einzufügen"). Untertitel nennt JPEG, PNG, SVG, Word, Excel, ZIP. Cache `auslieferung-pruefer-v6`, alle `?v=81`.
+
+## 🧪 Klaus' Tests der Vorlagen — was daraus behoben ist (2026-09-30)
+
+| Befund am Tablet | behoben |
+|---|---|
+| PDF-Eingang zeigte bei 0D/3E nur Metadaten | liest jetzt den Seitentext mit (`PrueferAnhang.pruefe`, nur `PDF-KI-ANWEISUNG` + Seitentext-Treffer; die PDF-Befunde kommen weiter aus `pruefePdf`) |
+| H5 (JPEG als .pdf) im PDF-Eingang: grünes „kein Befund" | geht an den Datei-Weg (`dateiPruefen`), meldet die Tarnung |
+| H1 (.txt) als Mail-Anhang ungeprüft | `artVon` erkennt Text (UTF-8 ohne Steuerzeichen) |
+| xmlns / w3.org / openxmlformats / purl.org als „fremde Adresse" | `NAMENSRAUM_WIRTE` + `VOR_XMLNS` in JS UND Python |
+
+Gegenprobe `NUR_FALL="VORLAGEN:"` (4 Fälle, 4 gefangen). ⚠ Offen: gleiche
+Befund-Arten (2× Metadaten) stehen als getrennte Karten; Steps A/B (Text im Bild).
+
+⚠ **Diese Gegenprobe kennt `NUR_ANKER` NICHT** — am 2026-09-30 startete ein
+`NUR_ANKER=1 bash tests/gegenprobe.sh` dadurch einen vollen Lauf im echten
+Baum. `TERM` beendet ihn nicht (bash wartet auf das Kind); angehalten mit
+`kill -STOP` + `-KILL`, die liegengebliebene Sabotage aus `/tmp/gp_*.bak`
+zurückgeholt. **Vor jedem Lauf committen, immer in einer Kopie.**
