@@ -218,6 +218,18 @@
            "Text ÜBER solche Angriffe enthält dieselben Sätze. Abhilfe: die Seite " +
            "selbst ansehen und entscheiden."
     },
+    /* Stufe 2 A (2026-09-30): der Text IM Bild (Foto, Scan, PDF-Seite ohne
+       Textebene) wird mit der Texterkennung gelesen und mit derselben Liste
+       geprüft. */
+    "BILD-KI-ANWEISUNG": {
+      kurz: "Anweisung im Bild",
+      kopf: "Im Bild steht als Text eine Anweisung an einen KI-Assistenten.",
+      rat: "Gibt jemand das Bild einer KI, liest sie den Text darin mit und könnte " +
+           "den Satz als Auftrag verstehen. Gelesen hat ihn hier eine " +
+           "Texterkennung auf dem Gerät — sie kann sich verlesen. ⚠ Ein Treffer " +
+           "ist kein Beweis: ein Bild ÜBER solche Angriffe zeigt dieselben Sätze. " +
+           "Abhilfe: das Bild selbst ansehen und entscheiden."
+    },
 
     /* ── E-Mail ──────────────────────────────────────────────────────────
        Wie oben: die Sätze stehen HIER und nicht in `pruefer-mail.js`. Dort
@@ -503,7 +515,7 @@
    * Zeichnet ein Ergebnis.
    * @param {object[]} treffer  je {zeile|stelle, kennung, satz}
    * @param {string} text       der geprüfte Rohtext (für die Quellzeile); "" bei PDF
-   * @param {object} opt        {titel, hinweise[], erwartet, leerSatz}
+   * @param {object} opt        {titel, hinweise[], erwartet, leerSatz, ungeprueft}
    */
   function zeige(treffer, text, opt) {
     opt = opt || {};
@@ -512,12 +524,15 @@
     var gruppen = gruppiere(treffer);
 
     var summe = t("div", "pr-summe");
-    var art = opt.erwartet ? "pr-erwartet" : (treffer.length ? "pr-befund" : "pr-sauber");
+    /* Stufe 2 A (2026-09-30): ist Text in einem Bild NICHT gelesen worden,
+       steht oben „Text im Bild ungeprüft", nie ein grünes „kein Befund". */
+    var ungeprueft = !treffer.length && !opt.erwartet && !!opt.ungeprueft;
+    var art = opt.erwartet ? "pr-erwartet" : (treffer.length ? "pr-befund" : ungeprueft ? "pr-ungeprueft" : "pr-sauber");
     /* ⚠ ZWEI ZAHLEN, WEIL ES ZWEI SIND. „34 Funde" und „9 Sachen an 34 Stellen"
        sagen etwas Verschiedenes, und die zweite ist die, nach der man handelt.
        Wo beide gleich sind, steht nur eine — sonst wäre es Ziererei. */
     var stellenZahl = treffer.length;
-    var text1 = stellenZahl === 0 ? "kein Befund"
+    var text1 = ungeprueft ? "Text im Bild ungeprüft" : stellenZahl === 0 ? "kein Befund"
       : (gruppen.length === stellenZahl
           ? stellenZahl + (stellenZahl === 1 ? " Befund" : " Befunde")
           : gruppen.length + (gruppen.length === 1 ? " Sache" : " Sachen") +
@@ -1152,12 +1167,13 @@
       ]).then(function (beide) {
           var r = beide[0], ra = beide[1], stellen = r.stellen.slice(), mehr = [];
           if (ra) {
-            anhangTreffer(f.name, { befunde: ra.befunde.filter(function (b) { return b.kennung === "PDF-KI-ANWEISUNG"; }),
+            anhangTreffer(f.name, { befunde: ra.befunde.filter(function (b) { return b.kennung === "PDF-KI-ANWEISUNG" || b.kennung === "BILD-KI-ANWEISUNG"; }),
               seiten: ra.seiten }, "").forEach(function (x) { stellen.push(x); });
             mehr = ra.hinweise.filter(function (h) { return r.hinweise.indexOf(h) < 0; });
           } else mehr = ["Der Datei-Prüfer (assets/pruefer-anhang.js) ist nicht geladen — der Seitentext ist ungeprüft."];
           zeige(stellen, "", {
             titel: "Auslieferungsprüfer · PDF",
+            ungeprueft: !!(ra && ra.bildUngeprueft),
             hinweise: [f.name].concat(r.hinweise).concat(mehr).concat([
               "⚠ Ein PDF hat keine Zeilennummern. Die Stelle heißt deshalb " +
               "„Objekt\" — das ist die Nummer, unter der das Dokument sie selbst " +
@@ -1196,13 +1212,13 @@
          über alle Seiten hinweg. */
       r.seiten.forEach(function (sx) {
         window.PrueferFormate.pruefeText(sx.text, name, erlaubtListe()).forEach(function (x) {
-          aus.push({ stelle: praefix + name + ", Seite " + sx.seite + (x.zeile ? ", Zeile " + x.zeile : ""),
+          aus.push({ stelle: praefix + name + ", Seite " + sx.seite + (x.zeile ? (sx.bild ? ", Bildtext Zeile " : ", Zeile ") + x.zeile : ""),
             kennung: x.kennung, satz: x.satz });
         });
       });
     } else if (r.text && window.PrueferFormate) {
       window.PrueferFormate.pruefeText(r.text, name, erlaubtListe()).forEach(function (x) {
-        aus.push({ stelle: praefix + name + (x.zeile ? ", Textzeile " + x.zeile : ""),
+        aus.push({ stelle: praefix + name + (x.zeile ? (r.textQuelle === "bild" ? ", Bildtext Zeile " : ", Textzeile ") + x.zeile : ""),
           kennung: x.kennung, satz: x.satz });
       });
     }
@@ -1214,8 +1230,12 @@
      ungeprüft (das stand dann auch da). Es wird
      erst geholt, wenn ein PDF kommt, und liegt nicht im Installations-Vorrat
      (1,5 MB); der fetch-Zweig von sw.js legt es beim ersten Abruf ab. */
+  /* Tesseract (Texterkennung, Stufe 2 A, 2026-09-30) liegt ebenso im eigenen
+     Ordner vendor/tesseract/ (21 MB), wird erst beim ersten Bild geholt und
+     steht nicht im Installations-Vorrat. */
   if (window.PrueferAnhang && window.PrueferAnhang.pfade) {
-    try { window.PrueferAnhang.pfade({ pdfjs: new URL("vendor/pdfjs/", location.href).href }); } catch (_e) {}
+    try { window.PrueferAnhang.pfade({ pdfjs: new URL("vendor/pdfjs/", location.href).href,
+      tesseract: new URL("vendor/tesseract/", location.href).href }); } catch (_e) {}
   }
   var einzelDatei = $("einzelDatei");
   if (einzelDatei) einzelDatei.addEventListener("change", function () {
@@ -1235,11 +1255,13 @@
     }).then(function (r) {
       zeige(anhangTreffer(f.name, r, ""), "", {
         titel: "Auslieferungsprüfer · Datei",
+        ungeprueft: r.bildUngeprueft,
         hinweise: vorweg.concat([f.name + " · " + r.artName + " · " + window.PrueferAnhang.gross(f.size)])
           .concat(r.hinweise),
         leerSatz: "Kein Befund heißt: nichts von dem gefunden, wonach dieser " +
                   "Prüfer sucht. Es war KEINE Virenprüfung, und in Bildpunkten " +
-                  "versteckte Botschaften sucht er nicht."
+                  "versteckte Botschaften sucht er nicht. Steht darüber „Text im " +
+                  "Bild ungeprüft“, wurde der Text im Bild NICHT gelesen."
       });
     }, function () {
       ergebnis.textContent = "";
@@ -1465,7 +1487,7 @@
     if (!A) return;
     var liste = A.ausMail(inhalt);
     if (!liste.length) return;
-    var mein = ++anhangLauf, stellen = [], hinweise = [];
+    var mein = ++anhangLauf, stellen = [], hinweise = [], bildUngeprueft = false;
     Promise.all(liste.map(function (a) {
       if (a.zuGross) {
         hinweise.push("Anhang „" + a.name + "\" (" + A.gross(a.groesse) + ") ist zu groß und wurde NICHT geöffnet — ungeprüft, nicht sauber.");
@@ -1473,14 +1495,16 @@
       }
       return A.pruefe(a.name, a.bytes).then(function (x) {
         stellen = stellen.concat(anhangTreffer(a.name, x, "Anhang "));
+        if (x.bildUngeprueft) bildUngeprueft = true;
         hinweise.push("Anhang „" + a.name + "\" geöffnet: " + x.artName + ", " + A.gross(a.groesse) + ".");
       }, function () {
         hinweise.push("Anhang „" + a.name + "\" ließ sich nicht lesen — ungeprüft.");
       });
     })).then(function () {
       if (mein !== anhangLauf) return;          // inzwischen wurde etwas anderes geprüft
-      hinweise.push("In Bildpunkten versteckte Botschaften und Text im Bild werden nicht gelesen.");
+      hinweise.push("In Bildpunkten versteckte Botschaften werden nicht gelesen.");
       var o = {}; for (var k in opt) o[k] = opt[k];
+      if (bildUngeprueft) o.ungeprueft = true;
       /* pruefer-mail.js sagt „Kein Anhang wurde geöffnet" — das stimmt nach
          diesem Lauf nicht mehr. Ersetzt wird der Satz, nicht verschwiegen. */
       o.hinweise = (opt.hinweise || []).map(function (h) {

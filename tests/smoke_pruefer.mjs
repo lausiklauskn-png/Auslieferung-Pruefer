@@ -1641,7 +1641,7 @@ if (!browser) {
   ok(!/Kein Anhang wurde geöffnet/.test(nachher.text) && /Anhänge wurden gelesen, nicht ausgeführt/.test(nachher.text),
      "… und „Kein Anhang wurde geöffnet“ steht NICHT mehr da, sondern dass gelesen wurde");
   ok(/in Bildpunkten versteckte Botschaften/i.test(nachher.text),
-     "… und die Grenze (Bildpunkte, Text im Bild) ist benannt");
+     "… und die Grenze (in Bildpunkten versteckte Botschaften) ist benannt");
 
   /* ══ DIE ZAHLEN SIND LINKS AUF IHRE KARTE (Klaus 2026-09-29) ═══════════════
    * Gemessen wird, was ein Mensch erlebt: nach dem Tipp steht die Karte der
@@ -1761,7 +1761,15 @@ if (!browser) {
     }));
   }
   const sauber = await dateiPruefen("punkt.png", "image/png", PNG);
-  ok(sauber.zahl === "kein Befund", `ein sauberes PNG meldet nichts (${sauber.zahl || "keine Zahl"})`);
+  /* ⚠ TAFEL-EVOLUTION (Stufe 2 A, 2026-09-30): hier stand „ein sauberes PNG
+     meldet nichts (kein Befund)". Seit die Texterkennung mitliest, heißt ein
+     Bild, dessen Text NICHT gelesen wurde, „Text im Bild ungeprüft" — nie ein
+     grünes „kein Befund". Diese Seite läuft unter file://, dort startet die
+     Texterkennung nicht (sie hinge bis zur Frist). Gemessen wird sie unten
+     über den HTTP-Server. */
+  ok(sauber.zahl === "Text im Bild ungeprüft" && sauber.arten.length === 0,
+     `ein sauberes PNG ohne gelesenen Text: kein Befund, aber „Text im Bild ungeprüft" statt „kein Befund" (${sauber.zahl || "keine Zahl"})`);
+  ok(/Texterkennung.*file:\/\//.test(sauber.text), "… und der Grund steht da (lokal geöffnete Datei)");
   ok(/Bildpunkten/.test(sauber.text) && /KEINE Virenprüfung/.test(sauber.text),
      "… und sagt, was es nicht geprüft hat");
   const getarnt = await dateiPruefen("urlaub.jpg", "image/jpeg",
@@ -2064,6 +2072,66 @@ if (!browser) {
   const eigenZahl = await echteSeite.textContent("#ergebnis .pr-zahl");
   ok(/kein Befund/.test(eigenZahl || ""),
      `eine Seite, die nur sich selbst nennt, ist sauber (${eigenZahl})`);
+  /* ══ TEXT IM BILD — Stufe 2 A (2026-09-30) ══════════════════════════════
+     Die Texterkennung (vendor/tesseract/, eigener Ordner) liest Vorlage 1A:
+     Bild UND Scan-PDF ohne Textebene. Gegenrichtung ist Vorlage 4C-ohne —
+     derselbe Brief ohne die Anweisung. Fehlt Tesseract, ist dieser Teil
+     übersprungen, nicht grün. Gewartet wird auf die Bedingung. */
+  const TESS = path.join(WURZEL, "vendor", "tesseract", "tesseract.min.js");
+  if (!fs.existsSync(TESS)) {
+    skip("Text im Bild — vendor/tesseract fehlt");
+  } else {
+    async function ocrPruefen(eingang, datei, mime) {
+      await echteSeite.evaluate(() => { document.getElementById("ergebnis").textContent = ""; });
+      await echteSeite.setInputFiles(eingang, { name: path.basename(datei), mimeType: mime,
+        buffer: fs.readFileSync(path.join(WURZEL, "testvorlagen", datei)) });
+      await echteSeite.waitForFunction(() => !!document.querySelector("#ergebnis .pr-zahl"), null, { timeout: 150000 }).catch(() => {});
+      return echteSeite.evaluate(() => ({
+        zahl: (document.querySelector("#ergebnis .pr-zahl") || {}).textContent || "",
+        arten: [...document.querySelectorAll("#ergebnis .pr-kennung")].map((x) => x.textContent),
+        text: document.getElementById("ergebnis").textContent }));
+    }
+    const a1 = await ocrPruefen("#einzelDatei", "Vorlage-1A-Bild-mit-Text.png", "image/png");
+    ok(a1.arten.includes("BILD-KI-ANWEISUNG"),
+       `Vorlage 1A (Bild): die Anweisung im Bild wird gefunden (${a1.arten.join(", ") || a1.zahl})`);
+    ok(/Bildtext Zeile 9/.test(a1.text), "… mit der Stelle „Bildtext Zeile 9“");
+    ok(a1.arten.includes("PERSONENBEZUG") && /Vorlage-1A-Bild-mit-Text\.png, Bildtext Zeile/.test(a1.text),
+       "… und der erkannte Text geht durch den Text-Prüfer (Mailadresse/IBAN, Stelle „Bildtext Zeile“)");
+    ok(/Text im Bild gelesen: \d+ Zeile/.test(a1.text), "… und das Ergebnis sagt, wie viele Zeilen gelesen wurden");
+    const c0 = await ocrPruefen("#einzelDatei", "Vorlage-4C-Bild-ohne-Botschaft.png", "image/png");
+    ok(!c0.arten.includes("BILD-KI-ANWEISUNG") && /Text im Bild gelesen: \d+ Zeile/.test(c0.text),
+       `Gegenrichtung (4C ohne Anweisung): Text gelesen, KEINE Anweisung gemeldet (${c0.arten.join(", ") || c0.zahl})`);
+    const scan = await ocrPruefen("#einzelDatei", "Vorlage-1A-PDF-Scan-ohne-Textebene.pdf", "application/pdf");
+    ok(scan.arten.includes("BILD-KI-ANWEISUNG") && /Seite 1, Bildtext Zeile/.test(scan.text),
+       `Vorlage 1A (Scan-PDF ohne Textebene): die Anweisung wird gefunden, mit Seite (${scan.arten.join(", ") || scan.zahl})`);
+    const scanPdf = await ocrPruefen("#pdfDatei", "Vorlage-1A-PDF-Scan-ohne-Textebene.pdf", "application/pdf");
+    ok(scanPdf.arten.includes("BILD-KI-ANWEISUNG"),
+       `… auch im PDF-Eingang (${scanPdf.arten.join(", ") || scanPdf.zahl})`);
+    /* Nie still: kommt die Texterkennung nicht an, steht „ungeprüft" da. */
+    const ohneTess = await browser.newPage();
+    await ohneTess.goto("http://127.0.0.1:8213/auslieferungspruefer.html");
+    await ohneTess.waitForFunction(() => !!window.PrueferAnhang);
+    await ohneTess.evaluate(() => PrueferAnhang.pfade({ tesseract: location.origin + "/gibt-es-nicht/" }));
+    await ohneTess.setInputFiles("#einzelDatei", { name: "brief.png", mimeType: "image/png",
+      buffer: fs.readFileSync(path.join(WURZEL, "testvorlagen", "Vorlage-1A-Bild-mit-Text.png")) });
+    await ohneTess.waitForFunction(() => !!document.querySelector("#ergebnis .pr-zahl"), null, { timeout: 60000 }).catch(() => {});
+    const leer = await ohneTess.evaluate(() => ({
+      zahl: (document.querySelector("#ergebnis .pr-zahl") || {}).textContent || "",
+      text: document.getElementById("ergebnis").textContent }));
+    ok(leer.zahl === "Text im Bild ungeprüft" && /Texterkennung lief nicht/.test(leer.text),
+       `ohne Texterkennung: „Text im Bild ungeprüft", nie „kein Befund" (${leer.zahl})`);
+    /* Und die Frist: ein Leser, der hängt, endet als „ungeprüft". */
+    const haengt = await ohneTess.evaluate(async (by) => {
+      PrueferAnhang.ocrFrist(300);
+      window.Tesseract = { createWorker: () => new Promise(() => {}) };
+      PrueferAnhang.pfade({ tesseract: location.origin + "/vendor/tesseract/" });
+      const r = await PrueferAnhang.pruefe("brief.png", new Uint8Array(by));
+      return { h: r.hinweise, u: r.bildUngeprueft };
+    }, [...fs.readFileSync(path.join(WURZEL, "testvorlagen", "Vorlage-1A-Bild-mit-Text.png"))]);
+    ok(haengt.u && haengt.h.some((h) => /ungeprüft.*Zeit abgelaufen/.test(h)),
+       `eine hängende Texterkennung endet an der Frist als „ungeprüft" (${haengt.h.join(" | ")})`);
+    await ohneTess.close();
+  }
   /* ══ DER KNOTEN MONTIERT WIRKLICH (2026-09-08) ════════════════════════════
    *
    * Klaus' Auftrag war „ein eigenständiger Knoten … mit Zelle und auch dem
