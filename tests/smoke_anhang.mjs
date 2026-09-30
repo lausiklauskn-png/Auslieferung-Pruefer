@@ -129,16 +129,17 @@ ok("Gegenrichtung: die echten Abrufe daneben bleiben gemeldet (bilder…, vorlag
    nsWirte.includes("bilder.beispiel.example") && nsWirte.includes("vorlagen.beispiel.example"), JSON.stringify(nsWirte));
 
 /* ══ STUFE 2 D · DER SEITENTEXT EINES PDFs (2026-09-29)
-   pdf.js und pdf-lib liegen neben Workflow PDF (Nachbar-Klon). Fehlen sie,
-   ist dieser Teil ⊘ NICHT LAUFFÄHIG — ungeprüft, nicht grün. */
+   pdf.js liegt seit 2026-09-30 im eigenen Ordner vendor/pdfjs/, pdf-lib (nur
+   zum Bauen der Proben) in tests/vendor/. Fehlen sie, ist dieser Teil
+   ⊘ NICHT LAUFFÄHIG — ungeprüft, nicht grün. */
 const fs = await import("node:fs"), vm = await import("node:vm");
-const WFP = join(WURZEL, "..", "Workflow-PDF", "vendor");
+const PDFJS = join(WURZEL, "vendor", "pdfjs"), PDFLIB = join(WURZEL, "tests", "vendor", "pdf-lib.min.js");
 let stumm = 0;
-if (!fs.existsSync(join(WFP, "pdfjs", "pdf.min.js")) || !fs.existsSync(join(WFP, "pdf-lib.min.js"))) {
-  stumm++; console.log("  ⊘ nicht lauffähig: Workflow-PDF/vendor liegt nicht daneben — der PDF-Seitentext ist UNGEPRÜFT");
+if (!fs.existsSync(join(PDFJS, "pdf.min.js")) || !fs.existsSync(PDFLIB)) {
+  stumm++; console.log("  ⊘ nicht lauffähig: vendor/pdfjs oder tests/vendor/pdf-lib.min.js fehlt — der PDF-Seitentext ist UNGEPRÜFT");
 } else {
   globalThis.self = globalThis;
-  vm.runInThisContext(fs.readFileSync(join(WFP, "pdf-lib.min.js"), "utf8"));
+  vm.runInThisContext(fs.readFileSync(PDFLIB, "utf8"));
   const PL = globalThis.PDFLib;
   async function pdfMit(seiten) {
     const d = await PL.PDFDocument.create(), f = await d.embedFont(PL.StandardFonts.Helvetica);
@@ -158,8 +159,8 @@ if (!fs.existsSync(join(WFP, "pdfjs", "pdf.min.js")) || !fs.existsSync(join(WFP,
   const src = fs.readFileSync(join(WURZEL, "assets/pruefer-anhang.js"), "utf8");
   ok("pdf.js wird ohne eval betrieben (isEvalSupported: false — CVE-2024-4367)", /isEvalSupported:\s*false/.test(src));
 
-  vm.runInThisContext(fs.readFileSync(join(WFP, "pdfjs", "pdf.worker.min.js"), "utf8"));
-  vm.runInThisContext(fs.readFileSync(join(WFP, "pdfjs", "pdf.min.js"), "utf8"));
+  vm.runInThisContext(fs.readFileSync(join(PDFJS, "pdf.worker.min.js"), "utf8"));
+  vm.runInThisContext(fs.readFileSync(join(PDFJS, "pdf.min.js"), "utf8"));
   ok("Selbst-Riegel: pdf.js ist geladen (sonst misst der Teil darunter nichts)", !!globalThis.pdfjsLib);
   require(join(WURZEL, "assets/pruefer-mail.js"));
 

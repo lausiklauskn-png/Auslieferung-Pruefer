@@ -3879,6 +3879,14 @@ probe "VORLAGEN: der PDF-Eingang liest den Seitentext wieder nicht" \
       assets/pruefer-ui.js \
       's|window.PrueferAnhang ? window.PrueferAnhang.pruefe(f.name, bytes)|false ? window.PrueferAnhang.pruefe(f.name, bytes)|'
 
+# ══ ALLEIN: der Prüfer hängt nicht an Workflow PDF (Klaus 2026-09-30) ══
+probe "ALLEIN: die Seite holt pdf.js wieder aus ../Workflow-PDF/" \
+      assets/pruefer-ui.js \
+      's|new URL("vendor/pdfjs/", location.href)|new URL("../Workflow-PDF/vendor/pdfjs/", location.href)|'
+probe "ALLEIN: pdf.js im eigenen Ordner ist verändert" \
+      vendor/pdfjs/pdf.min.js \
+      '1s|^|/* x */|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1

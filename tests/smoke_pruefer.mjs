@@ -1757,15 +1757,16 @@ if (!browser) {
   ok(/keine PDF-Datei/.test(keinPdf.text) && /Foto · Datei prüfen/.test(keinPdf.text),
      "… und sagt, dass es keine PDF-Datei ist und wie sie geprüft wurde");
   /* Stufe 2 D (2026-09-29): der SEITENTEXT eines PDFs. Die Seite holt pdf.js
-     selbst von ../Workflow-PDF/vendor/pdfjs/ — hier der Nachbar-Klon. Fehlt er,
-     ist dieser Teil übersprungen, nicht grün. */
-  const WFPV = path.join(WURZEL, "..", "Workflow-PDF", "vendor");
-  if (!fs.existsSync(path.join(WFPV, "pdfjs", "pdf.min.js")) || !fs.existsSync(path.join(WFPV, "pdf-lib.min.js"))) {
-    skip("PDF-Seitentext im Browser — Workflow-PDF/vendor liegt nicht daneben");
+     aus dem EIGENEN Ordner vendor/pdfjs/ (seit 2026-09-30, vorher von
+     ../Workflow-PDF/). pdf-lib baut nur die Probe-PDF (tests/vendor/). Fehlt
+     eins, ist dieser Teil übersprungen, nicht grün. */
+  const PDFLIB = path.join(WURZEL, "tests", "vendor", "pdf-lib.min.js");
+  if (!fs.existsSync(path.join(WURZEL, "vendor", "pdfjs", "pdf.min.js")) || !fs.existsSync(PDFLIB)) {
+    skip("PDF-Seitentext im Browser — vendor/pdfjs oder tests/vendor/pdf-lib.min.js fehlt");
   } else {
     const vm = await import("node:vm");
     globalThis.self = globalThis;
-    vm.runInThisContext(fs.readFileSync(path.join(WFPV, "pdf-lib.min.js"), "utf8"));
+    vm.runInThisContext(fs.readFileSync(PDFLIB, "utf8"));
     const PL = globalThis.PDFLib, d = await PL.PDFDocument.create(), f = await d.embedFont(PL.StandardFonts.Helvetica);
     let pg = d.addPage();
     pg.drawText("Rechnung 4711, Kontakt: max.muster@firma-4711.test", { x: 50, y: 700, font: f, size: 12 });
