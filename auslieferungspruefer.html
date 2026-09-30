@@ -31,10 +31,10 @@
      Goldrand), aber Paket statt Brief und Waldgrün statt Navy. Als Datei aus
      dem eigenen Ordner, nie von einer fremden Adresse. Vorher (2026-08-23 bis
      2026-09-30): ein Pfosten mit zwei Pfeilen, inline als SVG. -->
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=90">
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=90">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=90">
-<link rel="stylesheet" href="assets/style.css?v=90">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=91">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=91">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=91">
+<link rel="stylesheet" href="assets/style.css?v=91">
 <script>
 /* Thema VOR dem ersten Anstrich setzen — sonst blitzt bei jedem Aufruf kurz das
    Standard-Thema auf, bevor die gespeicherte Wahl greift. Absichtlich winzig
@@ -307,7 +307,7 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
       <button class="thema-knopf" id="themaKnopf" type="button">
         <span class="thema-zeichen" aria-hidden="true">◐</span><span class="thema-name">Nacht</span>
       </button>
-      <a href="https://pwa-toolpoint.de/" data-i18n="nav_zum_markt">← Marktplatz</a>
+      <!-- Kein „← Marktplatz“ mehr (Klaus 2026-09-30): eine eigene App, kein Teil von PWA Toolpoint. -->
     </nav>
   </div>
 </header>
@@ -533,7 +533,7 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
     <p class="feldhinweis" style="margin:0 0 8px" data-i18n-html="pr_29">Ganze Adresse eintragen, mit
     <code>https://</code> davor. Beispiele:</p>
     <ul class="pr-beispiele">
-      <li><button type="button" class="pr-bsp" data-adresse="https://pwa-toolpoint.de/">https://pwa-toolpoint.de/</button> <span data-i18n="pr_bsp_hier">— diese Seite hier</span></li>
+      <li><button type="button" class="pr-bsp" data-adresse="https://pwa-toolpoint.de/">https://pwa-toolpoint.de/</button> <span data-i18n="pr_bsp_hier">— der Marktplatz PWA Toolpoint</span></li>
       <li><button type="button" class="pr-bsp" data-adresse="https://family-projekt.de/">https://family-projekt.de/</button></li>
       <li><button type="button" class="pr-bsp" data-adresse="https://lausiklauskn-png.github.io/Sage-Protokol/">https://lausiklauskn-png.github.io/Sage-Protokol/</button></li>
     </ul>
@@ -736,22 +736,24 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
 
 </main>
 
-<script src="assets/i18n-pruefer.js?v=90"></script>
-<script src="assets/sprache.js?v=90"></script>
-<script src="assets/thema.js?v=90"></script>
-<script src="assets/pruefer.js?v=90"></script>
+<script src="assets/i18n-pruefer.js?v=91"></script>
+<script src="assets/sprache.js?v=91"></script>
+<script src="assets/thema.js?v=91"></script>
+<script src="assets/pruefer.js?v=91"></script>
 <!-- ⚠ REIHENFOLGE. `pruefer-formate.js` holt sich die Fülltext-Liste aus
      `pruefer.js` — eine zweite, eigene Liste wäre eine Drift-Quelle mit Ansage.
      Und `pruefer-ui.js` steht zuletzt, weil es alle drei bedient. -->
-<script src="assets/pruefer-formate.js?v=90"></script>
-<script src="assets/pruefer-browser.js?v=90"></script>
+<script src="assets/pruefer-formate.js?v=91"></script>
+<script src="assets/pruefer-browser.js?v=91"></script>
 <!-- ⚠ NACH `pruefer-formate.js`: der Mail-Eingang leiht sich dessen
      Schlüssel-Muster und die IBAN-Prüfung, statt zweite Listen zu führen.
      Fehlt die Datei, sagt er das im Ergebnis, statt still weniger zu prüfen. -->
-<script src="assets/pruefer-mail.js?v=90"></script>
+<script src="assets/pruefer-mail.js?v=91"></script>
 <!-- Anhänge und einzelne Dateien öffnen — hier gepflegt, byte-1:1 im Sende-Prüfer. -->
-<script src="assets/pruefer-anhang.js?v=90"></script>
-<script src="assets/pruefer-ui.js?v=90"></script>
+<script src="assets/pruefer-anhang.js?v=91"></script>
+<script src="assets/pruefer-ui.js?v=91"></script>
+<!-- Knopf „Installieren" in der Kopfleiste (Klaus 2026-09-30, aus dem Sende-Prüfer). -->
+<script src="assets/installieren.js?v=91"></script>
 <!-- ══ SBKIM — der Auslieferungsprüfer als eigener Knoten im Mycel ═══════════
      Eigene Identität, eigene Spore, das schwebende Verbinden-Fenster, die
      Status-Pille von Modul 17 und das selbstausfüllende Siegel mit dem
@@ -767,9 +769,9 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
      `netz.js` steht ZUERST: die Relais-Liste des Prüfers liest die des
      Marktplatzes ab, statt sie abzuschreiben — zwei Listen derselben
      Poststellen laufen auseinander. -->
-<script src="assets/config/netz.js?v=90"></script>
-<script src="assets/config/pruefer-netz.js?v=90"></script>
-<script src="assets/pruefer-sbkim-init.js?v=90"></script>
+<script src="assets/config/netz.js?v=91"></script>
+<script src="assets/config/pruefer-netz.js?v=91"></script>
+<script src="assets/pruefer-sbkim-init.js?v=91"></script>
 <!-- ⚠ EIGENE APP SEIT 2026-09-26: im Marktplatz registrierte die STARTSEITE den
      Service-Worker, der Prüfer nicht. Als eigenständige PWA braucht er ihn selbst,
      sonst läuft er offline nicht. -->

@@ -362,3 +362,16 @@ echte Fotos mit blassem Text; wie klein oder wie blass es noch geht.
 
 Proben: `smoke_anhang` (Spreizung und Vergleich, 72 grün) · `smoke_pruefer`
 (2B, H0, 4C, 1A, geteilte Frist; 299 grün) · Gegenprobe `NUR_FALL="BLASS:"` (6 Fälle).
+
+## ⬇ Installieren-Knopf, kein „← Marktplatz" (Klaus 2026-09-30)
+
+Im Sende-Prüfer hat der Knopf „Installieren“ am Tablet eine echte App erzeugt (vorher nur eine
+Chrome-Verknüpfung, „App konnte nicht geöffnet werden“); hier ging es ohne ihn nicht.
+`assets/installieren.js` (aus dem Sende-Prüfer, DE/EN nach `<html lang>`) hängt den Knopf vor ⟳:
+Browser bietet an → sein Dialog · bietet nicht an → der Weg (Verknüpfung entfernen, neu laden) ·
+läuft als App → „✓ App“. Klaus: *„die App soll installierbar sein, für andere auch … dann kommt oben
+Marktplatz wieder zurück, dann scheint das so zu sein, als wenn das ein Teil von PWA Toolpoint ist.“*
+Deshalb steht in der Kopfleiste kein „← Marktplatz“ mehr; Impressum und Datenschutz führen zurück
+in die App. Das Beispiel `https://pwa-toolpoint.de/` heißt nicht mehr „diese Seite hier“.
+Probe `smoke_pruefer` (1300 und 360 px, beide Lagen, Englisch). Cache v16, `?v=91`.
+⚠ Am Tablet nicht gemessen.
