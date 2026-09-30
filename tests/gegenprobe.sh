@@ -3886,6 +3886,9 @@ probe "ALLEIN: die Seite holt pdf.js wieder aus ../Workflow-PDF/" \
 probe "ALLEIN: pdf.js im eigenen Ordner ist verändert" \
       vendor/pdfjs/pdf.min.js \
       '1s|^|/* x */|'
+probe "ALLEIN: ein PDF im HTML-Eingang landet wieder als HTML im Quelltext" \
+      assets/pruefer-ui.js \
+      's|if (pdf \|\| binaer) {|if (false) {|'
 
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
