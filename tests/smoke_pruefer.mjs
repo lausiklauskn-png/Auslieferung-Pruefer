@@ -2125,6 +2125,43 @@ if (!browser) {
        `Gegenrichtung (4C mit Botschaft in den Bildpunkten): kein KI-Befund, keine blasse Zeile (${c4.arten.join(", ") || c4.zahl})`);
     ok(!/blass/.test(a1.text.split("Blasser Text:")[0]) && /Blasser Text: der zweite Lesedurchgang mit mehr Kontrast fand keine weitere Zeile/.test(a1.text),
        "Vorlage 1A: die sichtbare Anweisung heißt NICHT blass, der zweite Durchgang findet nichts dazu");
+    /* ══ UNSICHTBARER TEXT IM PDF — Stufe 2 E (2026-09-30): die Textebene
+       jeder Seite wird gegen die Texterkennung ihres Bildes gelesen. 0D trägt
+       auf Seite 2 eine weiße Anweisung, 3E auf Seite 1. Gegenrichtung: Seite 1
+       von 0D und ein sauberes, gedrucktes PDF (Vorlage 1A-Bild als Text). */
+    const d0 = await ocrPruefen("#einzelDatei", "Vorlage-0D-PDF-versteckter-Text.pdf", "application/pdf");
+    ok(d0.arten.includes("PDF-VERSTECKTER-TEXT") && /weicht ab \(Seite 2\)/.test(d0.text),
+       `Vorlage 0D: unsichtbarer Text auf Seite 2 wird gemeldet (${d0.arten.join(", ") || d0.zahl})`);
+    ok(!/weicht ab \(Seite 1\)/.test(d0.text), "… und Seite 1 (sichtbarer Brief) NICHT");
+    ok(/„[^“]*ignore previous instructions/i.test(d0.text), "… der Befund nennt die unsichtbaren Wörter");
+    ok(/Textebene gegen das Seitenbild gelesen: 2 Seite\(n\) in [\d,.]+ s/.test(d0.text), "… und das Ergebnis sagt, wie viele Seiten in welcher Zeit gegengelesen wurden");
+    const e3 = await ocrPruefen("#einzelDatei", "Vorlage-3E-PDF-Bild-und-Textebene-widersprechen.pdf", "application/pdf");
+    ok(e3.arten.includes("PDF-VERSTECKTER-TEXT") && /Was man sieht und was im Text steht, weicht ab \(Seite 1\)/.test(e3.text),
+       `Vorlage 3E: „Was man sieht und was im Text steht, weicht ab (Seite 1)“ (${e3.arten.join(", ") || e3.zahl})`);
+    const e3pdf = await ocrPruefen("#pdfDatei", "Vorlage-3E-PDF-Bild-und-Textebene-widersprechen.pdf", "application/pdf");
+    ok(e3pdf.arten.includes("PDF-VERSTECKTER-TEXT"), `… auch im PDF-Eingang (${e3pdf.arten.join(", ") || e3pdf.zahl})`);
+    /* ein sauberes PDF: gedruckter Text, alles sichtbar */
+    {
+      const vmE = await import("node:vm");
+      globalThis.self = globalThis;
+      if (!globalThis.PDFLib) vmE.runInThisContext(fs.readFileSync(path.join(WURZEL, "tests", "vendor", "pdf-lib.min.js"), "utf8"));
+      const PLE = globalThis.PDFLib, de = await PLE.PDFDocument.create(), fe = await de.embedFont(PLE.StandardFonts.Helvetica);
+      const pe = de.addPage([595, 842]);
+      ["Sehr geehrte Frau Beispiel,", "vielen Dank für Ihre Bestellung vom dritten September.",
+       "Die Lieferung erfolgt voraussichtlich in der kommenden Woche.", "Mit freundlichen Grüßen", "Ihr Kundenservice"]
+        .forEach((z, i) => pe.drawText(z, { x: 60, y: 760 - i * 28, font: fe, size: 14 }));
+      const sauberPfad = path.join(os.tmpdir(), "e-sauber-" + process.pid + ".pdf");
+      fs.writeFileSync(sauberPfad, Buffer.from(await de.save()));
+      await echteSeite.evaluate(() => { document.getElementById("ergebnis").textContent = ""; });
+      await echteSeite.setInputFiles("#einzelDatei", sauberPfad);
+      await echteSeite.waitForFunction(() => !!document.querySelector("#ergebnis .pr-zahl"), null, { timeout: 150000 }).catch(() => {});
+      const sauber = await echteSeite.evaluate(() => ({
+        arten: [...document.querySelectorAll("#ergebnis .pr-kennung")].map((x) => x.textContent),
+        text: document.getElementById("ergebnis").textContent }));
+      fs.rmSync(sauberPfad, { force: true });
+      ok(!sauber.arten.includes("PDF-VERSTECKTER-TEXT") && /Textebene gegen das Seitenbild gelesen: 1 Seite/.test(sauber.text),
+         `Gegenrichtung (sauberes PDF): gegengelesen, KEIN unsichtbarer Text (${sauber.arten.join(", ")})`);
+    }
     /* Nie still: kommt die Texterkennung nicht an, steht „ungeprüft" da. */
     const ohneTess = await browser.newPage();
     await ohneTess.goto("http://127.0.0.1:8213/auslieferungspruefer.html");
@@ -2165,6 +2202,35 @@ if (!browser) {
     ok(geteilt.h.some((h) => /Blasser Text ungeprüft.*Zeit abgelaufen/.test(h)) && geteilt.h.some((h) => /Text im Bild gelesen: 1 Zeile/.test(h)),
        `hängt der zweite Durchgang: „Blasser Text ungeprüft“, der erste bleibt gelesen (${geteilt.h.join(" | ")})`);
     ok(geteilt.ms < 1000, `… und beide Durchgänge teilen sich EINE Frist (${Math.round(geteilt.ms)} ms, getrennt wären es rund 1060)`);
+    /* Stufe 2 E, nie still: hängt die Texterkennung, heißt das Gegenlesen
+       „ungeprüft"; und hinter Seite 10 wird es benannt. Die PDFs baut pdf-lib. */
+    const vmE2 = await import("node:vm");
+    globalThis.self = globalThis;
+    if (!globalThis.PDFLib) vmE2.runInThisContext(fs.readFileSync(path.join(WURZEL, "tests", "vendor", "pdf-lib.min.js"), "utf8"));
+    const PLG = globalThis.PDFLib;
+    async function pdfMit(seiten) {
+      const dg = await PLG.PDFDocument.create(), fg = await dg.embedFont(PLG.StandardFonts.Helvetica);
+      for (let i = 1; i <= seiten; i++) dg.addPage([595, 842]).drawText("Seite " + i + ": Rechnung und Lieferschein folgen", { x: 60, y: 760, font: fg, size: 14 });
+      return [...Buffer.from(await dg.save())];
+    }
+    const eHaengt = await ohneTess.evaluate(async (by) => {
+      PrueferAnhang.ocrFrist(300);
+      window.Tesseract = { createWorker: () => new Promise(() => {}) };
+      const r = await PrueferAnhang.pruefe("brief.pdf", new Uint8Array(by));
+      return { h: r.hinweise, u: r.bildUngeprueft, arten: r.befunde.map((b) => b.kennung) };
+    }, await pdfMit(1));
+    ok(eHaengt.u && eHaengt.h.some((h) => /Textebene NICHT gegengelesen auf Seite 1.*ungeprüft, nicht sauber/.test(h)) && !eHaengt.arten.includes("PDF-VERSTECKTER-TEXT"),
+       `E: hängt die Texterkennung, ist das Gegenlesen „ungeprüft", nie sauber (${eHaengt.h.filter((h) => /gegen/i.test(h)).join(" | ")})`);
+    const eZwoelf = await ohneTess.evaluate(async (by) => {
+      PrueferAnhang.ocrFrist(90000);
+      window.Tesseract = { createWorker: async () => ({ terminate() {}, recognize: async () => ({ data: { blocks: [] } }) }) };
+      const r = await PrueferAnhang.pruefe("lang.pdf", new Uint8Array(by));
+      return { h: r.hinweise };
+    }, await pdfMit(12));
+    ok(eZwoelf.h.some((h) => /Textebene gegen das Seitenbild gelesen: 10 Seite\(n\)/.test(h)),
+       `E: höchstens 10 Seiten werden gegengelesen (${eZwoelf.h.filter((h) => /gegen/i.test(h)).join(" | ")})`);
+    ok(eZwoelf.h.some((h) => /Seiten 11–12 nicht gegengelesen \(höchstens 10\).*ungeprüft/.test(h)),
+       "… und „Seiten 11–12 nicht gegengelesen“ steht da, nie still");
     await ohneTess.close();
   }
   /* ══ DER KNOTEN MONTIERT WIRKLICH (2026-09-08) ════════════════════════════

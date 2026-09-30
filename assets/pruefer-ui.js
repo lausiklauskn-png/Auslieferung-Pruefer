@@ -233,6 +233,20 @@
            "Auge kaum zu sehen — genau das ist der Trick (Stufe 2 B)."
     },
 
+    /* Stufe 2 E (2026-09-30): die Textebene eines PDFs wird gegen das gelesen,
+       was die Texterkennung auf dem gezeichneten Seitenbild sieht. */
+    "PDF-VERSTECKTER-TEXT": {
+      kurz: "unsichtbarer Text",
+      kopf: "Was man sieht und was im Text steht, weicht ab.",
+      rat: "In der Textebene der Seite stehen Wörter, die auf dem Bild der Seite " +
+           "nicht zu sehen sind — weiß auf weiß, winzig klein, hinter einem Bild " +
+           "oder als unsichtbar markiert. Wer das PDF kopiert, durchsucht oder " +
+           "einer KI gibt, bekommt diese Wörter mit, ein Mensch beim Lesen nicht. " +
+           "Die Texterkennung auf dem Gerät kann sich verlesen; ⚠ ein Treffer ist " +
+           "deshalb kein Beweis. Abhilfe: in der Seite alles markieren (Strg+A) " +
+           "und sehen, was aufleuchtet, oder das PDF neu ausgeben."
+    },
+
     /* ── E-Mail ──────────────────────────────────────────────────────────
        Wie oben: die Sätze stehen HIER und nicht in `pruefer-mail.js`. Dort
        stehen die Tatsachen, hier steht, was sie für einen Menschen bedeuten
@@ -1169,7 +1183,7 @@
       ]).then(function (beide) {
           var r = beide[0], ra = beide[1], stellen = r.stellen.slice(), mehr = [];
           if (ra) {
-            anhangTreffer(f.name, { befunde: ra.befunde.filter(function (b) { return b.kennung === "PDF-KI-ANWEISUNG" || b.kennung === "BILD-KI-ANWEISUNG"; }),
+            anhangTreffer(f.name, { befunde: ra.befunde.filter(function (b) { return b.kennung === "PDF-KI-ANWEISUNG" || b.kennung === "BILD-KI-ANWEISUNG" || b.kennung === "PDF-VERSTECKTER-TEXT"; }),
               seiten: ra.seiten }, "").forEach(function (x) { stellen.push(x); });
             mehr = ra.hinweise.filter(function (h) { return r.hinweise.indexOf(h) < 0; });
           } else mehr = ["Der Datei-Prüfer (assets/pruefer-anhang.js) ist nicht geladen — der Seitentext ist ungeprüft."];

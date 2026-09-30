@@ -375,3 +375,44 @@ Deshalb steht in der Kopfleiste kein „← Marktplatz“ mehr; Impressum und Da
 in die App. Das Beispiel `https://pwa-toolpoint.de/` heißt nicht mehr „diese Seite hier“.
 Probe `smoke_pruefer` (1300 und 360 px, beide Lagen, Englisch). Cache v16, `?v=91`.
 ⚠ Am Tablet nicht gemessen.
+
+## 👁 Stufe 2 E · unsichtbarer Text im PDF (2026-09-30)
+
+Je PDF-Seite (höchstens die ersten 10, `GEGEN_SEITEN_MAX`) wird die Textebene
+(pdf.js, D) gegen die Texterkennung des GEZEICHNETEN Seitenbildes gelesen (A,
+`OCR_KANTE`, `OCR_FRIST`). Wörter ab 3 Zeichen, die nur in der Textebene stehen
+UND an deren Stelle im Bild keine Schrift zu sehen ist, sind versteckt: ab 2 auf
+einer Seite → **`PDF-VERSTECKTER-TEXT`** „Was man sieht und was im Text steht,
+weicht ab (Seite n)“, mit den Wörtern.
+
+⚠ **„Nicht gelesen" ist nicht „unsichtbar" — gemessen, nicht geraten.** An 0D, 3E
+und 104 sauberen Seiten aus 18 PDFs der eigenen Depots übersah die Texterkennung
+auf SAUBEREN Seiten bis zu 11 verschiedene Wörter, bis zu 12 am Stück (kleine Schrift auf einem Foto,
+grau auf dunkel) — mehr als 0D (10). Keine Zählung trennt das. Deshalb sieht
+`tinteIm` jedes fehlende Wort an SEINER Stelle nach (Kasten aus `getTextContent`,
+Helligkeit schwankt um ≥ `GEGEN_TINTE` 40; unter `GEGEN_MIN_PX` 4 px Höhe oder
+außerhalb der Seite = nicht sichtbar). Danach (Messung 5, 106 Seiten):
+
+| | versteckte Wörter |
+|---|---|
+| 0D Seite 2 (weiß, 1 pt) | 10 → Befund |
+| 3E Seite 1 (Darstellungsart 3) | 12 von 16 → Befund |
+| 0D Seite 1 und alle 104 sauberen Seiten | **0** |
+
+`GEGEN_MIN_VERSTECKT` 2 ist gewählt zwischen 0 und 10. Zeit: **0,3–2,9 s je
+Seite**, höchstens 26 s für 10 Seiten (Behälter, nicht Tablet). Ein umgekehrter
+zweiter Lesedurchgang war gebaut und ist wieder raus: was er liest, hat an
+seiner Stelle ohnehin Schrift.
+
+- **Nie still:** über 10 Seiten „Seiten 11–N nicht gegengelesen“; hängt die
+  Texterkennung oder fehlt sie → „Textebene NICHT gegengelesen … ungeprüft,
+  nicht sauber“ (`bildUngeprueft`); ohne Browser ebenso. Seiten ohne Textebene
+  laufen über A, und das steht da.
+- ⚠ **GRENZE:** Text hinter oder über einem Foto fällt durch — dort zählen die
+  Bildpunkte als Schrift. In 3E liegen 4 Wörter über einer sichtbaren Zeile.
+- ⚠ Die Befundtexte sind nur Deutsch (wie alle Befunde); Kurzname, Kopf und Rat
+  stehen in `pruefer-ui.js`, der Satz auf der Seite (pr_45, pr_63) DE/EN.
+- Proben: `smoke_anhang` (Vergleich, Tinte, Wort-Kästen) · `smoke_pruefer`
+  (0D, 3E, sauberes PDF, hängende Erkennung, 12 Seiten) · Gegenprobe
+  `NUR_FALL="VERSTECKT:"` (8 Fälle). Cache v19, alle `?v=92`.
+- ⚠ Nicht gemessen: das Tablet (Zeit, Speicher), echte PDFs von Klaus.

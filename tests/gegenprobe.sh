@@ -3938,6 +3938,35 @@ probe "BLASS: ein Ausfall des zweiten Durchgangs wird verschwiegen" \
       assets/pruefer-anhang.js \
       's|if (r2.fehlt) hinweise.push(|if (false) hinweise.push(|'
 
+# ══ VERSTECKT: unsichtbarer Text im PDF (Stufe 2 E, 2026-09-30) ══
+# Keine Fälle für „die Tinte sieht nirgends Schrift" und „winzige Schrift zählt
+# als sichtbar": der erste greift nur, wo die Texterkennung SICHTBAREN Text
+# übersieht (in keiner Probe-PDF), der zweite wird in 0D vom Weiß gedeckt.
+probe "VERSTECKT: die Textebene wird nicht mehr gegen das Seitenbild gelesen" \
+      assets/pruefer-anhang.js \
+      's|var mitText = seiten.filter(function (x) { return x.text; }).map|var mitText = [].filter(function (x) { return x.text; }).map|'
+probe "VERSTECKT: der Befund wird nicht mehr gemeldet" \
+      assets/pruefer-anhang.js \
+      's|if (v.versteckt.length >= GEGEN_MIN_VERSTECKT)|if (false)|'
+probe "VERSTECKT: die Tinten-Prüfung sieht überall Schrift" \
+      assets/pruefer-anhang.js \
+      's|return hi - lo >= GEGEN_TINTE;|return true;|'
+probe "VERSTECKT: ein Wort, das einmal sichtbar steht, gilt trotzdem als versteckt" \
+      assets/pruefer-anhang.js \
+      's|da.every(function (x) { return !tinte(x); })|da.some(function (x) { return !tinte(x); })|'
+probe "VERSTECKT: hinter Seite 10 wird still nicht gegengelesen" \
+      assets/pruefer-anhang.js \
+      's|if (gesamt > GEGEN_SEITEN_MAX) hinweise.push(|if (false) hinweise.push(|'
+probe "VERSTECKT: die Seitengrenze fällt weg" \
+      assets/pruefer-anhang.js \
+      's|return n <= GEGEN_SEITEN_MAX; });|return true; });|'
+probe "VERSTECKT: eine hängende Texterkennung wird verschwiegen" \
+      assets/pruefer-anhang.js \
+      's|hinweise.push("Textebene NICHT gegengelesen auf Seite "|void ("Textebene NICHT gegengelesen auf Seite "|'
+probe "VERSTECKT: der PDF-Eingang lässt den Befund wieder weg" \
+      assets/pruefer-ui.js \
+      's# .. b.kennung === "PDF-VERSTECKTER-TEXT"; })#; })#'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1
