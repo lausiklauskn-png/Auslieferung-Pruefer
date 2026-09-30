@@ -284,8 +284,22 @@ if (!fs.existsSync(join(PDFJS, "pdf.min.js")) || !fs.existsSync(PDFLIB)) {
   ok("… ein kurzes Wort steckt NICHT als Teil in einem langen („and“ in „Landrat“)",
      A.vergleiche("and Landrat", ["Landrat"]).fehlt.join() === "and");
   ok("… und stimmen Bild und Text überein, fehlt nichts", A.vergleiche(seite, seite.split("\n")).fehlt.length === 0);
-  ok("die Schwelle und die Seitenzahl sind benannt (" + A.GEGEN_MIN_FEHLT + " Wörter, " + A.GEGEN_SEITEN_MAX + " Seiten)",
-     A.GEGEN_MIN_FEHLT >= 2 && A.GEGEN_SEITEN_MAX === 10);
+  ok("die Schwelle und die Seitenzahl sind benannt (" + A.GEGEN_MIN_VERSTECKT + " Wörter, " + A.GEGEN_SEITEN_MAX + " Seiten)",
+     A.GEGEN_MIN_VERSTECKT === 2 && A.GEGEN_SEITEN_MAX === 10);
+  /* Die Tinten-Prüfung: ein fehlendes Wort zählt nur, wenn an JEDER seiner
+     Stellen keine Schrift zu sehen ist. Die Tinte ist hier gestellt. */
+  const kaesten = [{ w: "ignore", t: false }, { w: "previous", t: false }, { w: "mixarium", t: true },
+                   { w: "files", t: false }, { w: "files", t: true }];
+  const vs = A.versteckteWoerter(["ignore", "previous", "mixarium", "files", "gibtsnicht"], kaesten, (k) => k.t);
+  ok("Tinte: ein Wort OHNE Schrift an seiner Stelle ist versteckt, eines MIT Schrift nicht (" + vs.join(" ") + ")",
+     JSON.stringify(vs) === JSON.stringify(["ignore", "previous"]));
+  ok("… steht dasselbe Wort einmal sichtbar, ist es nicht versteckt", !vs.includes("files"));
+  ok("… und ein Wort ohne Kasten wird nicht geraten", !vs.includes("gibtsnicht"));
+  const vp = { convertToViewportPoint: (x, y) => [x * 2, (842 - y) * 2] };
+  const wk = A.wortKaesten([{ str: "Rechnung 4711 ok", transform: [10, 0, 0, 10, 60, 700], width: 160 }], vp);
+  ok("Wort-Kästen: jedes Wort bekommt seinen Anteil der Breite (" + wk.map((k) => k.w + ":" + Math.round(k.x0) + "–" + Math.round(k.x1)).join(" ") + ")",
+     wk.length === 3 && wk[0].w === "rechnung" && Math.round(wk[0].x0) === 120 && Math.round(wk[0].x1) === 280 && Math.round(wk[1].x0) === 300);
+  ok("… und die Höhe der Schrift (" + Math.round(wk[0].y1 - wk[0].y0) + " px bei 10 pt und Maßstab 2)", Math.round(wk[0].y1 - wk[0].y0) === 20);
   ok("die Befundart ist in der Liste", A.BEFUNDE.includes("PDF-VERSTECKTER-TEXT"));
 }
 

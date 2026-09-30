@@ -2202,6 +2202,35 @@ if (!browser) {
     ok(geteilt.h.some((h) => /Blasser Text ungeprüft.*Zeit abgelaufen/.test(h)) && geteilt.h.some((h) => /Text im Bild gelesen: 1 Zeile/.test(h)),
        `hängt der zweite Durchgang: „Blasser Text ungeprüft“, der erste bleibt gelesen (${geteilt.h.join(" | ")})`);
     ok(geteilt.ms < 1000, `… und beide Durchgänge teilen sich EINE Frist (${Math.round(geteilt.ms)} ms, getrennt wären es rund 1060)`);
+    /* Stufe 2 E, nie still: hängt die Texterkennung, heißt das Gegenlesen
+       „ungeprüft"; und hinter Seite 10 wird es benannt. Die PDFs baut pdf-lib. */
+    const vmE2 = await import("node:vm");
+    globalThis.self = globalThis;
+    if (!globalThis.PDFLib) vmE2.runInThisContext(fs.readFileSync(path.join(WURZEL, "tests", "vendor", "pdf-lib.min.js"), "utf8"));
+    const PLG = globalThis.PDFLib;
+    async function pdfMit(seiten) {
+      const dg = await PLG.PDFDocument.create(), fg = await dg.embedFont(PLG.StandardFonts.Helvetica);
+      for (let i = 1; i <= seiten; i++) dg.addPage([595, 842]).drawText("Seite " + i + ": Rechnung und Lieferschein folgen", { x: 60, y: 760, font: fg, size: 14 });
+      return [...Buffer.from(await dg.save())];
+    }
+    const eHaengt = await ohneTess.evaluate(async (by) => {
+      PrueferAnhang.ocrFrist(300);
+      window.Tesseract = { createWorker: () => new Promise(() => {}) };
+      const r = await PrueferAnhang.pruefe("brief.pdf", new Uint8Array(by));
+      return { h: r.hinweise, u: r.bildUngeprueft, arten: r.befunde.map((b) => b.kennung) };
+    }, await pdfMit(1));
+    ok(eHaengt.u && eHaengt.h.some((h) => /Textebene NICHT gegengelesen auf Seite 1.*ungeprüft, nicht sauber/.test(h)) && !eHaengt.arten.includes("PDF-VERSTECKTER-TEXT"),
+       `E: hängt die Texterkennung, ist das Gegenlesen „ungeprüft", nie sauber (${eHaengt.h.filter((h) => /gegen/i.test(h)).join(" | ")})`);
+    const eZwoelf = await ohneTess.evaluate(async (by) => {
+      PrueferAnhang.ocrFrist(90000);
+      window.Tesseract = { createWorker: async () => ({ terminate() {}, recognize: async () => ({ data: { blocks: [] } }) }) };
+      const r = await PrueferAnhang.pruefe("lang.pdf", new Uint8Array(by));
+      return { h: r.hinweise };
+    }, await pdfMit(12));
+    ok(eZwoelf.h.some((h) => /Textebene gegen das Seitenbild gelesen: 10 Seite\(n\)/.test(h)),
+       `E: höchstens 10 Seiten werden gegengelesen (${eZwoelf.h.filter((h) => /gegen/i.test(h)).join(" | ")})`);
+    ok(eZwoelf.h.some((h) => /Seiten 11–12 nicht gegengelesen \(höchstens 10\).*ungeprüft/.test(h)),
+       "… und „Seiten 11–12 nicht gegengelesen“ steht da, nie still");
     await ohneTess.close();
   }
   /* ══ DER KNOTEN MONTIERT WIRKLICH (2026-09-08) ════════════════════════════
