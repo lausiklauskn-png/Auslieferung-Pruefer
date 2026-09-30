@@ -61,9 +61,9 @@ const KANON = {
   'sbkim/07_apoptose.js':       '0acdd6ab2d95',
   'sbkim/15_membran.js':        '829a5bc01976',
   'sbkim/16_siegel.js':         'd84fa539e76e',
-  'sbkim/17_floating_widget.js':'3f757b35cea5',
+  'sbkim/17_floating_widget.js':'e4ee076c1295',
   'sbkim/23_rendezvous.js':     '3caa0bb1fbe7',
-  'sbkim/23_rendezvous_ui.js':  'f6c44607a797',
+  'sbkim/23_rendezvous_ui.js':  'fc47f16b24d5',
   'sbkim/noble-secp256k1.js':   '8f3879ca422c',
   /* Der Wizard: seit A18 eine Kanon-Datei (Sage 16b_andock_wizard.js), die
      Identität steht getrennt in pruefer-siegel-inhalt.js. Drüben wurde er gegen
