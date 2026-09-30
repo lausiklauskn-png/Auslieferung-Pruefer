@@ -1805,6 +1805,15 @@ if (!browser) {
     '<!DOCTYPE html>\n<html lang="de"><body><p>Wir laden Sie ein, <a href="https://verein.example/">mehr</a>.</p><img src="fest.png" alt="Fest"></body></html>'));
   ok(htmlOk.zahl === "kein Befund" && htmlOk.arten.length === 0,
      `eine harmlose HTML-Seite meldet nichts Falsches (${htmlOk.zahl}: ${htmlOk.arten.join(", ")})`);
+  await seite.evaluate(() => { window.__hp = window.Auslieferungspruefer; window.Auslieferungspruefer = undefined; });
+  const htmlOhne = await dateiPruefen("rechnung.html", "text/html", Buffer.from(HTML_BOESE));
+  const htmlOhneOk = await dateiPruefen("einladung.html", "text/html", Buffer.from(
+    '<!DOCTYPE html>\n<html lang="de"><body><p>Wir laden Sie ein.</p></body></html>'));
+  await seite.evaluate(() => { window.Auslieferungspruefer = window.__hp; });
+  ok(htmlOhne.zahl !== "kein Befund" && /nicht geladen/.test(htmlOhne.text),
+     `fehlt der HTML-Prüfer, ist eine Seite mit fremden Rechnern nicht „kein Befund", und der Grund steht da (${htmlOhne.zahl})`);
+  ok(htmlOhneOk.zahl === "HTML-Seite ungeprüft" && /nicht geladen/.test(htmlOhneOk.text),
+     `… und eine ohne Fund heißt „HTML-Seite ungeprüft", nicht „Text im Bild ungeprüft" (${htmlOhneOk.zahl})`);
   const MITHTML = ["From: a@b.test", "Subject: Rechnung", 'Content-Type: multipart/mixed; boundary="G"', "",
     "--G", "Content-Type: text/plain", "", "Anbei die Rechnung.", "--G",
     'Content-Type: text/html; name="rechnung.html"', 'Content-Disposition: attachment; filename="rechnung.html"',

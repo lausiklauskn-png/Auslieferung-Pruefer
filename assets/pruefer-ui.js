@@ -548,7 +548,7 @@
        sagen etwas Verschiedenes, und die zweite ist die, nach der man handelt.
        Wo beide gleich sind, steht nur eine — sonst wäre es Ziererei. */
     var stellenZahl = treffer.length;
-    var text1 = ungeprueft ? "Text im Bild ungeprüft" : stellenZahl === 0 ? "kein Befund"
+    var text1 = ungeprueft ? (opt.ungeprueftSatz || "Text im Bild ungeprüft") : stellenZahl === 0 ? "kein Befund"
       : (gruppen.length === stellenZahl
           ? stellenZahl + (stellenZahl === 1 ? " Befund" : " Befunde")
           : gruppen.length + (gruppen.length === 1 ? " Sache" : " Sachen") +
@@ -1272,6 +1272,8 @@
       zeige(anhangTreffer(f.name, r, ""), "", {
         titel: "Auslieferungsprüfer · Datei",
         ungeprueft: r.bildUngeprueft,
+        /* Eine HTML-Seite ohne HTML-Prüfer ist kein Bild — der Kopf sagt, was fehlt. */
+        ungeprueftSatz: r.art === "html" ? "HTML-Seite ungeprüft" : "",
         hinweise: vorweg.concat([f.name + " · " + r.artName + " · " + window.PrueferAnhang.gross(f.size)])
           .concat(r.hinweise),
         leerSatz: "Kein Befund heißt: nichts von dem gefunden, wonach dieser " +
