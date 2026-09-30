@@ -2125,6 +2125,43 @@ if (!browser) {
        `Gegenrichtung (4C mit Botschaft in den Bildpunkten): kein KI-Befund, keine blasse Zeile (${c4.arten.join(", ") || c4.zahl})`);
     ok(!/blass/.test(a1.text.split("Blasser Text:")[0]) && /Blasser Text: der zweite Lesedurchgang mit mehr Kontrast fand keine weitere Zeile/.test(a1.text),
        "Vorlage 1A: die sichtbare Anweisung heißt NICHT blass, der zweite Durchgang findet nichts dazu");
+    /* ══ UNSICHTBARER TEXT IM PDF — Stufe 2 E (2026-09-30): die Textebene
+       jeder Seite wird gegen die Texterkennung ihres Bildes gelesen. 0D trägt
+       auf Seite 2 eine weiße Anweisung, 3E auf Seite 1. Gegenrichtung: Seite 1
+       von 0D und ein sauberes, gedrucktes PDF (Vorlage 1A-Bild als Text). */
+    const d0 = await ocrPruefen("#einzelDatei", "Vorlage-0D-PDF-versteckter-Text.pdf", "application/pdf");
+    ok(d0.arten.includes("PDF-VERSTECKTER-TEXT") && /weicht ab \(Seite 2\)/.test(d0.text),
+       `Vorlage 0D: unsichtbarer Text auf Seite 2 wird gemeldet (${d0.arten.join(", ") || d0.zahl})`);
+    ok(!/weicht ab \(Seite 1\)/.test(d0.text), "… und Seite 1 (sichtbarer Brief) NICHT");
+    ok(/„[^“]*ignore previous instructions/i.test(d0.text), "… der Befund nennt die unsichtbaren Wörter");
+    ok(/Textebene gegen das Seitenbild gelesen: 2 Seite\(n\) in [\d,.]+ s/.test(d0.text), "… und das Ergebnis sagt, wie viele Seiten in welcher Zeit gegengelesen wurden");
+    const e3 = await ocrPruefen("#einzelDatei", "Vorlage-3E-PDF-Bild-und-Textebene-widersprechen.pdf", "application/pdf");
+    ok(e3.arten.includes("PDF-VERSTECKTER-TEXT") && /Was man sieht und was im Text steht, weicht ab \(Seite 1\)/.test(e3.text),
+       `Vorlage 3E: „Was man sieht und was im Text steht, weicht ab (Seite 1)“ (${e3.arten.join(", ") || e3.zahl})`);
+    const e3pdf = await ocrPruefen("#pdfDatei", "Vorlage-3E-PDF-Bild-und-Textebene-widersprechen.pdf", "application/pdf");
+    ok(e3pdf.arten.includes("PDF-VERSTECKTER-TEXT"), `… auch im PDF-Eingang (${e3pdf.arten.join(", ") || e3pdf.zahl})`);
+    /* ein sauberes PDF: gedruckter Text, alles sichtbar */
+    {
+      const vmE = await import("node:vm");
+      globalThis.self = globalThis;
+      if (!globalThis.PDFLib) vmE.runInThisContext(fs.readFileSync(path.join(WURZEL, "tests", "vendor", "pdf-lib.min.js"), "utf8"));
+      const PLE = globalThis.PDFLib, de = await PLE.PDFDocument.create(), fe = await de.embedFont(PLE.StandardFonts.Helvetica);
+      const pe = de.addPage([595, 842]);
+      ["Sehr geehrte Frau Beispiel,", "vielen Dank für Ihre Bestellung vom dritten September.",
+       "Die Lieferung erfolgt voraussichtlich in der kommenden Woche.", "Mit freundlichen Grüßen", "Ihr Kundenservice"]
+        .forEach((z, i) => pe.drawText(z, { x: 60, y: 760 - i * 28, font: fe, size: 14 }));
+      const sauberPfad = path.join(os.tmpdir(), "e-sauber-" + process.pid + ".pdf");
+      fs.writeFileSync(sauberPfad, Buffer.from(await de.save()));
+      await echteSeite.evaluate(() => { document.getElementById("ergebnis").textContent = ""; });
+      await echteSeite.setInputFiles("#einzelDatei", sauberPfad);
+      await echteSeite.waitForFunction(() => !!document.querySelector("#ergebnis .pr-zahl"), null, { timeout: 150000 }).catch(() => {});
+      const sauber = await echteSeite.evaluate(() => ({
+        arten: [...document.querySelectorAll("#ergebnis .pr-kennung")].map((x) => x.textContent),
+        text: document.getElementById("ergebnis").textContent }));
+      fs.rmSync(sauberPfad, { force: true });
+      ok(!sauber.arten.includes("PDF-VERSTECKTER-TEXT") && /Textebene gegen das Seitenbild gelesen: 1 Seite/.test(sauber.text),
+         `Gegenrichtung (sauberes PDF): gegengelesen, KEIN unsichtbarer Text (${sauber.arten.join(", ")})`);
+    }
     /* Nie still: kommt die Texterkennung nicht an, steht „ungeprüft" da. */
     const ohneTess = await browser.newPage();
     await ohneTess.goto("http://127.0.0.1:8213/auslieferungspruefer.html");
