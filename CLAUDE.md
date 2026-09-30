@@ -256,3 +256,5 @@ Workflow-PDF-Klon). Die Seite nennt je Vorlage, was HEUTE gemessen herauskommt
 gelesen") und was nach dem Schritt herauskommen soll. **Wer einen Schritt baut,
 zieht die grüne Zeile dort nach.** Die LSB-Botschaft in 4C ist aus der
 gespeicherten PNG nachgelesen (72 Bytes, wörtlich).
+
+**Reiter heißt „Foto · Datei prüfen"** (Klaus 2026-09-30: „als Erstnutzer … würde ich mich nicht versucht fühlen, da ein JPEG einzufügen"). Untertitel nennt JPEG, PNG, SVG, Word, Excel, ZIP. Cache `auslieferung-pruefer-v6`, alle `?v=81`.
