@@ -3986,6 +3986,9 @@ probe "HTMLANH: fehlt pruefer.js, heißt die Seite still sauber" \
 probe "HTMLANH: der Quelltext statt des sichtbaren Textes geht weiter (Linkziele als Adresse)" \
       assets/pruefer-anhang.js \
       's|return entitaeten(sichtbar)|return t; entitaeten(sichtbar)|'
+probe "HTMLANH: fehlt pruefer.js, steht oben wieder „Text im Bild ungeprüft“" \
+      assets/pruefer-ui.js \
+      's|ungeprueftSatz: r.art === "html" ? "HTML-Seite ungeprüft" : "",|ungeprueftSatz: "",|'
 
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
