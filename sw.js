@@ -14,7 +14,7 @@
  * CACHE-BUST: bei jeder Änderung an einer Datei aus CORE die CACHE_VERSION
  * erhöhen — und die ?v=-Angaben in der Seite mitziehen.
  */
-var CACHE_VERSION = "auslieferung-pruefer-v11";
+var CACHE_VERSION = "auslieferung-pruefer-v12";
 
 var CORE = [
   "./",
@@ -23,23 +23,26 @@ var CORE = [
   "impressum.html",
   "datenschutz.html",
   "manifest.json",
-  "assets/style.css?v=86",
-  "assets/marke.svg",
-  "assets/thema.js?v=86",
-  "assets/sprache.js?v=86",
-  "assets/i18n-pruefer.js?v=86",
-  "assets/i18n-recht.js?v=86",
-  "assets/config/netz.js?v=86",
-  "assets/config/pruefer-netz.js?v=86",
-  "assets/pruefer.js?v=86",
-  "assets/pruefer-formate.js?v=86",
-  "assets/pruefer-anhang.js?v=86",
-  "assets/pruefer-browser.js?v=86",
-  "assets/pruefer-mail.js?v=86",
-  "assets/pruefer-ui.js?v=86",
-  "assets/pruefer-sbkim-init.js?v=86",
-  "assets/icon-192.png",
-  "assets/icon-512.png"
+  "assets/style.css?v=87",
+  "icons/marke-96.png",
+  "icons/favicon-32.png?v=87",
+  "icons/favicon-48.png?v=87",
+  "icons/apple-touch-icon.png?v=87",
+  "assets/thema.js?v=87",
+  "assets/sprache.js?v=87",
+  "assets/i18n-pruefer.js?v=87",
+  "assets/i18n-recht.js?v=87",
+  "assets/config/netz.js?v=87",
+  "assets/config/pruefer-netz.js?v=87",
+  "assets/pruefer.js?v=87",
+  "assets/pruefer-formate.js?v=87",
+  "assets/pruefer-anhang.js?v=87",
+  "assets/pruefer-browser.js?v=87",
+  "assets/pruefer-mail.js?v=87",
+  "assets/pruefer-ui.js?v=87",
+  "assets/pruefer-sbkim-init.js?v=87",
+  "icons/icon-192.png",
+  "icons/icon-512.png"
 ];
 
 self.addEventListener("install", function (e) {
