@@ -2,6 +2,7 @@
   "name": "Auslieferungsprüfer — was eine Seite wirklich ins Netz gibt",
   "short_name": "Auslieferung",
   "description": "Prüft, was eine Internetseite wirklich ins Netz gibt: fremde Adressen, mitgelieferte Server-Dateien, offene Schlüssel, Personenbezug. Läuft im Browser, lädt nichts hoch.",
+  "id": "./auslieferungspruefer-app",
   "start_url": "auslieferungspruefer.html",
   "scope": "./",
   "display": "standalone",
