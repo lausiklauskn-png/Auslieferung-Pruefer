@@ -2164,7 +2164,7 @@ if (!browser) {
     }, [...fs.readFileSync(path.join(WURZEL, "testvorlagen", "Vorlage-4C-Bild-ohne-Botschaft.png"))]);
     ok(geteilt.h.some((h) => /Blasser Text ungeprüft.*Zeit abgelaufen/.test(h)) && geteilt.h.some((h) => /Text im Bild gelesen: 1 Zeile/.test(h)),
        `hängt der zweite Durchgang: „Blasser Text ungeprüft“, der erste bleibt gelesen (${geteilt.h.join(" | ")})`);
-    ok(geteilt.ms < 1000, `… und beide Durchgänge teilen sich EINE Frist (${Math.round(geteilt.ms)} ms, getrennt wären es über 1100)`);
+    ok(geteilt.ms < 1000, `… und beide Durchgänge teilen sich EINE Frist (${Math.round(geteilt.ms)} ms, getrennt wären es rund 1060)`);
     await ohneTess.close();
   }
   /* ══ DER KNOTEN MONTIERT WIRKLICH (2026-09-08) ════════════════════════════
