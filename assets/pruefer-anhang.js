@@ -655,7 +655,6 @@
              nachgesehen: steht dort Schrift, hat sie sich verlesen (kleine
              Schrift auf einem Foto, grau auf dunkel) — das ist kein Befund. */
           v.versteckt = versteckteWoerter(v.fehlt, leinwand.__kaesten || [], function (k) { return tinteIm(leinwand, k); });
-          if (welt.__MESS) welt.__MESS.push({ nr: nr, w: v.woerter, f: v.fehlt, l: v.versteckt });
           if (v.versteckt.length >= GEGEN_MIN_VERSTECKT)
             melde("PDF-VERSTECKTER-TEXT", "Was man sieht und was im Text steht, weicht ab (Seite " + nr + "): " + v.versteckt.length + " von " + v.woerter +
               " Wörtern der Textebene sind auf der Seite nicht zu sehen — „" + v.versteckt.slice(0, 12).join(" ") + (v.versteckt.length > 12 ? " …" : "") + "“.");
