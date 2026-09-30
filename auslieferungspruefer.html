@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-<title>Auslieferungsprüfer · PWA Toolpoint</title>
+<title>Auslieferungsprüfer</title>
 <meta name="description" content="Prüft eine HTML-Seite darauf, was sie nach außen gibt: fremde Adressen, Reste aus der Bauzeit, Bilder ohne Beschreibung, Links ohne Ziel. Läuft im Browser, ohne Netz, ohne Konto.">
 <link rel="canonical" href="https://lausiklauskn-png.github.io/Auslieferung-Pruefer/auslieferungspruefer.html">
 
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="PWA Toolpoint">
+<meta property="og:site_name" content="Auslieferungsprüfer">
 <meta property="og:locale" content="de_DE">
 <meta property="og:title" content="Auslieferungsprüfer">
 <meta property="og:description" content="Was gibt meine Seite nach außen? Zeilengenau geprüft, im Browser, ohne Netz.">
@@ -36,7 +36,7 @@
      fremde Adresse. Das Werkzeug wirbt damit, dass nichts nach außen geht. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230c1016'/%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M256 104V408' stroke='%23f2b544' stroke-width='52'/%3E%3Cpath d='M96 200h118M176 162l38 38-38 38' stroke='%23f2b544' stroke-width='40'/%3E%3Cpath d='M416 312H298M336 274l-38 38 38 38' stroke='%237fb2e8' stroke-width='40'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230c1016'/%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M256 104V408' stroke='%23f2b544' stroke-width='52'/%3E%3Cpath d='M96 200h118M176 162l38 38-38 38' stroke='%23f2b544' stroke-width='40'/%3E%3Cpath d='M416 312H298M336 274l-38 38 38 38' stroke='%237fb2e8' stroke-width='40'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/style.css?v=85">
+<link rel="stylesheet" href="assets/style.css?v=86">
 <script>
 /* Thema VOR dem ersten Anstrich setzen — sonst blitzt bei jedem Aufruf kurz das
    Standard-Thema auf, bevor die gespeicherte Wahl greift. Absichtlich winzig
@@ -292,7 +292,7 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
 
 <header>
   <div class="wrap bar">
-    <a class="brand" href="https://pwa-toolpoint.de/"><span class="mark" aria-hidden="true"></span>PWA&nbsp;Toolpoint</a>
+    <a class="brand" href="auslieferungspruefer.html"><span class="mark" aria-hidden="true"></span>Auslieferungsprüfer</a>
     <nav class="top">
       <button class="thema-knopf" id="frischKnopf" type="button"
               title="Aktualisieren — Vorrat wegwerfen und wirklich neu laden"
@@ -730,28 +730,28 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
        Rückweg, und der steht schon oben rechts. Ein zweiter Satz derselben
        Links wäre Füllung. -->
   <footer class="pr-fussleiste">
-    <p>© 2026 PWA Toolpoint · <a href="impressum.html" data-i18n="pr_fuss_recht">Impressum &amp; Datenschutz</a></p>
+    <p>© 2026 Auslieferungsprüfer · <a href="impressum.html" data-i18n="pr_fuss_recht">Impressum &amp; Datenschutz</a></p>
     <p data-i18n="pr_fuss_satz">Läuft im Browser. Kein Konto, kein Hochladen, keine fremde Adresse.</p>
   </footer>
 
 </main>
 
-<script src="assets/i18n-pruefer.js?v=85"></script>
-<script src="assets/sprache.js?v=85"></script>
-<script src="assets/thema.js?v=85"></script>
-<script src="assets/pruefer.js?v=85"></script>
+<script src="assets/i18n-pruefer.js?v=86"></script>
+<script src="assets/sprache.js?v=86"></script>
+<script src="assets/thema.js?v=86"></script>
+<script src="assets/pruefer.js?v=86"></script>
 <!-- ⚠ REIHENFOLGE. `pruefer-formate.js` holt sich die Fülltext-Liste aus
      `pruefer.js` — eine zweite, eigene Liste wäre eine Drift-Quelle mit Ansage.
      Und `pruefer-ui.js` steht zuletzt, weil es alle drei bedient. -->
-<script src="assets/pruefer-formate.js?v=85"></script>
-<script src="assets/pruefer-browser.js?v=85"></script>
+<script src="assets/pruefer-formate.js?v=86"></script>
+<script src="assets/pruefer-browser.js?v=86"></script>
 <!-- ⚠ NACH `pruefer-formate.js`: der Mail-Eingang leiht sich dessen
      Schlüssel-Muster und die IBAN-Prüfung, statt zweite Listen zu führen.
      Fehlt die Datei, sagt er das im Ergebnis, statt still weniger zu prüfen. -->
-<script src="assets/pruefer-mail.js?v=85"></script>
+<script src="assets/pruefer-mail.js?v=86"></script>
 <!-- Anhänge und einzelne Dateien öffnen — hier gepflegt, byte-1:1 im Sende-Prüfer. -->
-<script src="assets/pruefer-anhang.js?v=85"></script>
-<script src="assets/pruefer-ui.js?v=85"></script>
+<script src="assets/pruefer-anhang.js?v=86"></script>
+<script src="assets/pruefer-ui.js?v=86"></script>
 <!-- ══ SBKIM — der Auslieferungsprüfer als eigener Knoten im Mycel ═══════════
      Eigene Identität, eigene Spore, das schwebende Verbinden-Fenster, die
      Status-Pille von Modul 17 und das selbstausfüllende Siegel mit dem
@@ -767,9 +767,9 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
      `netz.js` steht ZUERST: die Relais-Liste des Prüfers liest die des
      Marktplatzes ab, statt sie abzuschreiben — zwei Listen derselben
      Poststellen laufen auseinander. -->
-<script src="assets/config/netz.js?v=85"></script>
-<script src="assets/config/pruefer-netz.js?v=85"></script>
-<script src="assets/pruefer-sbkim-init.js?v=85"></script>
+<script src="assets/config/netz.js?v=86"></script>
+<script src="assets/config/pruefer-netz.js?v=86"></script>
+<script src="assets/pruefer-sbkim-init.js?v=86"></script>
 <!-- ⚠ EIGENE APP SEIT 2026-09-26: im Marktplatz registrierte die STARTSEITE den
      Service-Worker, der Prüfer nicht. Als eigenständige PWA braucht er ihn selbst,
      sonst läuft er offline nicht. -->
