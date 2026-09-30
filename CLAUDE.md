@@ -217,10 +217,15 @@ Plan und Entscheidungen: `Sende-Pruefer/docs/BRIEF_2026-09-29_anhaenge-stufe2.md
 (Reihenfolge D → A → B → E → C; Klaus: C bekommt einen eigenen Knopf mit
 „Verdacht", E liest höchstens 10 Seiten gegen, die Grenze wird benannt).
 
-- `assets/pruefer-anhang.js` liest die Textebene jeder Seite mit **pdf.js aus
-  Workflow PDF** (`../Workflow-PDF/vendor/pdfjs/`, gleiche Adresse). Die App setzt den
-  Pfad (`PrueferAnhang.pfade({pdfjs})` in `pruefer-ui.js`); pdf.js wird erst geholt,
-  wenn ein PDF kommt, und steht **nicht** im Installations-Vorrat.
+- `assets/pruefer-anhang.js` liest die Textebene jeder Seite mit **pdf.js aus dem
+  eigenen Ordner `vendor/pdfjs/`** (seit 2026-09-30, Klaus: *„Der Prüfer soll gar nicht
+  mehr von Workflow PDF abhängen"*; byte-gleich aus Workflow PDF, SHA-gepinnt in
+  `smoke_knoten`, Lizenz in `THIRD_PARTY.md`). Die App setzt den Pfad
+  (`PrueferAnhang.pfade({pdfjs})` in `pruefer-ui.js`); pdf.js wird erst geholt, wenn ein
+  PDF kommt, und steht **nicht** im Installations-Vorrat. pdf-lib liegt nur für die
+  Proben unter `tests/vendor/`. `smoke_knoten` besteht darauf, dass keine ausgelieferte
+  Datei `Workflow-PDF` nennt; gemessen in einer Kopie OHNE Workflow-PDF daneben:
+  `smoke_pruefer` 275 grün, `ALLEIN:` 2 gefangen. Cache v9, `?v=84`.
 - ⚠ **`isEvalSupported: false`**: pdf.js 3.11 konnte mit einer präparierten Schrift
   Code ausführen (CVE-2024-4367). Ein Wächter liest die Zeile, ein Gegenprobe-Fall dreht sie.
 - Anweisungen an eine KI sucht **dieselbe Liste wie der Mail-Eingang**
@@ -232,11 +237,9 @@ Plan und Entscheidungen: `Sende-Pruefer/docs/BRIEF_2026-09-29_anhaenge-stufe2.md
   „Seiten 101–N wurden NICHT gelesen". Seiten ohne Textebene (Scans) werden benannt.
   pdf.js fehlt, PDF kaputt oder mit Passwort, 60 s überschritten → „NICHT gelesen …
   ungeprüft", nie sauber.
-- Proben: `smoke_anhang` (ohne Browser, pdf.js per `vm` aus dem Nachbar-Klon; fehlt er:
-  ⊘ nicht lauffähig) · `smoke_pruefer` (echte Seite, pdf.js von `file://` des Nachbarn) ·
+- Proben: `smoke_anhang` (ohne Browser, pdf.js per `vm` aus `vendor/pdfjs/`) · `smoke_pruefer` (echte Seite) ·
   Gegenprobe `NUR_FALL="PDFTEXT:"` (10 Fälle). Cache `auslieferung-pruefer-v5`, alle `?v=80`.
-- ⚠ Nicht gemessen: echte PDFs von Klaus, das Tablet (Zeit, Speicher bei 100 Seiten),
-  pdf.js aus dem Netz statt aus dem Nachbar-Klon.
+- ⚠ Nicht gemessen: echte PDFs von Klaus, das Tablet (Zeit, Speicher bei 100 Seiten).
 
 ## Netzweit
 
