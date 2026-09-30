@@ -243,25 +243,13 @@ header {
   font-weight: 800; font-size: 1.14rem; color: var(--text);
 }
 .brand:hover { text-decoration: none; }
-/* Die Marke trug bisher nur den Verlauf — ein leeres Farbquadrat, das nichts
-   sagte. Jetzt steht das Zeichen darin: eine Lupe, die zugleich sendet
-   (finden und gefunden werden, Klaus 2026-08-09).
-
-   Das SVG kommt aus derselben Geometrie wie die App-Symbole
-   (`tools/marke-zeichnen.py`) — EINE Quelle, kein zweites, von Hand
-   gezeichnetes Zeichen, das mit der Zeit auseinanderläuft. Als Datei und nicht
-   als data-URI: eingebettet müsste sie bei jeder Änderung an zwei Stellen
-   nachgezogen werden, und genau das geht irgendwann schief.
-
-   Der Verlauf bleibt im CSS und wechselt darum mit dem Thema mit; das Zeichen
-   selbst ist weiß und liegt darüber. Feste Maße, also kein Sprung, wenn die
-   Datei einen Augenblick später da ist. */
+/* Die Marke ist seit 2026-09-30 das App-Icon selbst (Schild + Paket, aus
+   Klaus' Bild, `icons/marke-96.png`). Vorher: ein weißes Zeichen auf einem
+   Verlauf (`marke.svg`). Feste Maße, also kein Sprung, wenn das Bild einen
+   Augenblick später da ist. */
 .brand .mark {
   width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
-  background:
-    url("marke.svg") center / 74% 74% no-repeat,
-    linear-gradient(135deg, var(--accent), var(--accent3) 55%, var(--accent2));
-  box-shadow: var(--glow);
+  background: url("../icons/marke-96.png") center / cover no-repeat;
 }
 /* ---- Status-Lampen + Siegel-Platz ------------------------------------------
  * `min-height: 34px` ist die wichtigste Zeile in dieser Datei.

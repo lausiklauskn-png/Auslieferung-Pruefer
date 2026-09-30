@@ -1135,8 +1135,8 @@ if (!browser) {
   });
   ok(gesicht.icon && !/icon-192/.test(gesicht.icon),
      "das Werkzeug trägt ein EIGENES Zeichen, nicht das des Marktplatzes");
-  ok(/^data:image\/svg/.test(gesicht.icon),
-     "… und zwar inline — keine zweite Datei, keine fremde Adresse");
+  ok(/^icons\/favicon-\d+\.png/.test(gesicht.icon),
+     "… und zwar aus dem eigenen Ordner icons/ — keine fremde Adresse (Tafel 2026-09-30: vorher inline-SVG)");
   ok(gesicht.fussDa && gesicht.impressum && gesicht.copyright,
      "es gibt einen Fuß mit Copyright und Impressum");
   ok(gesicht.deckkraft === "1",

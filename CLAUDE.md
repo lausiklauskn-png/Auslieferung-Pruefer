@@ -283,3 +283,11 @@ Befund-Arten (2× Metadaten) stehen als getrennte Karten; Steps A/B (Text im Bil
 Baum. `TERM` beendet ihn nicht (bash wartet auf das Kind); angehalten mit
 `kill -STOP` + `-KILL`, die liegengebliebene Sabotage aus `/tmp/gp_*.bak`
 zurückgeholt. **Vor jedem Lauf committen, immer in einer Kopie.**
+
+## 🛡📦 Eigenes Icon (Klaus 2026-09-30)
+
+Schild + Paket mit Haken, aus Klaus' ChatGPT-Bild. Alle Größen unter `icons/`
+(favicon-32/48, apple-touch-icon 180, icon-192/512, maskable-512, marke-96 für
+die Kopfzeile). Die alten Marktplatz-Dateien `assets/icon-*.png` und
+`assets/marke.svg` sind weg. Wer das Icon ändert, erhöht `?v=` und CACHE_VERSION
+(zuletzt v12, `?v=87`).

@@ -432,20 +432,14 @@ probe "Siegel-SVG fuellt seinen Platz nicht mehr" \
 
 
 # ---- Die Marke ---------------------------------------------------------------
-probe "Zeichen weicht von der Geometrie ab (Bilder nicht neu gezeichnet)" \
-      assets/marke.svg 's|r="172"|r="150"|'
-
-probe "Zeichen bringt einen eigenen Hintergrund mit (im hellen Thema ein Fleck)" \
-      assets/marke.svg 's|<circle|<rect width="1024" height="1024" fill="#000"/><circle|'
-
 probe "Kopf-Marke wieder ein leeres Farbquadrat" \
-      assets/style.css 's|    url("marke.svg") center / 74% 74% no-repeat,||'
+      assets/style.css 's|  background: url("../icons/marke-96.png") center / cover no-repeat;||'
 
 probe "Kopf-Marke ohne feste Masse (Sprung beim Nachladen)" \
       assets/style.css 's|  width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;|  border-radius: 9px;|'
 
 probe "maskable zeigt wieder auf das randfuellende Bild (Wellen abgeschnitten)" \
-      manifest.json 's|assets/icon-maskable-512.png|assets/icon-512.png|'
+      manifest.json 's|icons/maskable-512.png|icons/icon-512.png|'
 
 
 # Der Abschnitt wird WIRKLICH wieder nach oben geschoben — ein sed haette hier
