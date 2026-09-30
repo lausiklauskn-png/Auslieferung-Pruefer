@@ -497,13 +497,45 @@
     });
   }
   /* Eine PDF-Seite ohne Textebene zeichnen und lesen. */
-  function seiteLeinwand(doc, nr) {
+  function seiteLeinwand(doc, nr, mitKaesten) {
     return doc.getPage(nr).then(function (pg) {
       var v1 = pg.getViewport({ scale: 1 }), f = Math.min(2, OCR_KANTE / Math.max(v1.width, v1.height)), vp = pg.getViewport({ scale: f });
       var c = welt.document.createElement("canvas"); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
       var g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
-      return pg.render({ canvasContext: g, viewport: vp }).promise.then(function () { return c; });
+      return pg.render({ canvasContext: g, viewport: vp }).promise.then(function () {
+        if (!mitKaesten) return c;
+        return pg.getTextContent().then(function (t) { c.__kaesten = wortKaesten(t.items, vp); return c; });
+      });
     });
+  }
+  /* Je Wort der Textebene sein Kasten auf der gezeichneten Seite (in Pixeln).
+     pdf.js gibt je Stück Lage, Breite und Schriftgröße; ein Wort bekommt den
+     Anteil der Breite, der seinen Zeichen entspricht (genähert, reicht für die
+     Frage „steht dort Schrift?"). */
+  function wortKaesten(items, vp) {
+    var aus = [];
+    items.forEach(function (it) {
+      if (!it.str || !it.transform) return;
+      var t = it.transform, h = Math.hypot(t[2], t[3]) || Math.abs(it.height) || 0, w = it.width || 0;
+      var p0 = vp.convertToViewportPoint(t[4], t[5]), p1 = vp.convertToViewportPoint(t[4] + w, t[5] + h);
+      var x0 = Math.min(p0[0], p1[0]), x1 = Math.max(p0[0], p1[0]), y0 = Math.min(p0[1], p1[1]), y1 = Math.max(p0[1], p1[1]);
+      var s = it.str, re = /[\p{L}\p{N}]+/gu, m;
+      while ((m = re.exec(s))) aus.push({ w: m[0].toLowerCase(), x0: x0 + (x1 - x0) * m.index / s.length, x1: x0 + (x1 - x0) * (m.index + m[0].length) / s.length, y0: y0, y1: y1 });
+    });
+    return aus;
+  }
+  /* Steht im Kasten sichtbare Schrift? Winzig (unter GEGEN_MIN_PX Pixel hoch)
+     oder außerhalb der Seite zählt als NICHT sichtbar; sonst muss die Helligkeit
+     im Kasten um mindestens GEGEN_TINTE schwanken. Weiß auf Weiß, Rendermodus 3
+     auf leerem Grund: kein Ausschlag. */
+  var GEGEN_MIN_PX = 4, GEGEN_TINTE = 40;
+  function tinteIm(c, k) {
+    if (k.y1 - k.y0 < GEGEN_MIN_PX) return false;
+    var x0 = Math.max(0, Math.floor(k.x0)), x1 = Math.min(c.width, Math.ceil(k.x1)), y0 = Math.max(0, Math.floor(k.y0)), y1 = Math.min(c.height, Math.ceil(k.y1));
+    if (x1 - x0 < 1 || y1 - y0 < 1) return false;
+    var d = c.getContext("2d").getImageData(x0, y0, x1 - x0, y1 - y0).data, lo = 255, hi = 0;
+    for (var i = 0; i < d.length; i += 4) { var l = (d[i] * 299 + d[i + 1] * 587 + d[i + 2] * 114) / 1000; if (l < lo) lo = l; if (l > hi) hi = l; }
+    return hi - lo >= GEGEN_TINTE;
   }
   function seiteLesen(doc, nr) { return seiteLeinwand(doc, nr).then(function (c) { return bildLesen(c); }); }
   /* Heller Text auf dunklem Grund (Tabellenköpfe, farbige Kästen) liest die
@@ -559,7 +591,7 @@
    *
    * GEGEN_MIN_FEHLT: so viele fehlende Wörter braucht eine Seite für den
    * Befund. Gemessen, nicht geraten — die Zahlen stehen in CLAUDE.md. */
-  var GEGEN_SEITEN_MAX = 10, GEGEN_MIN_FEHLT = 2;
+  var GEGEN_SEITEN_MAX = 10, GEGEN_MIN_FEHLT = 1;
   function aehnlich(a, b) {
     if (Math.abs(a.length - b.length) > 1) return false;
     var i = 0, j = 0, fehler = 0;
@@ -608,7 +640,7 @@
         if (abbruch) return;
         var text = (seiten.filter(function (x) { return x.seite === nr; })[0] || {}).text || "";
         var leinwand;
-        return seiteLeinwand(doc, nr).then(function (c) { leinwand = c; return bildLesen(c); }).then(function (r) {
+        return seiteLeinwand(doc, nr, true).then(function (c) { leinwand = c; return bildLesen(c); }).then(function (r) {
           /* Liest die Erkennung auf dem Bild GAR NICHTS, ist das kein „ungeprüft":
              eine Seite, deren ganzer Text unsichtbar ist, sieht genau so aus.
              Der umgekehrte Durchgang unten fängt die helle Schrift auf dunklem Grund. */
@@ -620,10 +652,20 @@
           return bildLesen(umgekehrt(leinwand)).then(function (r2) {
             nochmal++;
             return vergleiche(text, r.alle.concat(r2.alle));
-          }, function () { return v; });
+          }, function () { return v; }).then(function (v2) {
+            /* Was die Erkennung nicht las, wird an seiner Stelle im Bild
+               nachgesehen: steht dort Schrift, hat sie sich verlesen (kleine
+               Schrift auf Foto, grau auf dunkel) — das ist kein Befund. */
+            var k = leinwand.__kaesten || [];
+            v2.versteckt = v2.fehlt.filter(function (w) {
+              var da = k.filter(function (x) { return x.w === w || (w.length >= 5 && x.w.indexOf(w) >= 0); });
+              return da.length && da.every(function (x) { return !tinteIm(leinwand, x); });
+            });
+            return v2;
+          });
         }).then(function (v) {
           if (!v) return;
-          if (welt.__MESS) welt.__MESS.push({ nr: nr, w: v.woerter, f: v.fehlt, l: v.folge });
+          if (welt.__MESS) welt.__MESS.push({ nr: nr, w: v.woerter, f: v.fehlt, l: v.versteckt || v.fehlt });
           if (v.fehlt.length >= GEGEN_MIN_FEHLT)
             melde("PDF-VERSTECKTER-TEXT", "Was man sieht und was im Text steht, weicht ab (Seite " + nr + "): " + v.fehlt.length + " von " + v.woerter +
               " Wörtern der Textebene sind auf der Seite nicht zu sehen — „" + v.fehlt.slice(0, 12).join(" ") + (v.fehlt.length > 12 ? " …" : "") + "“.");
