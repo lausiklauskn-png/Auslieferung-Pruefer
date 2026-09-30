@@ -322,7 +322,7 @@ der Worker legt es beim ersten Bild ab. Die App setzt den Pfad
 **Gemessen im Browser (2026-09-30, lokal):** 1A-Bild 3,3 s (erstes, mit Laden) →
 Anweisung Zeile 9 + Mail/IBAN · 1A-Scan-PDF 1,9 s → Seite 1 Zeile 9 · H0 0,5 s,
 Text gelesen, kein Befund (die Gegenrichtung) · 4C mit und ohne Botschaft gleich
-(Steganografie ist Schritt C) · **2B: die blasse Zeile wird NICHT gefunden** — das
+(Steganografie ist Schritt C) · **2B: die blasse Zeile wird NICHT gefunden** (seit Stufe 2 B schon, siehe unten) — das
 ist Schritt B. `smoke_pruefer` 291 grün · `smoke_anhang` 64 · `smoke_knoten` 153.
 
 ⚠ **Tafel-Evolution:** der Wächter „sauberes PNG → kein Befund" ist ersetzt
@@ -331,3 +331,34 @@ durch „→ Text im Bild ungeprüft" (das Bild trägt keinen lesbaren Text).
 ⚠ **Nicht gemessen:** Zeit und Speicher am Tablet; echte Fotos von Klaus.
 
 Gegenprobe `NUR_FALL="OCR:"` (7 Fälle), gefahren in einer Kopie (Stand des ersten Commits): **7 schlagen an · 0 blind · 0 tote Anker**. Die roten Zeilen sind nicht einzeln von Hand gelesen.
+
+## 🌫 Stufe 2 B · blasser Text im Bild (2026-09-30)
+
+Hellgrau auf Weiß übersieht ein Mensch, eine Bild-KI liest es trotzdem. Jedes
+Bild (PNG, JPEG, WebP, GIF) geht seitdem **zweimal** durch die Texterkennung:
+normal, dann nach einer **Kontrast-Spreizung** (`kontrastStrecken` in
+`pruefer-anhang.js`, reine Rechnung, Node-prüfbar): je 32-px-Kachel die
+Papier-Helligkeit (hellster Wert der Kachel und ihrer Nachbarn), jede
+Abweichung davon ×8 verstärkt. **Was nur im zweiten Durchgang steht, ist blass**
+(`neueZeilen`: weniger als die Hälfte der Wörter ab 3 Buchstaben kam im ersten
+vor — wörtlich reichte nicht, Tesseract liest dieselbe dunkle Zeile manchmal um
+ein Zeichen anders).
+
+| | |
+|---|---|
+| Befund | `BILD-KI-ANWEISUNG` mit „blass, erst nach Kontrast-Spreizung lesbar: Bildtext Zeile n" (n = Zeile im zweiten Durchgang) · Hinweis „Blasser Text: N Zeile(n)" · die blassen Zeilen gehen mit in den Text (Angaben) |
+| Frist | **eine** `OCR_FRIST` (90 s) für beide Durchgänge zusammen. Läuft sie im zweiten ab: „Blasser Text ungeprüft … Zeit abgelaufen", der erste bleibt gelesen |
+| ohne Leinwand (Node) | kein zweiter Durchgang — „Blasser Text ungeprüft … ohne Leinwand" |
+| Grenzen (gewählt, nicht gemessen) | Kachel 32 px, Verstärkung 8 (ab 32 Stufen schwarz; #ececec sind 19) · **nur Bilder** — gescannte PDF-Seiten werden einmal gelesen |
+
+**Gemessen im Browser (2026-09-30, lokal):** 2B 4,3 s → erster Durchgang 8
+Zeilen, zweiter 1 Zeile mehr, Befund Zeile 9 · 1A unverändert Zeile 9, **nicht**
+„blass" · H0 0,7 s, 4C mit/ohne Botschaft: keine blasse Zeile, kein KI-Befund.
+Der zweite Durchgang kostet ungefähr die Zeit des ersten noch einmal.
+Rat zur Befundart nennt „blass" (`pruefer-ui.js`). Cache v15, `?v=90`.
+
+⚠ **Nicht gemessen:** Zeit und Speicher am Tablet (jetzt zwei Durchgänge je Bild);
+echte Fotos mit blassem Text; wie klein oder wie blass es noch geht.
+
+Proben: `smoke_anhang` (Spreizung und Vergleich, 72 grün) · `smoke_pruefer`
+(2B, H0, 4C, 1A, geteilte Frist; 299 grün) · Gegenprobe `NUR_FALL="BLASS:"` (6 Fälle).
