@@ -244,3 +244,15 @@ Freibrief · frisch von `origin/main` · Ton · kein PII · Ehrlichkeit:
 [Sage-Protokol/docs/NETZWEIT.md](https://github.com/lausiklauskn-png/Sage-Protokol/blob/main/docs/NETZWEIT.md).
 `impressum.html` und `datenschutz.html` tragen Klaus' echte Angaben — das
 verlangt § 5 DDG; nicht durch Platzhalter ersetzen.
+
+## 🧪 Testvorlagen für Stufe 2 (Klaus 2026-09-30)
+
+`testvorlagen/` (Seite `testvorlagen/index.html`, nicht in `CORE`, `noindex`):
+je eine Vorlage für D (heute) und A · B · E · C (geplant), dazu alle als eine
+`.eml`. Alle Angaben erfunden. **Gebaut, nicht von Hand:**
+`node tools/testvorlagen-bauen.mjs` (playwright-core + pdf-lib aus dem
+Workflow-PDF-Klon). Die Seite nennt je Vorlage, was HEUTE gemessen herauskommt
+(2026-09-30: 0D und 3E → „Anweisung an eine KI"; Bilder und Scan → „nicht
+gelesen") und was nach dem Schritt herauskommen soll. **Wer einen Schritt baut,
+zieht die grüne Zeile dort nach.** Die LSB-Botschaft in 4C ist aus der
+gespeicherten PNG nachgelesen (72 Bytes, wörtlich).
