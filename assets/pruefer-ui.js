@@ -1094,20 +1094,44 @@
       ergebnis.appendChild(t("p", "feldhinweis", "Die Datei ließ sich nicht lesen."));
     };
     leser.onload = function () {
-      window.PrueferFormate.pruefePdf(new Uint8Array(leser.result), erlaubtListe())
-        .then(function (r) {
-          zeige(r.stellen, "", {
+      /* Klaus 2026-09-30, Vorlage H5: ein JPEG mit Endung .pdf stand hier als
+         GRÜNES „kein Befund" da — geprüft war nichts. Keine PDF-Datei geht
+         deshalb an den Datei-Weg, der den Dateikopf liest und die Tarnung meldet. */
+      var kopf = new Uint8Array(leser.result, 0, Math.min(5, leser.result.byteLength));
+      if (String.fromCharCode.apply(null, kopf) !== "%PDF-") {
+        dateiPruefen(f, ["Das ist keine PDF-Datei — sie beginnt nicht mit %PDF-. Geprüft wie unter „Foto · Datei prüfen“."]);
+        return;
+      }
+      /* Klaus 2026-09-30, Vorlage 0D im PDF-Eingang: nur die Metadaten kamen,
+         die Anweisung an eine KI auf Seite 2 fand nur „Foto · Datei prüfen".
+         Dasselbe PDF, zwei Eingänge, zwei Ergebnisse. Der Seitentext kommt
+         jetzt aus derselben Stelle (PrueferAnhang), nur ohne die PDF-Befunde,
+         die pruefePdf hier schon selbst meldet. */
+      var bytes = new Uint8Array(leser.result);
+      Promise.all([
+        window.PrueferFormate.pruefePdf(bytes, erlaubtListe()),
+        window.PrueferAnhang ? window.PrueferAnhang.pruefe(f.name, bytes).catch(function () { return null; }) : Promise.resolve(null)
+      ]).then(function (beide) {
+          var r = beide[0], ra = beide[1], stellen = r.stellen.slice(), mehr = [];
+          if (ra) {
+            anhangTreffer(f.name, { befunde: ra.befunde.filter(function (b) { return b.kennung === "PDF-KI-ANWEISUNG"; }),
+              seiten: ra.seiten }, "").forEach(function (x) { stellen.push(x); });
+            mehr = ra.hinweise.filter(function (h) { return r.hinweise.indexOf(h) < 0; });
+          } else mehr = ["Der Datei-Prüfer (assets/pruefer-anhang.js) ist nicht geladen — der Seitentext ist ungeprüft."];
+          zeige(stellen, "", {
             titel: "Auslieferungsprüfer · PDF",
-            hinweise: [f.name].concat(r.hinweise).concat([
+            hinweise: [f.name].concat(r.hinweise).concat(mehr).concat([
               "⚠ Ein PDF hat keine Zeilennummern. Die Stelle heißt deshalb " +
               "„Objekt\" — das ist die Nummer, unter der das Dokument sie selbst " +
-              "führt. Der Text im Dokument wird nicht gedeutet: was auf den " +
-              "Seiten steht, muss ein Mensch lesen."
+              "führt. Der Seitentext wird auf Anweisungen an eine KI, " +
+              "Mailadressen und Kontonummern durchsucht; was die Seiten sonst " +
+              "sagen, muss ein Mensch lesen."
             ]),
             leerSatz: "Kein Befund heißt: keine Verweise nach außen, keine " +
                       "eingebetteten Aktionen, keine Anhänge, keine Metadaten " +
-                      "und nur ein Speicherstand. Der Inhalt der Seiten ist " +
-                      "damit NICHT geprüft."
+                      "und nur ein Speicherstand, und im Seitentext keine Anweisung " +
+                      "an eine KI und keine Angabe zu einer Person. Was die " +
+                      "Seiten sonst sagen, ist damit NICHT geprüft."
           });
         }, function () {
           ergebnis.textContent = "";
@@ -1154,7 +1178,9 @@
   var einzelDatei = $("einzelDatei");
   if (einzelDatei) einzelDatei.addEventListener("change", function () {
     var f = this.files && this.files[0];
-    if (!f) return;
+    if (f) dateiPruefen(f, []);
+  });
+  function dateiPruefen(f, vorweg) {
     ergebnis.textContent = "";
     if (!window.PrueferAnhang) {
       ergebnis.appendChild(t("p", "feldhinweis",
@@ -1167,7 +1193,7 @@
     }).then(function (r) {
       zeige(anhangTreffer(f.name, r, ""), "", {
         titel: "Auslieferungsprüfer · Datei",
-        hinweise: [f.name + " · " + r.artName + " · " + window.PrueferAnhang.gross(f.size)]
+        hinweise: vorweg.concat([f.name + " · " + r.artName + " · " + window.PrueferAnhang.gross(f.size)])
           .concat(r.hinweise),
         leerSatz: "Kein Befund heißt: nichts von dem gefunden, wonach dieser " +
                   "Prüfer sucht. Es war KEINE Virenprüfung, und in Bildpunkten " +
@@ -1177,7 +1203,7 @@
       ergebnis.textContent = "";
       ergebnis.appendChild(t("p", "feldhinweis", "Die Datei ließ sich nicht lesen."));
     });
-  });
+  }
 
   /* ══ ADRESSE ABRUFEN — KORRIGIERT AM 2026-08-23 ══════════════════════════
    *

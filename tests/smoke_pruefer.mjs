@@ -1738,6 +1738,24 @@ if (!browser) {
      "… und ihr TEXT geht durch denselben Prüfer wie eine Textdatei (Mailadresse)");
   ok((await seite.evaluate(() => window.__schaden || null)) === null,
      "… und das Skript der SVG ist NICHT gelaufen");
+  /* Klaus 2026-09-30, Vorlage H1 als Anhang: eine .txt kam als „unbekannte
+     Art" an, ihr Inhalt wurde nicht durchsucht. */
+  const txtAnh = await dateiPruefen("notiz.txt", "text/plain", Buffer.from("Notiz (erfunden)\nKontakt: max.muster@firma-4711.test\n"));
+  ok(txtAnh.arten.includes("PERSONENBEZUG") && /Textdatei/.test(txtAnh.text),
+     `eine Textdatei wird als Text geprüft (${txtAnh.arten.join(", ") || txtAnh.zahl})`);
+  /* Klaus 2026-09-30, Vorlage H5 im PDF-Eingang: ein JPEG mit Endung .pdf stand
+     als GRÜNES „kein Befund" da. Es geht jetzt an den Datei-Weg. */
+  await seite.evaluate(() => { document.getElementById("ergebnis").textContent = ""; });
+  await seite.setInputFiles("#pdfDatei", { name: "rechnung.pdf", mimeType: "application/pdf", buffer: Buffer.concat([Buffer.from([0xFF, 0xD8, 0xFF, 0xE0]), Buffer.alloc(200, 1), Buffer.from([0xFF, 0xD9])]) });
+  await seite.waitForFunction(() => !!document.querySelector("#ergebnis .pr-zahl"), null, { timeout: 15000 }).catch(() => {});
+  const keinPdf = await seite.evaluate(() => ({
+    zahl: (document.querySelector("#ergebnis .pr-zahl") || {}).textContent || "",
+    arten: [...document.querySelectorAll("#ergebnis .pr-kennung")].map((x) => x.textContent),
+    text: document.getElementById("ergebnis").textContent }));
+  ok(keinPdf.zahl !== "kein Befund" && keinPdf.arten.includes("ANHANG-TARNUNG"),
+     `PDF-Eingang: ein JPEG mit Endung .pdf ist KEIN „kein Befund", sondern eine Tarnung (${keinPdf.zahl}: ${keinPdf.arten.join(", ")})`);
+  ok(/keine PDF-Datei/.test(keinPdf.text) && /Foto · Datei prüfen/.test(keinPdf.text),
+     "… und sagt, dass es keine PDF-Datei ist und wie sie geprüft wurde");
   /* Stufe 2 D (2026-09-29): der SEITENTEXT eines PDFs. Die Seite holt pdf.js
      selbst von ../Workflow-PDF/vendor/pdfjs/ — hier der Nachbar-Klon. Fehlt er,
      ist dieser Teil übersprungen, nicht grün. */
@@ -1758,6 +1776,20 @@ if (!browser) {
     ok(/brief\.pdf, Seite 1/.test(pdf.text) && pdf.arten.includes("PERSONENBEZUG"),
        "… der Seitentext geht durch den Text-Prüfer, und der Fund nennt seine Seite (Seite 1)");
     ok(/Seitentext gelesen: 2 von 2/.test(pdf.text), "… und das Ergebnis sagt, wie viele Seiten gelesen wurden");
+    /* Klaus 2026-09-30, Vorlagen 0D und 3E im PDF-EINGANG: dort kamen nur die
+       Metadaten, die Anweisung auf Seite 2 fand nur „Foto · Datei prüfen". */
+    const pdfBytes = Buffer.from(await d.save());
+    await seite.evaluate(() => { document.getElementById("ergebnis").textContent = ""; });
+    await seite.setInputFiles("#pdfDatei", { name: "brief.pdf", mimeType: "application/pdf", buffer: pdfBytes });
+    await seite.waitForFunction(() => !!document.querySelector("#ergebnis .pr-zahl"), null, { timeout: 60000 }).catch(() => {});
+    const imPdf = await seite.evaluate(() => ({
+      arten: [...document.querySelectorAll("#ergebnis .pr-kennung")].map((x) => x.textContent),
+      text: document.getElementById("ergebnis").textContent }));
+    ok(imPdf.arten.includes("PDF-KI-ANWEISUNG"), `PDF-Eingang: die Anweisung an eine KI im Seitentext wird gemeldet (${imPdf.arten.join(", ")})`);
+    ok(imPdf.arten.includes("PERSONENBEZUG") && /brief\.pdf, Seite 1/.test(imPdf.text),
+       "… und der Seitentext geht auch dort durch den Text-Prüfer, mit Seite");
+    ok(/Seitentext gelesen: 2 von 2/.test(imPdf.text) && !/wird nicht gedeutet/.test(imPdf.text),
+       "… das Ergebnis sagt, wie viele Seiten gelesen wurden, und nicht mehr „wird nicht gedeutet\"");
   }
   const svgKnoten = await seite.$$eval("#ergebnis svg, #ergebnis script", (n) => n.length);
   ok(svgKnoten === 0, `im Ergebnis steht keine gezeichnete SVG und kein Skript (${svgKnoten})`);

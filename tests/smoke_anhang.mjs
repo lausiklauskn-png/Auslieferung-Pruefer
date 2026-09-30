@@ -101,6 +101,33 @@ const riesig = A.ausMail(gross);
 ok("ausMail: ein Anhang über der Grenze wird NICHT geöffnet, sondern benannt",
    riesig.length === 1 && riesig[0].zuGross === true && riesig[0].bytes === null, JSON.stringify(riesig.map((x) => [x.name, x.zuGross])));
 
+/* ══ TEXT-ANHANG (Klaus 2026-09-30, Vorlage H1 als Mail-Anhang)
+   Eine .txt kam als „unbekannte Art" an, ihr Inhalt wurde NICHT durchsucht. */
+const txt = Buffer.from("Testvorlage (erfunden)\nMail: max.muster@beispiel.example\nIBAN: DE89 3704 0044 0532 0130 00\n", "utf8");
+r = await p("notiz.txt", txt);
+ok("Text-Anhang: wird als Textdatei erkannt (art text)", r.art === "text", r.art);
+ok("… und sein Text geht weiter an den Text-Prüfer (Mailadresse darin)", !!r.text && /max\.muster@beispiel\.example/.test(r.text));
+const tb = globalThis.PrueferFormate.pruefeText(r.text || "", "notiz.txt", []).map((x) => x.kennung + "@" + x.zeile);
+ok("… und findet dort Mail (Zeile 2) und IBAN (Zeile 3)", tb.includes("PERSONENBEZUG@2") && tb.includes("PERSONENBEZUG@3"), JSON.stringify(tb));
+r = await p("bild.dat", M.png());
+ok("Gegenrichtung: ein Bild mit falscher Endung wird NICHT zu Text", r.art === "png", r.art);
+r = await p("roh.bin", Buffer.from([0, 1, 2, 3, 200, 201, 0, 0, 7, 8]));
+ok("Gegenrichtung: Binärdaten (Steuerzeichen) sind kein Text", r.art === "unbekannt" && !r.text, r.art);
+
+/* ══ NAMENSRAUM IST KEIN ABRUF (Klaus 2026-09-30, H3/H4 im Text-Eingang)
+   xmlns="http://www.w3.org/2000/svg" holt nichts — gemeldet wurde es trotzdem. */
+const PFt = globalThis.PrueferFormate;
+const nsText = [
+  '<svg xmlns="http://www.w3.org/2000/svg"><image href="https://bilder.beispiel.example/a.png"/></svg>',
+  '<Relationship Type="http://schemas.openxmlformats.org/x" Target="https://vorlagen.beispiel.example/b.dotx"/>',
+  '<x xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:q="https://eigen-ns.beispiel.example/ns"/>',
+].join("\n");
+const nsWirte = PFt.pruefeText(nsText, "x.txt", []).filter((x) => x.kennung === "FREMDE-ADRESSE").map((x) => x.satz.split(": ").pop());
+ok("Namensräume (w3.org, openxmlformats, purl.org) sind keine fremden Rechner", !nsWirte.some((w) => /w3\.org|openxmlformats|purl\.org/.test(w)), JSON.stringify(nsWirte));
+ok("… auch ein unbekannter Wirt hinter xmlns=\"…\" nicht", !nsWirte.includes("eigen-ns.beispiel.example"), JSON.stringify(nsWirte));
+ok("Gegenrichtung: die echten Abrufe daneben bleiben gemeldet (bilder…, vorlagen…)",
+   nsWirte.includes("bilder.beispiel.example") && nsWirte.includes("vorlagen.beispiel.example"), JSON.stringify(nsWirte));
+
 /* ══ STUFE 2 D · DER SEITENTEXT EINES PDFs (2026-09-29)
    pdf.js und pdf-lib liegen neben Workflow PDF (Nachbar-Klon). Fehlen sie,
    ist dieser Teil ⊘ NICHT LAUFFÄHIG — ungeprüft, nicht grün. */

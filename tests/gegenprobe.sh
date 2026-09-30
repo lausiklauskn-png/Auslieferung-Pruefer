@@ -3865,6 +3865,20 @@ probe "PDFTEXT: die App sagt dem Prüfer nicht, wo pdf.js liegt" \
       assets/pruefer-ui.js \
       's|window.PrueferAnhang.pfade({ pdfjs:|window.PrueferAnhang.pfade({ nix:|'
 
+# ══ VORLAGEN: Klaus' Befunde an den Testvorlagen (2026-09-30) ══
+probe "VORLAGEN: eine Textdatei wird wieder nicht als Text geprüft" \
+      assets/pruefer-anhang.js \
+      's|else if (art === "text") text = |else if (false) text = |'
+probe "VORLAGEN: ein Namensraum (xmlns) gilt wieder als fremde Adresse" \
+      assets/pruefer-formate.js \
+      's|if (NAMENSRAUM_WIRTE\[wirt\] \|\| VOR_XMLNS.test(zeile.slice(0, am.index))) continue;|if (false) continue;|'
+probe "VORLAGEN: ein JPEG im PDF-Eingang ist wieder ein sauberes PDF" \
+      assets/pruefer-ui.js \
+      's|if (String.fromCharCode.apply(null, kopf) !== "%PDF-") {|if (false) {|'
+probe "VORLAGEN: der PDF-Eingang liest den Seitentext wieder nicht" \
+      assets/pruefer-ui.js \
+      's|window.PrueferAnhang ? window.PrueferAnhang.pruefe(f.name, bytes)|false ? window.PrueferAnhang.pruefe(f.name, bytes)|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1

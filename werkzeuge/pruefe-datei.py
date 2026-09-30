@@ -128,6 +128,10 @@ GELD_WERT = re.compile(
 # Fremde Adressen. In HTML hängt eine Adresse an einem Attribut; hier steht sie
 # nackt. Gemeldet wird nur, was wirklich holt — nicht jedes Wort mit Punkt.
 ADRESSE = re.compile(r"\bhttps?://([A-Za-z0-9._\-]+(?::\d+)?)")
+# Ein Namensraum ist ein NAME, kein Abruf — Zwilling von pruefer-formate.js.
+NAMENSRAUM_WIRTE = {"www.w3.org", "schemas.openxmlformats.org",
+                    "schemas.microsoft.com", "purl.org", "ns.adobe.com"}
+VOR_XMLNS = re.compile(r"xmlns(?::[\w.\-]+)?\s*=\s*[\"']$", re.I)
 
 # Dieselbe Fülltext-Liste wie im HTML-Prüfer, damit ein „TODO" in einer README
 # genauso auffällt wie eines in der Seite. Eine zweite, eigene Liste wäre eine
@@ -179,6 +183,8 @@ def pruefe_text(text, pfad="", erlaubt=()):
         for m in ADRESSE.finditer(zeile):
             wirt = m.group(1).lower().split(":")[0]
             if wirt in gemeldet:
+                continue
+            if wirt in NAMENSRAUM_WIRTE or VOR_XMLNS.search(zeile[:m.start()]):
                 continue
             if any(wirt == e or wirt.endswith("." + e) for e in erlaubt):
                 continue
