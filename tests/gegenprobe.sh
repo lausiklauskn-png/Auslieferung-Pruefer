@@ -431,6 +431,17 @@ probe "Siegel-SVG fuellt seinen Platz nicht mehr" \
       assets/style.css 's|#sbkim-siegel-badge svg { width: 100%; height: 100%; display: block; }||'
 
 
+# ---- Gleiche Art, eine Karte (Klaus 2026-09-30) -----------------------------
+probe "GRUPPE: ohne Wirt wird wieder nach dem Satz gruppiert (2x Metadaten = zwei Karten)" \
+      assets/pruefer-ui.js 's#(wirt .. "");#(wirt || x.satz);#'
+
+probe "GRUPPE: der Satz jeder Stelle verschwindet aus der Sammelkarte" \
+      assets/pruefer-ui.js 's#if (vieleSaetze) stelle#if (false) stelle#'
+
+probe "GRUPPE: versteckte Wirte fallen auf eine Karte (Wirt nicht mehr erkannt)" \
+      assets/pruefer-ui.js 's#lädt von (\[A-Za-z0-9._:-\]+) \\(#NIE (x)#'
+
+
 # ---- Die Marke ---------------------------------------------------------------
 probe "Kopf-Marke wieder ein leeres Farbquadrat" \
       assets/style.css 's|  background: url("../icons/marke-96.png") center / cover no-repeat;||'

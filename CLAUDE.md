@@ -290,4 +290,14 @@ Schild + Paket mit Haken, aus Klaus' ChatGPT-Bild. Alle Größen unter `icons/`
 (favicon-32/48, apple-touch-icon 180, icon-192/512, maskable-512, marke-96 für
 die Kopfzeile). Die alten Marktplatz-Dateien `assets/icon-*.png` und
 `assets/marke.svg` sind weg. Wer das Icon ändert, erhöht `?v=` und CACHE_VERSION
-(zuletzt v12, `?v=87`).
+(zuletzt v12, `?v=87`; seit dem Zusammenfassen v13, `?v=88`).
+
+## 🗂 Gleiche Art, eine Karte (Klaus 2026-09-30)
+
+„2× Metadaten" standen als zwei Karten da. `gruppiere()` fasst jetzt ohne Wirt
+nach der ART zusammen (vorher nach dem Satz); verschiedene Wirte bleiben
+verschiedene Karten (`wirtAus` kennt auch „lädt von HOST ("). Unterscheiden sich
+die Sätze, steht jeder an seiner Stelle (`.pr-stellensatz`), im Fach und im
+Bericht stehen alle. „N×" nennt die STELLEN der Art, der Link geht durch ihre
+Karten (Tafel-Evolution: vorher die Karten). Gegenprobe `NUR_FALL="GRUPPE:"`
+(3 Fälle). Cache v13, `?v=88`.
