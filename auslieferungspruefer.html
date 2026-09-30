@@ -31,10 +31,10 @@
      Goldrand), aber Paket statt Brief und Waldgrün statt Navy. Als Datei aus
      dem eigenen Ordner, nie von einer fremden Adresse. Vorher (2026-08-23 bis
      2026-09-30): ein Pfosten mit zwei Pfeilen, inline als SVG. -->
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=87">
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=87">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=87">
-<link rel="stylesheet" href="assets/style.css?v=87">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=88">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=88">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=88">
+<link rel="stylesheet" href="assets/style.css?v=88">
 <script>
 /* Thema VOR dem ersten Anstrich setzen — sonst blitzt bei jedem Aufruf kurz das
    Standard-Thema auf, bevor die gespeicherte Wahl greift. Absichtlich winzig
@@ -204,6 +204,7 @@ a.pr-zahl:hover, a.pr-zahl:focus-visible { border-color: var(--accent); }
 .pr-rat  { font-size: var(--f-text); line-height: var(--lh-text);
            color: var(--muted); margin: var(--s1) 0 var(--s2); max-width: 68ch; }
 .pr-stelle { display: flex; gap: var(--s2); align-items: center; flex-wrap: wrap; }
+.pr-stellensatz { flex-basis: 100%; margin: 0; }
 .pr-marke { font-family: var(--mono); font-size: var(--f-mono); line-height: var(--lh-mono);
             color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .pr-quelle {
@@ -734,22 +735,22 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
 
 </main>
 
-<script src="assets/i18n-pruefer.js?v=87"></script>
-<script src="assets/sprache.js?v=87"></script>
-<script src="assets/thema.js?v=87"></script>
-<script src="assets/pruefer.js?v=87"></script>
+<script src="assets/i18n-pruefer.js?v=88"></script>
+<script src="assets/sprache.js?v=88"></script>
+<script src="assets/thema.js?v=88"></script>
+<script src="assets/pruefer.js?v=88"></script>
 <!-- ⚠ REIHENFOLGE. `pruefer-formate.js` holt sich die Fülltext-Liste aus
      `pruefer.js` — eine zweite, eigene Liste wäre eine Drift-Quelle mit Ansage.
      Und `pruefer-ui.js` steht zuletzt, weil es alle drei bedient. -->
-<script src="assets/pruefer-formate.js?v=87"></script>
-<script src="assets/pruefer-browser.js?v=87"></script>
+<script src="assets/pruefer-formate.js?v=88"></script>
+<script src="assets/pruefer-browser.js?v=88"></script>
 <!-- ⚠ NACH `pruefer-formate.js`: der Mail-Eingang leiht sich dessen
      Schlüssel-Muster und die IBAN-Prüfung, statt zweite Listen zu führen.
      Fehlt die Datei, sagt er das im Ergebnis, statt still weniger zu prüfen. -->
-<script src="assets/pruefer-mail.js?v=87"></script>
+<script src="assets/pruefer-mail.js?v=88"></script>
 <!-- Anhänge und einzelne Dateien öffnen — hier gepflegt, byte-1:1 im Sende-Prüfer. -->
-<script src="assets/pruefer-anhang.js?v=87"></script>
-<script src="assets/pruefer-ui.js?v=87"></script>
+<script src="assets/pruefer-anhang.js?v=88"></script>
+<script src="assets/pruefer-ui.js?v=88"></script>
 <!-- ══ SBKIM — der Auslieferungsprüfer als eigener Knoten im Mycel ═══════════
      Eigene Identität, eigene Spore, das schwebende Verbinden-Fenster, die
      Status-Pille von Modul 17 und das selbstausfüllende Siegel mit dem
@@ -765,9 +766,9 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
      `netz.js` steht ZUERST: die Relais-Liste des Prüfers liest die des
      Marktplatzes ab, statt sie abzuschreiben — zwei Listen derselben
      Poststellen laufen auseinander. -->
-<script src="assets/config/netz.js?v=87"></script>
-<script src="assets/config/pruefer-netz.js?v=87"></script>
-<script src="assets/pruefer-sbkim-init.js?v=87"></script>
+<script src="assets/config/netz.js?v=88"></script>
+<script src="assets/config/pruefer-netz.js?v=88"></script>
+<script src="assets/pruefer-sbkim-init.js?v=88"></script>
 <!-- ⚠ EIGENE APP SEIT 2026-09-26: im Marktplatz registrierte die STARTSEITE den
      Service-Worker, der Prüfer nicht. Als eigenständige PWA braucht er ihn selbst,
      sonst läuft er offline nicht. -->

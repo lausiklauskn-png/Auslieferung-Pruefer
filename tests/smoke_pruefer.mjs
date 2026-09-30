@@ -1664,13 +1664,51 @@ if (!browser) {
      `jede Zahl über den Befunden ist ein Link auf eine Karte, die es gibt (${chips.filter((c) => c.tag === "A").length} von ${chips.length})`);
   ok(chips[0] && chips[0].n === karten,
      `die Gesamtzahl führt durch ALLE Karten (${chips[0] && chips[0].n} von ${karten})`);
-  ok(chips.slice(1).every((c) => { const m = /^(\d+)×/.exec(c.text); return m && Number(m[1]) === c.n; }),
-     "… und jede „N×“-Zahl durch genau N Karten");
+  const stellenJeArt = await seite.$$eval("#ergebnis .pr-karte", (n) => {
+    const m = {}; n.forEach((k) => { const a = k.getAttribute("data-kennung"); m[a] = (m[a] || 0) + Number(k.getAttribute("data-stellen")); }); return m;
+  });
+  ok(chips.slice(1).every((c) => { const m = /^(\d+)×/.exec(c.text); return m && c.zielArt && Number(m[1]) === stellenJeArt[c.zielArt]; }),
+     "… und jede „N×“-Zahl nennt die Stellen ihrer Art (Tafel 2026-09-30: vorher die Karten)");
   const fremd = chips.slice(1).filter((c) => !c.zielArt || jeArt[c.zielArt] !== c.n);
   ok(chips.length > 2 && fremd.length === 0,
      `… und jede „N×“-Zahl zeigt auf eine Karte IHRER Art (${fremd.map((c) => c.text).join(" · ") || "alle passen"})`);
-  const mehrfach = chips.findIndex((c, i) => i > 0 && c.n >= 2);
-  ok(mehrfach > 0, "die Test-Mail hat eine Art mit mehreren Karten (sonst misst der Weiter-Sprung nichts)");
+  /* ══ GLEICHE ART, EINE KARTE (Klaus 2026-09-30: „2× Metadaten" standen als
+   * zwei Karten da) ═══════════════════════════════════════════════════════
+   * Ohne Wirt gibt es je Art genau EINE Karte, und hat sie mehrere Stellen mit
+   * verschiedenen Sätzen, steht jeder Satz an seiner Stelle. */
+  const artKarten = await seite.$$eval("#ergebnis .pr-karte", (n) => n.map((k) => ({
+    art: k.getAttribute("data-kennung"), wirt: !!k.querySelector("[data-wirt]"),
+    stellen: Number(k.getAttribute("data-stellen")),
+    saetze: k.querySelectorAll(".pr-stellensatz").length,
+    tech: [...k.querySelectorAll(".pr-detail .pr-tech")].map((x) => x.textContent),
+  })));
+  const ohneWirt = artKarten.filter((k) => !k.wirt);
+  const doppelt = ohneWirt.map((k) => k.art).filter((a, i, l) => l.indexOf(a) !== i);
+  ok(ohneWirt.length > 2 && doppelt.length === 0,
+     `ohne Wirt steht jede Art auf EINER Karte (doppelt: ${doppelt.join(", ") || "keine"})`);
+  const sammel = ohneWirt.find((k) => k.stellen > 1 && k.tech.length > 1);
+  ok(!!sammel, "die Test-Mail hat eine Art mit mehreren Stellen UND verschiedenen Sätzen (sonst misst die nächste Zeile nichts)");
+  ok(sammel && sammel.saetze === Math.min(5, sammel.stellen),
+     `… und jede gezeigte Stelle trägt ihren eigenen Satz (${sammel ? sammel.saetze + " von " + sammel.stellen : "–"})`);
+
+  /* Den Weiter-Sprung misst eine Art mit mehreren Karten — die gibt es jetzt
+     nur noch bei verschiedenen Wirten, also wird eine solche Seite gestellt. */
+  let mehrfach = chips.findIndex((c, i) => i > 0 && c.n >= 2);
+  if (mehrfach < 0) {
+    await seite.click("#reiter-html");
+    await seite.fill("#erlaubt", "");
+    await seite.fill("#quelle", '<!doctype html>\n<html lang="de"><head><title>x</title></head><body>\n' +
+      ["eins", "zwei", "drei"].map((w) => '<img src="https://' + w + '.example/a.png" alt="a">').join("\n") +
+      "\n</body></html>");
+    await seite.click("#pruefKnopf");
+    await seite.waitForFunction(() => document.querySelectorAll("#ergebnis .pr-karte").length > 1);
+    await seite.evaluate(() => { document.body.style.paddingBottom = "3000px"; });
+    const neu = await seite.$$eval("#ergebnis .pr-summe .pr-zahl", (n) => n.map((x) => ({
+      n: Number(x.getAttribute("data-sprung")), text: x.textContent })));
+    mehrfach = neu.findIndex((c, i) => i > 0 && c.n >= 2);
+    if (mehrfach > 0) chips[mehrfach] = neu[mehrfach];
+  }
+  ok(mehrfach > 0, "es gibt eine Art mit mehreren Karten (sonst misst der Weiter-Sprung nichts)");
   if (mehrfach > 0) {
     const sprungMessen = async () => {
       await seite.$$eval("#ergebnis .pr-summe .pr-zahl", (n, i) => n[i].click(), mehrfach);
@@ -1694,7 +1732,8 @@ if (!browser) {
     const s2 = await sprungMessen();
     ok(s2.id && s2.id !== s1.id && s2.kennung === s1.kennung,
        `… ein zweiter Tipp zur NÄCHSTEN Karte derselben Art (${s1.id} → ${s2.id})`);
-    await seite.evaluate(() => { history.replaceState(null, "", location.pathname + location.search); scrollTo(0, 0); });
+    await seite.evaluate(() => { history.replaceState(null, "", location.pathname + location.search); scrollTo(0, 0);
+      document.body.style.paddingBottom = ""; });
   }
 
   /* ══ EINE DATEI PRÜFEN (2026-09-29) ═══════════════════════════════════════

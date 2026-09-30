@@ -466,14 +466,20 @@
    * fünfundzwanzig Stellen. Zusammengefasst steht da, was stimmt: zwei fremde
    * Wirte, und darunter die Zeilen.
    *
-   * Gruppiert wird nach WIRT, wo es einen gibt, sonst nach dem Satz. Zwei
+   * Gruppiert wird nach WIRT, wo es einen gibt, sonst nach der ART. Zwei
    * verschiedene fremde Rechner bleiben zwei Karten — das ist der Unterschied,
    * auf den es ankommt.
+   *
+   * ⚠ BIS ZUM 2026-09-30 WURDE OHNE WIRT NACH DEM SATZ gruppiert. Zwei Funde
+   * derselben Art mit verschiedenem Satz (Klaus: „2× Metadaten") standen als
+   * zwei Karten da. Seitdem eine Karte je Art; der Satz jeder Stelle steht an
+   * der Stelle, sobald die Sätze sich unterscheiden — nichts fällt weg.
    */
   var NACH_WIRT = ["FREMDE-ADRESSE", "PDF-VERWEIS", "VERSTECKT-VOR-DEM-TEXTLESER"];
 
   function wirtAus(satz) {
-    var m = /: ([A-Za-z0-9._:-]+)$/.exec(String(satz || ""));
+    var m = /: ([A-Za-z0-9._:-]+)$/.exec(String(satz || "")) ||
+            /lädt von ([A-Za-z0-9._:-]+) \(/.exec(String(satz || ""));
     return m ? m[1] : null;
   }
 
@@ -481,12 +487,14 @@
     var reihenfolge = [], nach = {};
     treffer.forEach(function (x) {
       var wirt = NACH_WIRT.indexOf(x.kennung) !== -1 ? wirtAus(x.satz) : null;
-      var schluessel = x.kennung + "|" + (wirt || x.satz);
+      var schluessel = x.kennung + "|" + (wirt || "");
       if (!nach[schluessel]) {
-        nach[schluessel] = { kennung: x.kennung, wirt: wirt, satz: x.satz, stellen: [] };
+        nach[schluessel] = { kennung: x.kennung, wirt: wirt, satz: x.satz, saetze: [], stellen: [] };
         reihenfolge.push(schluessel);
       }
-      nach[schluessel].stellen.push(x);
+      var g = nach[schluessel];
+      g.stellen.push(x);
+      if (g.saetze.indexOf(x.satz) === -1) g.saetze.push(x.satz);
     });
     return reihenfolge.map(function (s) { return nach[s]; });
   }
@@ -544,7 +552,10 @@
 
     Object.keys(kartenJe).sort().forEach(function (k) {
       var etikett = (KLARTEXT[k] && KLARTEXT[k].kurz) ? KLARTEXT[k].kurz : k;
-      summe.appendChild(sprung("pr-zahl", kartenJe[k].length + "× " + etikett, kartenJe[k]));
+      /* Die Zahl nennt die STELLEN der Art, der Link geht durch ihre Karten. */
+      var n = 0;
+      kartenJe[k].forEach(function (i) { n += gruppen[i].stellen.length; });
+      summe.appendChild(sprung("pr-zahl", n + "× " + etikett, kartenJe[k]));
     });
     ergebnis.appendChild(summe);
 
@@ -571,6 +582,8 @@
       var li = t("li", "pr-treffer pr-karte");
       li.id = "pr-g-" + gi;
       li.setAttribute("data-kennung", g.kennung);
+      li.setAttribute("data-stellen", String(g.stellen.length));
+      var vieleSaetze = g.saetze.length > 1;
 
       /* Der Klartext-Satz führt. */
       li.appendChild(t("p", "pr-kopf", k.kopf));
@@ -582,12 +595,14 @@
           (g.stellen.length > 1 ? "  ·  " + g.stellen.length + " Stellen" : ""));
         w.setAttribute("data-wirt", g.wirt);
         li.appendChild(w);
+      } else if (g.stellen.length > 1) {
+        li.appendChild(t("p", "pr-wirt pr-anzahl", g.stellen.length + " Stellen"));
       }
       if (k.rat) li.appendChild(t("p", "pr-rat", k.rat));
 
       bericht.push(k.kopf + (g.wirt ? "  [" + g.wirt + "]" : ""));
       if (k.rat) bericht.push("  " + k.rat);
-      bericht.push("  " + g.satz);
+      g.saetze.forEach(function (satz) { bericht.push("  " + satz); });
 
       /* ⚠ BEI VIELEN STELLEN NUR DIE ERSTEN FÜNF IM BILD — aber ALLE im
          Bericht, und die Zahl steht dabei. Eine stille Kürzung wäre die
@@ -598,6 +613,7 @@
                   : (x.zeile ? "Zeile " + x.zeile : "Stelle im Text nicht bestimmbar");
         var stelle = t("div", "pr-stelle");
         stelle.appendChild(t("span", "pr-marke", marke));
+        if (vieleSaetze) stelle.appendChild(t("p", "pr-tech pr-stellensatz", x.satz));
         var s = "";
         if (!x.stelle && x.zeile) {
           var roh = zeilen[x.zeile - 1];
@@ -653,7 +669,7 @@
          Befunde. */
       var fach = t("details", "pr-detail");
       fach.appendChild(t("summary", null, "technische Angabe"));
-      fach.appendChild(t("p", "pr-tech", g.satz));
+      g.saetze.forEach(function (satz) { fach.appendChild(t("p", "pr-tech", satz)); });
       fach.appendChild(t("span", "pr-kennung pr-fuss", g.kennung));
       li.appendChild(fach);
 
