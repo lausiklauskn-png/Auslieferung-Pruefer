@@ -78,7 +78,7 @@ nur_pruefer() {                 # nur_pruefer <Datei ...> — 0, wenn alle zum P
   local d
   for d in "$@"; do
     case "$d" in
-      auslieferungspruefer.html|assets/pruefer*|assets/i18n-pruefer.js|assets/config/pruefer-netz.js|werkzeuge/*) ;;
+      auslieferungspruefer.html|assets/pruefer*|assets/i18n-pruefer.js|assets/config/pruefer-netz.js|werkzeuge/*|vendor/pdfjs/*) ;;
       *) return 1 ;;
     esac
     [ -f "$d" ] || return 1
