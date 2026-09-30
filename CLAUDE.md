@@ -225,7 +225,11 @@ Plan und Entscheidungen: `Sende-Pruefer/docs/BRIEF_2026-09-29_anhaenge-stufe2.md
   PDF kommt, und steht **nicht** im Installations-Vorrat. pdf-lib liegt nur für die
   Proben unter `tests/vendor/`. `smoke_knoten` besteht darauf, dass keine ausgelieferte
   Datei `Workflow-PDF` nennt; gemessen in einer Kopie OHNE Workflow-PDF daneben:
-  `smoke_pruefer` 275 grün, `ALLEIN:` 2 gefangen. Cache v9, `?v=84`.
+  `smoke_pruefer` 275 grün, `ALLEIN:` 2 gefangen. Seit dem HTML-Eingang (unten): 278 grün
+  im normalen Baum, `ALLEIN:` 3 gefangen. Cache v10, `?v=85`.
+  **HTML-Eingang** (Klaus 2026-09-30, Vorlage 1A): ein PDF oder eine Binärdatei geht an
+  den Datei-Weg (`nimmDatei` liest zuerst den Kopf), nicht als Salat ins Quelltext-Feld.
+  ⚠ In `probe`-Mustern ist `\|` ein sed-Oder — für `||` steht `..`.
 - ⚠ **`isEvalSupported: false`**: pdf.js 3.11 konnte mit einer präparierten Schrift
   Code ausführen (CVE-2024-4367). Ein Wächter liest die Zeile, ein Gegenprobe-Fall dreht sie.
 - Anweisungen an eine KI sucht **dieselbe Liste wie der Mail-Eingang**

@@ -1791,6 +1791,19 @@ if (!browser) {
        "… und der Seitentext geht auch dort durch den Text-Prüfer, mit Seite");
     ok(/Seitentext gelesen: 2 von 2/.test(imPdf.text) && !/wird nicht gedeutet/.test(imPdf.text),
        "… das Ergebnis sagt, wie viele Seiten gelesen wurden, und nicht mehr „wird nicht gedeutet\"");
+    /* Klaus 2026-09-30, Vorlage 1A im HTML-EINGANG: das PDF stand als
+       Binärsalat im Quelltext-Feld, gemeldet wurde „keine Sprachangabe". */
+    await seite.evaluate(() => { document.getElementById("ergebnis").textContent = ""; document.getElementById("quelle").value = ""; });
+    await seite.setInputFiles("#datei", { name: "brief.pdf", mimeType: "application/pdf", buffer: pdfBytes });
+    await seite.waitForFunction(() => !!document.querySelector("#ergebnis .pr-zahl"), null, { timeout: 60000 }).catch(() => {});
+    const imHtml = await seite.evaluate(() => ({
+      arten: [...document.querySelectorAll("#ergebnis .pr-kennung")].map((x) => x.textContent),
+      quelle: document.getElementById("quelle").value,
+      text: document.getElementById("ergebnis").textContent }));
+    ok(imHtml.arten.includes("PDF-KI-ANWEISUNG") && !imHtml.arten.includes("KEINE-SPRACHE"),
+       `HTML-Eingang: ein PDF wird als PDF geprüft, nicht als HTML (${imHtml.arten.join(", ")})`);
+    ok(!/%PDF-/.test(imHtml.quelle), "… und landet NICHT als Binärsalat im Quelltext-Feld");
+    ok(/eine PDF-Datei, kein HTML/.test(imHtml.text), "… und das Ergebnis sagt, dass es ein PDF war");
   }
   const svgKnoten = await seite.$$eval("#ergebnis svg, #ergebnis script", (n) => n.length);
   ok(svgKnoten === 0, `im Ergebnis steht keine gezeichnete SVG und kein Skript (${svgKnoten})`);

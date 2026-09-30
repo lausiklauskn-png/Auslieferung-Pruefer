@@ -775,6 +775,28 @@
 
   function nimmDatei(datei) {
     if (!datei) return;
+    /* Klaus 2026-09-30, Vorlage 1A im HTML-Eingang: ein PDF stand als
+       Binärsalat im Quelltext-Feld, gemeldet wurde „keine Sprachangabe".
+       Ein PDF oder eine Binärdatei (Null-Byte im Kopf) ist kein HTML — sie
+       geht an den Datei-Weg, und das wird gesagt. */
+    var kopfLeser = new FileReader();
+    kopfLeser.onload = function () {
+      var b = new Uint8Array(kopfLeser.result);
+      var pdf = String.fromCharCode.apply(null, b.subarray(0, 5)) === "%PDF-";
+      var binaer = !pdf && Array.prototype.indexOf.call(b, 0) !== -1;
+      if (pdf || binaer) {
+        dateiPruefen(datei, [pdf
+          ? "Das ist eine PDF-Datei, kein HTML. Geprüft wie im Reiter „PDF“."
+          : "Das ist keine Textdatei, also kein HTML. Geprüft wie unter „Foto · Datei prüfen“."]);
+        return;
+      }
+      nimmText(datei);
+    };
+    kopfLeser.onerror = function () { nimmText(datei); };
+    kopfLeser.readAsArrayBuffer(datei.slice(0, 1024));
+  }
+
+  function nimmText(datei) {
     var leser = new FileReader();
     leser.onload = function () {
       var roh = String(leser.result || "");
