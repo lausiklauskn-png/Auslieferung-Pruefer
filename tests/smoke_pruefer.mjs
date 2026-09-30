@@ -2477,6 +2477,54 @@ if (!browser) {
      `… und er wechselt mit der Sprache (${zweckEn.slice(0, 46)}…)`);
   await seite.evaluate(() => window.PTSprache.anwenden("de"));
 
+  /* ══ INSTALLIEREN-KNOPF (Klaus 2026-09-30) ═════════════════════════════
+   * Im Sende-Prüfer hat der Knopf am Tablet getragen; hier ging es ohne ihn
+   * nicht. Gemessen: er steht in der Kopfleiste, er erklärt den Weg, wenn der
+   * Browser nicht anbietet, er öffnet den Dialog, wenn er anbietet, und die
+   * Kopfleiste läuft auch am Handy nicht über. */
+  for (const breite of [1300, 360]) {
+    const inst = await browser.newPage({ viewport: { width: breite, height: 800 } });
+    await inst.goto("file://" + path.join(WURZEL, "auslieferungspruefer.html"));
+    await inst.waitForFunction(() => !!document.getElementById("installieren"), null, { timeout: 5000 }).catch(() => {});
+    const r = await inst.evaluate(() => {
+      const k = document.getElementById("installieren");
+      const f = document.getElementById("frischKnopf");
+      const bar = document.querySelector("header .bar");
+      return { da: !!k && k.checkVisibility(),
+               vor: !!(k && f && (k.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING)),
+               lage: k ? k.dataset.lage : null,
+               ueber: bar ? bar.scrollWidth - bar.clientWidth : -1,
+               seite: document.documentElement.scrollWidth - innerWidth };
+    });
+    ok(r.da && r.vor, `${breite} px: der Installieren-Knopf steht sichtbar in der Kopfleiste, vor ⟳`);
+    ok(r.ueber <= 0 && r.seite <= 0, `${breite} px: Kopfleiste und Seite laufen nicht über (${r.ueber} / ${r.seite})`);
+    if (breite === 1300) {
+      ok(r.lage === "nicht-angeboten", `ohne Angebot des Browsers: Lage „nicht-angeboten“ (${r.lage})`);
+      await inst.click("#installieren");
+      const t = await inst.$eval("#install-meldung-text", (e) => e.textContent).catch(() => "");
+      ok(/VERKNÜPFUNG/.test(t) && /App installieren/.test(t), "… ein Tipp nennt Verknüpfung und den Weg über Chrome ⋮");
+      const angeboten = await inst.evaluate(async () => {
+        let gefragt = false;
+        const e = new Event("beforeinstallprompt", { cancelable: true });
+        e.prompt = () => { gefragt = true; };
+        e.userChoice = Promise.resolve({ outcome: "accepted" });
+        window.dispatchEvent(e);
+        const lage = document.getElementById("installieren").dataset.lage;
+        document.getElementById("installieren").click();
+        await new Promise((r) => setTimeout(r, 50));
+        return { lage, gefragt, text: document.getElementById("install-meldung-text").textContent };
+      });
+      ok(angeboten.lage === "angeboten" && angeboten.gefragt && /Installiert/.test(angeboten.text),
+         `bietet der Browser an, öffnet ein Tipp seinen Dialog (${angeboten.lage}, gefragt: ${angeboten.gefragt})`);
+      await inst.evaluate(() => { document.documentElement.lang = "en"; });
+      await inst.waitForFunction(() => /Install/.test(document.getElementById("installieren").textContent) &&
+        !/Installieren/.test(document.getElementById("installieren").textContent), null, { timeout: 2000 }).catch(() => {});
+      const en = await inst.$eval("#installieren", (e) => e.textContent);
+      ok(/Install/.test(en) && !/Installieren/.test(en), `… und er spricht Englisch mit (${en.trim()})`);
+    }
+    await inst.close();
+  }
+
   await browser.close();
 }
 

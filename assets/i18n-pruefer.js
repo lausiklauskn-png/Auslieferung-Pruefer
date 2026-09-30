@@ -78,7 +78,7 @@ window.PT_SEITE_I18N = {
     "pr_61": "Foto · Datei prüfen<span class=\"pr-was\">JPEG, PNG, SVG, Word, Excel, ZIP</span>",
     "pr_62": "Wähle eine Datei — ein Foto, eine Grafik, ein Word- oder Excel-Dokument, ein ZIP, einen Anhang, den du bekommen hast.",
     "pr_63": "Gelesen wird der <strong>Dateikopf</strong>, nicht der Name: Daten hinter dem Bildende, Metadaten, Skripte in Grafiken, Makros und Verweise in Office-Dateien, Programme. Text in der Datei geht durch denselben Prüfer wie eine Textdatei. Text im Bild liest eine Texterkennung auf dem Gerät. Ausgeführt wird nichts; in Bildpunkten versteckte Botschaften liest er <em>nicht</em>.",
-    "pr_bsp_hier": "— diese Seite hier",
+    "pr_bsp_hier": "— der Marktplatz PWA Toolpoint",
     "pr_fuss_recht": "Impressum & Datenschutz",
     "pr_fuss_satz": "Läuft im Browser. Kein Konto, kein Hochladen, keine fremde Adresse."
   },
@@ -151,7 +151,7 @@ window.PT_SEITE_I18N = {
     "pr_61": "Check a photo · file<span class=\"pr-was\">JPEG, PNG, SVG, Word, Excel, ZIP</span>",
     "pr_62": "Pick a file — a photo, a graphic, a Word or Excel document, a ZIP, an attachment you received.",
     "pr_63": "What is read is the <strong>file header</strong>, not the name: data behind the end of an image, metadata, scripts in graphics, macros and links in Office files, programs. Text inside the file goes through the same checker as a text file. Text inside images is read by text recognition on the device. Nothing is executed; messages hidden in pixels are <em>not</em> read.",
-    "pr_bsp_hier": "— this page here",
+    "pr_bsp_hier": "— the PWA Toolpoint marketplace",
     "pr_fuss_recht": "Imprint & Privacy",
     "pr_fuss_satz": "Runs in the browser. No account, no upload, no outside address."
   }
