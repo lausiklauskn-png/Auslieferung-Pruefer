@@ -440,3 +440,14 @@ Gemessen (2026-09-30): `smoke_anhang` **99 grün** · `smoke_pruefer` **324 grü
 Gegenprobe `NUR_FALL="HTMLANH:"` in einer Kopie **7 schlagen an · 0 blind · 0 tote Anker**,
 jeder Fall von Hand nachgestellt, jede rote Zeile mit ihrem Namen. Cache v20, `?v=93`.
 ⚠ Nicht gemessen: echte HTML-Anhänge aus Klaus' Postfach, das Tablet.
+## 🏠 Startseite „Was die App kann“ (2026-10-01)
+
+`start.html` (DE/EN über `data-l`, Sprache `toolpoint_lang`) steht beim ersten Öffnen
+vor der App: `index.html` leitet hin, solange `auslieferungspruefer_start_v1` nicht "1"
+ist; mit `?adresse=`/Hash geht es direkt in den Prüfer. `manifest.json` startet über
+`index.html`. In der Kopfleiste „ℹ Überblick“ (`#ueberblickKnopf`). Stylesheet
+`assets/start.css` ist identisch im Sende-Prüfer. Bilder **gebaut**:
+`node tools/start-bilder.mjs` → `start/*.jpg` (wer die Oberfläche ändert, baut neu).
+⚠ „Warum es diese App gibt“ und die Schritte unter „Was tun“ sind ein Entwurf,
+nicht Klaus' Wortlaut. Probe `tests/smoke_start.mjs` · Gegenprobe `NUR_FALL="START:"`.
+Cache v21, `?v=94`.

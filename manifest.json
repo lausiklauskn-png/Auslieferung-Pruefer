@@ -3,7 +3,7 @@
   "short_name": "Auslieferung",
   "description": "Prüft, was eine Internetseite wirklich ins Netz gibt: fremde Adressen, mitgelieferte Server-Dateien, offene Schlüssel, Personenbezug. Läuft im Browser, lädt nichts hoch.",
   "id": "./auslieferungspruefer-app",
-  "start_url": "auslieferungspruefer.html",
+  "start_url": "index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0c1016",

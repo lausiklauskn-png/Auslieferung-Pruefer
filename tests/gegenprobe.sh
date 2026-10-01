@@ -78,7 +78,7 @@ nur_pruefer() {                 # nur_pruefer <Datei ...> — 0, wenn alle zum P
   local d
   for d in "$@"; do
     case "$d" in
-      auslieferungspruefer.html|assets/pruefer*|assets/i18n-pruefer.js|assets/config/pruefer-netz.js|werkzeuge/*|vendor/pdfjs/*) ;;
+      auslieferungspruefer.html|start.html|index.html|assets/start.css|assets/sprache.js|assets/pruefer*|assets/i18n-pruefer.js|assets/config/pruefer-netz.js|werkzeuge/*|vendor/pdfjs/*) ;;
       *) return 1 ;;
     esac
     [ -f "$d" ] || return 1
@@ -3989,6 +3989,19 @@ probe "HTMLANH: der Quelltext statt des sichtbaren Textes geht weiter (Linkziele
 probe "HTMLANH: fehlt pruefer.js, steht oben wieder „Text im Bild ungeprüft“" \
       assets/pruefer-ui.js \
       's|ungeprueftSatz: r.art === "html" ? "HTML-Seite ungeprüft" : "",|ungeprueftSatz: "",|'
+# START (2026-10-01): die Startseite „Was die App kann"
+probe "START: index.html springt wieder direkt in den Prüfer" index.html \
+  's|localStorage.getItem("auslieferungspruefer_start_v1") !== "1"|false|'
+probe "START: der Haken merkt sich nichts mehr" start.html \
+  's|if (h.checked) localStorage.setItem(K, "1");|if (false) localStorage.setItem(K, "1");|'
+probe "START: ein Fund ohne Schritte" start.html \
+  's|<ol><li>Nicht öffnen, nicht weiterleiten.</li><li>Die Mail löschen.</li><li>Beim Absender auf anderem Weg nachfragen.</li></ol>|<ol><li>Nicht öffnen.</li></ol>|'
+probe "START: deutsche Wörter in der englischen Fassung" start.html \
+  's|<li>Delete the email.</li>|<li>Die Mail löschen und nicht weiterleiten.</li>|'
+probe "START: der Überblick fehlt in der Kopfleiste" auslieferungspruefer.html \
+  's|id="ueberblickKnopf" href="start.html"|id="ueberblickKnopf" href="handbuch.html"|'
+probe "START: ?adresse= landet auf der Startseite" index.html \
+  's|if (!location.search \&\& |if (|'
 
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
