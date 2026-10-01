@@ -574,3 +574,14 @@ Gemessen (2026-10-01): `node tests/alle.mjs` Rückgabe 0 — smoke_knoten 160 ·
 smoke_pruefer 357 · smoke_vorbelegung 9 · smoke_start 21, alle 0 ROT. Gegenprobe in einer Kopie:
 siehe unten. Cache v26, `?v=99`. `pruefer-anhang.js` byte-1:1 in den Sende-Prüfer.
 ⚠ Nicht gemessen: echte Word-Dateien von Klaus, das Tablet.
+
+## 🧪 Alle Testvorlagen direkt im Prüfer (Klaus 2026-10-01)
+
+„Direkt Klick. Und nicht in Auslieferungsprüfer Testvorlage." · „Sonst komme ich nicht auf den ersten Blick auf die
+Idee, dass da auch die Testdateien drin sind. Oder sie müssten separat einen Button bekommen." Über den Reitern (in
+keinem Reiter versteckt, also in jedem Eingang zu sehen) steht ein eigener Knopf `<details data-testliste>`
+„🧪 Testvorlagen zum Ausprobieren". Aufgeklappt zeigt er alle 15 Vorlagen von `testvorlagen/` als Links `?test=<Vorlage>`.
+Das ist derselbe Weg wie „Im Prüfer prüfen". Texte pr_69–pr_85 (DE/EN). `smoke_knoten` § TESTLISTE hält die Liste
+gegen `data-im-pruefer` auf `testvorlagen/index.html` (gefunden, nicht gepflegt): wer dort eine Vorlage ergänzt,
+ergänzt sie hier. Gegenprobe `NUR_FALL="TESTLISTE:"` (4 Fälle). Cache v27, `?v=100`.
+Gemessen im Browser bei 1300 und 380 px: Knopf im Datei-Reiter sichtbar, H6 → „Anweisung an eine KI". ⚠ Tablet nicht gemessen.

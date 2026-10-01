@@ -31,10 +31,10 @@
      Goldrand), aber Paket statt Brief und Waldgrün statt Navy. Als Datei aus
      dem eigenen Ordner, nie von einer fremden Adresse. Vorher (2026-08-23 bis
      2026-09-30): ein Pfosten mit zwei Pfeilen, inline als SVG. -->
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=99">
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=99">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=99">
-<link rel="stylesheet" href="assets/style.css?v=99">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=100">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=100">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=100">
+<link rel="stylesheet" href="assets/style.css?v=100">
 <script>
 /* Thema VOR dem ersten Anstrich setzen — sonst blitzt bei jedem Aufruf kurz das
    Standard-Thema auf, bevor die gespeicherte Wahl greift. Absichtlich winzig
@@ -127,6 +127,10 @@ catch (e) {}
 .pr-ablage.pr-drueber { border-color: var(--accent); background: rgba(242,181,68,.07); }
 /* 🧪 deutlich als Test erkennbar: gestrichelt, in der Akzentfarbe */
 .pr-test { margin: 14px 0 0; padding: 12px 14px; border: 2px dashed var(--accent); border-radius: 10px; }
+/* Die Testliste steht über allen Eingängen; zugeklappt ist sie ein deutlicher Knopf. */
+.pr-testliste { margin: 0 0 14px; }
+.pr-testliste > summary { cursor: pointer; min-height: var(--ziel); display: flex; align-items: center; gap: 6px; }
+.pr-testliste[open] > summary { margin-bottom: 4px; }
 .pr-reihe { display: flex; flex-wrap: wrap; gap: var(--s1); align-items: center; margin: var(--s2) 0; }
 .pr-erlaubt {
   flex: 1 1 260px; min-width: 0; box-sizing: border-box; min-height: var(--ziel);
@@ -414,6 +418,36 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
       Foto · Datei prüfen<span class="pr-was">JPEG, PNG, SVG, Word, Excel, ZIP</span>
     </button>
   </div>
+
+  <!-- 🧪 TESTVORLAGEN DIREKT IM PRÜFER (Klaus 2026-10-01): „Direkt Klick. Und nicht
+       in Auslieferungsprüfer Testvorlage. Also da muss ein Link in den
+       Auslieferungsprüfer." Die Liste steht AUSSERHALB der Reiter und ist in
+       jedem Eingang zu sehen. Jeder Eintrag ist ?test=<Vorlage> — derselbe Weg
+       wie „Im Prüfer prüfen" auf testvorlagen/, gefiltert im Skript.
+       Die Liste ist die von testvorlagen/index.html (data-im-pruefer); eine
+       Probe hält beide gleich. -->
+  <details class="pr-test pr-testliste" data-testliste>
+    <summary data-i18n-html="pr_69"><strong>🧪 Testvorlagen zum Ausprobieren</strong> — antippen, sie werden hier geprüft</summary>
+    <p class="feldhinweis" style="margin:8px 0" data-i18n="pr_70">Mit Absicht präpariert, alles darin ist erfunden. Ein Befund ist hier das Soll; H0 und das zweite 4C-Bild sind die sauberen Gegenstücke.</p>
+    <p style="margin:0;display:flex;flex-wrap:wrap;gap:8px">
+      <a class="thema-knopf" href="?test=Vorlage-Alle-als-Mail.eml" data-testlink="Vorlage-Alle-als-Mail.eml" data-i18n="pr_71">Alles in einer Mail</a>
+      <a class="thema-knopf" href="?test=Vorlage-H0-Foto-sauber.jpg" data-testlink="Vorlage-H0-Foto-sauber.jpg" data-i18n="pr_72">H0 · sauberes Foto (kein Befund)</a>
+      <a class="thema-knopf" href="?test=Vorlage-H1-Text-mit-Angaben.txt" data-testlink="Vorlage-H1-Text-mit-Angaben.txt" data-i18n="pr_73">H1 · Text mit Angaben</a>
+      <a class="thema-knopf" href="?test=Vorlage-H6-Text-mit-KI-Anweisung.txt" data-testlink="Vorlage-H6-Text-mit-KI-Anweisung.txt" data-i18n="pr_74">H6 · Text mit Anweisung an eine KI</a>
+      <a class="thema-knopf" href="?test=Vorlage-H2-Foto-mit-GPS-Verweis-und-Anhaengsel.jpg" data-testlink="Vorlage-H2-Foto-mit-GPS-Verweis-und-Anhaengsel.jpg" data-i18n="pr_75">H2 · Foto mit GPS-Verweis und Anhängsel</a>
+      <a class="thema-knopf" href="?test=Vorlage-H3-Grafik-laedt-von-fremdem-Rechner.svg" data-testlink="Vorlage-H3-Grafik-laedt-von-fremdem-Rechner.svg" data-i18n="pr_76">H3 · Grafik lädt von einem fremden Rechner</a>
+      <a class="thema-knopf" href="?test=Vorlage-H4-Word-mit-externer-Vorlage.docx" data-testlink="Vorlage-H4-Word-mit-externer-Vorlage.docx" data-i18n="pr_77">H4 · Word-Datei mit Vorlage von außen</a>
+      <a class="thema-knopf" href="?test=Vorlage-H5-Bild-als-PDF-getarnt.pdf" data-testlink="Vorlage-H5-Bild-als-PDF-getarnt.pdf" data-i18n="pr_78">H5 · Bild mit falscher Endung</a>
+      <a class="thema-knopf" href="?test=Vorlage-0D-PDF-versteckter-Text.pdf" data-testlink="Vorlage-0D-PDF-versteckter-Text.pdf" data-i18n="pr_79">0D · PDF mit verstecktem Text</a>
+      <a class="thema-knopf" href="?test=Vorlage-1A-Bild-mit-Text.png" data-testlink="Vorlage-1A-Bild-mit-Text.png" data-i18n="pr_80">1A · Bild mit Text</a>
+      <a class="thema-knopf" href="?test=Vorlage-1A-PDF-Scan-ohne-Textebene.pdf" data-testlink="Vorlage-1A-PDF-Scan-ohne-Textebene.pdf" data-i18n="pr_81">1A · Scan ohne Textebene</a>
+      <a class="thema-knopf" href="?test=Vorlage-2B-Bild-blasser-Text.png" data-testlink="Vorlage-2B-Bild-blasser-Text.png" data-i18n="pr_82">2B · Anweisung in Hellgrau</a>
+      <a class="thema-knopf" href="?test=Vorlage-3E-PDF-Bild-und-Textebene-widersprechen.pdf" data-testlink="Vorlage-3E-PDF-Bild-und-Textebene-widersprechen.pdf" data-i18n="pr_83">3E · sichtbar 120 €, unsichtbar 12 000 €</a>
+      <a class="thema-knopf" href="?test=Vorlage-4C-Bild-mit-versteckter-Botschaft.png" data-testlink="Vorlage-4C-Bild-mit-versteckter-Botschaft.png" data-i18n="pr_84">4C · Bild mit versteckter Botschaft</a>
+      <a class="thema-knopf" href="?test=Vorlage-4C-Bild-ohne-Botschaft.png" data-testlink="Vorlage-4C-Bild-ohne-Botschaft.png" data-i18n="pr_85">4C · dasselbe Bild ohne Botschaft</a>
+      <a class="thema-knopf" href="testvorlagen/" data-i18n="pr_67">Alle Testvorlagen</a>
+    </p>
+  </details>
 
   <section class="glass pr-eingang" id="feld-html" role="tabpanel"
            aria-labelledby="reiter-html" style="padding:20px">
@@ -766,24 +800,24 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
 
 </main>
 
-<script src="assets/i18n-pruefer.js?v=99"></script>
-<script src="assets/sprache.js?v=99"></script>
-<script src="assets/thema.js?v=99"></script>
-<script src="assets/pruefer.js?v=99"></script>
+<script src="assets/i18n-pruefer.js?v=100"></script>
+<script src="assets/sprache.js?v=100"></script>
+<script src="assets/thema.js?v=100"></script>
+<script src="assets/pruefer.js?v=100"></script>
 <!-- ⚠ REIHENFOLGE. `pruefer-formate.js` holt sich die Fülltext-Liste aus
      `pruefer.js` — eine zweite, eigene Liste wäre eine Drift-Quelle mit Ansage.
      Und `pruefer-ui.js` steht zuletzt, weil es alle drei bedient. -->
-<script src="assets/pruefer-formate.js?v=99"></script>
-<script src="assets/pruefer-browser.js?v=99"></script>
+<script src="assets/pruefer-formate.js?v=100"></script>
+<script src="assets/pruefer-browser.js?v=100"></script>
 <!-- ⚠ NACH `pruefer-formate.js`: der Mail-Eingang leiht sich dessen
      Schlüssel-Muster und die IBAN-Prüfung, statt zweite Listen zu führen.
      Fehlt die Datei, sagt er das im Ergebnis, statt still weniger zu prüfen. -->
-<script src="assets/pruefer-mail.js?v=99"></script>
+<script src="assets/pruefer-mail.js?v=100"></script>
 <!-- Anhänge und einzelne Dateien öffnen — hier gepflegt, byte-1:1 im Sende-Prüfer. -->
-<script src="assets/pruefer-anhang.js?v=99"></script>
-<script src="assets/pruefer-ui.js?v=99"></script>
+<script src="assets/pruefer-anhang.js?v=100"></script>
+<script src="assets/pruefer-ui.js?v=100"></script>
 <!-- Knopf „Installieren" in der Kopfleiste (Klaus 2026-09-30, aus dem Sende-Prüfer). -->
-<script src="assets/installieren.js?v=99"></script>
+<script src="assets/installieren.js?v=100"></script>
 <!-- ══ SBKIM — der Auslieferungsprüfer als eigener Knoten im Mycel ═══════════
      Eigene Identität, eigene Spore, das schwebende Verbinden-Fenster, die
      Status-Pille von Modul 17 und das selbstausfüllende Siegel mit dem
@@ -799,9 +833,9 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
      `netz.js` steht ZUERST: die Relais-Liste des Prüfers liest die des
      Marktplatzes ab, statt sie abzuschreiben — zwei Listen derselben
      Poststellen laufen auseinander. -->
-<script src="assets/config/netz.js?v=99"></script>
-<script src="assets/config/pruefer-netz.js?v=99"></script>
-<script src="assets/pruefer-sbkim-init.js?v=99"></script>
+<script src="assets/config/netz.js?v=100"></script>
+<script src="assets/config/pruefer-netz.js?v=100"></script>
+<script src="assets/pruefer-sbkim-init.js?v=100"></script>
 <!-- ⚠ EIGENE APP SEIT 2026-09-26: im Marktplatz registrierte die STARTSEITE den
      Service-Worker, der Prüfer nicht. Als eigenständige PWA braucht er ihn selbst,
      sonst läuft er offline nicht. -->

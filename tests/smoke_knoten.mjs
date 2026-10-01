@@ -397,6 +397,31 @@ console.log('\n── Was ohne JavaScript dasteht ──');
      /Tesseract\.js 7\.0\.0/.test(lies('THIRD_PARTY.md')) && /traineddata/.test(lies('THIRD_PARTY.md')) && /tessdata_fast/.test(lies('THIRD_PARTY.md')));
 }
 
+// ── TESTLISTE: die Testvorlagen stehen IM Prüfer, über allen Reitern (Klaus 2026-10-01) ──
+// „Direkt Klick. Und nicht in Auslieferungsprüfer Testvorlage." Die Liste wird gegen
+// testvorlagen/index.html gehalten (data-im-pruefer) — gefunden, nicht gepflegt.
+{
+  console.log('\nTESTLISTE · die Testvorlagen direkt im Prüfer');
+  const seite = lies('auslieferungspruefer.html');
+  const block = (seite.match(/<details class="pr-test pr-testliste" data-testliste>([\s\S]*?)<\/details>/) || [])[1] || '';
+  ok('TESTLISTE: der Block steht in der Seite', block.length > 100);
+  const vorTabs = seite.indexOf('data-testliste'), ersterEingang = seite.indexOf('id="feld-html"');
+  ok('TESTLISTE: er steht vor dem ersten Eingang, also in keinem Reiter versteckt',
+     vorTabs > 0 && ersterEingang > vorTabs && !/<section[^>]*role="tabpanel"[^>]*>[^]*data-testliste/.test(seite.slice(0, vorTabs + 20)));
+  const links = [...block.matchAll(/href="\?test=([^"]+)"/g)].map((m) => m[1]);
+  const soll = [...lies('testvorlagen/index.html').matchAll(/data-im-pruefer="([^"]+)"/g)].map((m) => m[1]);
+  ok('TESTLISTE: jede Vorlage der Testseite steht in der Liste, und nur diese',
+     soll.length >= 15 && links.length === soll.length && soll.every((n) => links.includes(n)), `${links.length} von ${soll.length}`);
+  ok('TESTLISTE: jeder Name passt durch den Filter des Skripts und liegt in testvorlagen/',
+     links.length > 0 && links.every((n) => /^Vorlage-[A-Za-z0-9-]+\.(pdf|png|jpg|txt|svg|docx|eml)$/.test(n) && da('testvorlagen/' + n)),
+     links.filter((n) => !da('testvorlagen/' + n)).join(', '));
+  const i18n = lies('assets/i18n-pruefer.js');
+  const keys = [...block.matchAll(/data-i18n(?:-html)?="(pr_\d+)"/g)].map((m) => m[1]);
+  ok('TESTLISTE: jede Beschriftung steht im Wörterbuch, deutsch UND englisch',
+     keys.length >= 17 && keys.every((k) => (i18n.match(new RegExp('"' + k + '":', 'g')) || []).length === 2),
+     keys.filter((k) => (i18n.match(new RegExp('"' + k + '":', 'g')) || []).length !== 2).join(', '));
+}
+
 // ── LAUF: fehlt der Browser, ist eine Probe NICHT grün (Punkt 8, 2026-10-01) ──
 // Gemessen, nicht gelesen: jede Browser-Probe wird mit einem Browser-Ordner
 // gestartet, den es nicht gibt, und muss mit 2 enden („nicht lauffähig").
