@@ -31,10 +31,10 @@
      Goldrand), aber Paket statt Brief und Waldgrün statt Navy. Als Datei aus
      dem eigenen Ordner, nie von einer fremden Adresse. Vorher (2026-08-23 bis
      2026-09-30): ein Pfosten mit zwei Pfeilen, inline als SVG. -->
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=100">
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=100">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=100">
-<link rel="stylesheet" href="assets/style.css?v=100">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=101">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=101">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=101">
+<link rel="stylesheet" href="assets/style.css?v=101">
 <script>
 /* Thema VOR dem ersten Anstrich setzen — sonst blitzt bei jedem Aufruf kurz das
    Standard-Thema auf, bevor die gespeicherte Wahl greift. Absichtlich winzig
@@ -129,7 +129,7 @@ catch (e) {}
 .pr-test { margin: 14px 0 0; padding: 12px 14px; border: 2px dashed var(--accent); border-radius: 10px; }
 /* Die Testliste steht über allen Eingängen; zugeklappt ist sie ein deutlicher Knopf. */
 .pr-testliste { margin: 0 0 14px; }
-.pr-testliste > summary { cursor: pointer; min-height: var(--ziel); display: flex; align-items: center; gap: 6px; }
+.pr-testliste > summary { cursor: pointer; min-height: var(--ziel); padding: 10px 0; box-sizing: border-box; } /* kein display:flex — ein Flex-Summary zerlegt seinen Satz (Wächter in smoke_pruefer) */
 .pr-testliste[open] > summary { margin-bottom: 4px; }
 .pr-reihe { display: flex; flex-wrap: wrap; gap: var(--s1); align-items: center; margin: var(--s2) 0; }
 .pr-erlaubt {
@@ -800,24 +800,24 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
 
 </main>
 
-<script src="assets/i18n-pruefer.js?v=100"></script>
-<script src="assets/sprache.js?v=100"></script>
-<script src="assets/thema.js?v=100"></script>
-<script src="assets/pruefer.js?v=100"></script>
+<script src="assets/i18n-pruefer.js?v=101"></script>
+<script src="assets/sprache.js?v=101"></script>
+<script src="assets/thema.js?v=101"></script>
+<script src="assets/pruefer.js?v=101"></script>
 <!-- ⚠ REIHENFOLGE. `pruefer-formate.js` holt sich die Fülltext-Liste aus
      `pruefer.js` — eine zweite, eigene Liste wäre eine Drift-Quelle mit Ansage.
      Und `pruefer-ui.js` steht zuletzt, weil es alle drei bedient. -->
-<script src="assets/pruefer-formate.js?v=100"></script>
-<script src="assets/pruefer-browser.js?v=100"></script>
+<script src="assets/pruefer-formate.js?v=101"></script>
+<script src="assets/pruefer-browser.js?v=101"></script>
 <!-- ⚠ NACH `pruefer-formate.js`: der Mail-Eingang leiht sich dessen
      Schlüssel-Muster und die IBAN-Prüfung, statt zweite Listen zu führen.
      Fehlt die Datei, sagt er das im Ergebnis, statt still weniger zu prüfen. -->
-<script src="assets/pruefer-mail.js?v=100"></script>
+<script src="assets/pruefer-mail.js?v=101"></script>
 <!-- Anhänge und einzelne Dateien öffnen — hier gepflegt, byte-1:1 im Sende-Prüfer. -->
-<script src="assets/pruefer-anhang.js?v=100"></script>
-<script src="assets/pruefer-ui.js?v=100"></script>
+<script src="assets/pruefer-anhang.js?v=101"></script>
+<script src="assets/pruefer-ui.js?v=101"></script>
 <!-- Knopf „Installieren" in der Kopfleiste (Klaus 2026-09-30, aus dem Sende-Prüfer). -->
-<script src="assets/installieren.js?v=100"></script>
+<script src="assets/installieren.js?v=101"></script>
 <!-- ══ SBKIM — der Auslieferungsprüfer als eigener Knoten im Mycel ═══════════
      Eigene Identität, eigene Spore, das schwebende Verbinden-Fenster, die
      Status-Pille von Modul 17 und das selbstausfüllende Siegel mit dem
@@ -833,9 +833,9 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
      `netz.js` steht ZUERST: die Relais-Liste des Prüfers liest die des
      Marktplatzes ab, statt sie abzuschreiben — zwei Listen derselben
      Poststellen laufen auseinander. -->
-<script src="assets/config/netz.js?v=100"></script>
-<script src="assets/config/pruefer-netz.js?v=100"></script>
-<script src="assets/pruefer-sbkim-init.js?v=100"></script>
+<script src="assets/config/netz.js?v=101"></script>
+<script src="assets/config/pruefer-netz.js?v=101"></script>
+<script src="assets/pruefer-sbkim-init.js?v=101"></script>
 <!-- ⚠ EIGENE APP SEIT 2026-09-26: im Marktplatz registrierte die STARTSEITE den
      Service-Worker, der Prüfer nicht. Als eigenständige PWA braucht er ihn selbst,
      sonst läuft er offline nicht. -->
