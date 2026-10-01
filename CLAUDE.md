@@ -489,7 +489,9 @@ gefunden; diese Grenze ist benannt.**
 Proben: `smoke_anhang` mit gestellten Pixeln in beide Richtungen; JPEG und ohne Browser
 ergeben „nicht geprüft“. `smoke_pruefer` misst mit echtem Browser: kein Lauf vor dem Tipp ·
 4C mit → Verdacht samt Satz und KI-Anweisung · 4C ohne → kein Verdacht · H0 → nicht geprüft ·
-PDF → kein Knopf. Gegenprobe: `NUR_FALL="VERDACHT:"` (8 Fälle). Cache v22, `?v=95`.
+PDF → kein Knopf. Gegenprobe: `NUR_FALL="VERDACHT:"` (8 Fälle), gefahren in einer Kopie: erst **6 gefangen · 2 blind**
+(zu früh gemessen; die Überschrift nicht einzeln gemessen), nach der Schärfung **8 gefangen · 0 blind ·
+0 tote Anker**. Jeder Fall von Hand nachgestellt, jede rote Zeile trägt den Namen ihrer Zusicherung. Cache v22, `?v=95`.
 
 ⚠ **Nicht gemessen:** Zeit und Speicher am Tablet; echte Fotos mit eingebetteter
 Botschaft aus fremden Werkzeugen (steghide, OpenStego, die oft verschlüsseln oder verstreuen);
