@@ -80,6 +80,10 @@ window.PT_SEITE_I18N = {
     "pr_vd_knopf": "🔍 Bildpunkte auf Verdacht prüfen",
     "pr_vd_erkl": "Sucht in den untersten Bits der Farben nach lesbarem Text, den man nicht sieht. Was er findet, heißt Verdacht — kein Beweis. Verschlüsselte Botschaften erkennt er nicht.",
     "pr_63": "Gelesen wird der <strong>Dateikopf</strong>, nicht der Name: Daten hinter dem Bildende, Metadaten, Skripte in Grafiken, Makros und Verweise in Office-Dateien, Programme. Text in der Datei geht durch denselben Prüfer wie eine Textdatei. Text im Bild liest eine Texterkennung auf dem Gerät. Bei einem PDF vergleicht sie die ersten 10 Seiten mit ihrer Textebene: was im Text steht, auf der Seite aber nicht zu sehen ist, wird gemeldet. Ausgeführt wird nichts. In Bildpunkten versteckte Botschaften sucht er nur auf den Knopf „Bildpunkte auf Verdacht prüfen“ unter dem Ergebnis — und auch dann nur unverschlüsselten Text in einem PNG oder verlustfreien WebP.",
+    "pr_64": "<strong>🧪 Test-Dateien zum Ausprobieren</strong> — mit Absicht präpariert, alles darin ist erfunden. Ein Befund ist hier das Soll.",
+    "pr_65": "🧪 Test: Bild mit blasser Anweisung",
+    "pr_66": "🧪 Test: PDF mit unsichtbarem Text",
+    "pr_67": "Alle Testvorlagen",
     "pr_bsp_hier": "— der Marktplatz PWA Toolpoint",
     "pr_fuss_recht": "Impressum & Datenschutz",
     "pr_fuss_satz": "Läuft im Browser. Kein Konto, kein Hochladen, keine fremde Adresse."
@@ -155,6 +159,10 @@ window.PT_SEITE_I18N = {
     "pr_vd_knopf": "🔍 Check pixels for a suspicion",
     "pr_vd_erkl": "Looks in the lowest bits of the colours for readable text that cannot be seen. What it finds is called a suspicion — not proof. Encrypted messages are not detected.",
     "pr_63": "What is read is the <strong>file header</strong>, not the name: data behind the end of an image, metadata, scripts in graphics, macros and links in Office files, programs. Text inside the file goes through the same checker as a text file. Text inside images is read by text recognition on the device. For a PDF it compares the first 10 pages with their text layer: whatever is in the text but cannot be seen on the page is reported. Nothing is executed. Messages hidden in pixels are only looked for on the button “Check pixels for a suspicion” below the result — and even then only unencrypted text in a PNG or lossless WebP.",
+    "pr_64": "<strong>🧪 Test files to try out</strong> — prepared on purpose, everything in them is made up. A finding is the expected result here.",
+    "pr_65": "🧪 Test: image with a faint instruction",
+    "pr_66": "🧪 Test: PDF with invisible text",
+    "pr_67": "All test samples",
     "pr_bsp_hier": "— the PWA Toolpoint marketplace",
     "pr_fuss_recht": "Imprint & Privacy",
     "pr_fuss_satz": "Runs in the browser. No account, no upload, no outside address."

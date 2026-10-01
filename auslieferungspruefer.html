@@ -31,10 +31,10 @@
      Goldrand), aber Paket statt Brief und Waldgrün statt Navy. Als Datei aus
      dem eigenen Ordner, nie von einer fremden Adresse. Vorher (2026-08-23 bis
      2026-09-30): ein Pfosten mit zwei Pfeilen, inline als SVG. -->
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=96">
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=96">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=96">
-<link rel="stylesheet" href="assets/style.css?v=96">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=97">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=97">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=97">
+<link rel="stylesheet" href="assets/style.css?v=97">
 <script>
 /* Thema VOR dem ersten Anstrich setzen — sonst blitzt bei jedem Aufruf kurz das
    Standard-Thema auf, bevor die gespeicherte Wahl greift. Absichtlich winzig
@@ -125,6 +125,8 @@ catch (e) {}
   font-size: var(--f-text); line-height: var(--lh-text);
 }
 .pr-ablage.pr-drueber { border-color: var(--accent); background: rgba(242,181,68,.07); }
+/* 🧪 deutlich als Test erkennbar: gestrichelt, in der Akzentfarbe */
+.pr-test { margin: 14px 0 0; padding: 12px 14px; border: 2px dashed var(--accent); border-radius: 10px; }
 .pr-reihe { display: flex; flex-wrap: wrap; gap: var(--s1); align-items: center; margin: var(--s2) 0; }
 .pr-erlaubt {
   flex: 1 1 260px; min-width: 0; box-sizing: border-box; min-height: var(--ziel);
@@ -661,6 +663,17 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
         <input type="file" id="einzelDatei" style="max-width:100%">
       </p>
     </div>
+    <!-- 🧪 Test-Dateien (Klaus 2026-10-01): „zum Anklicken, deutlich als Test oder Beispiel
+         deklariert". Dieselben zwei Dateien wie in Workflow PDF (Hilfe → 🧪) und im
+         Sende-Prüfer (Beispiel-E-Mail mit Anhang). Ein Befund ist hier das SOLL. -->
+    <div class="pr-test" data-test-dateien>
+      <p style="margin:0 0 8px" data-i18n-html="pr_64"><strong>🧪 Test-Dateien zum Ausprobieren</strong> — mit Absicht präpariert, alles darin ist erfunden. Ein Befund ist hier das Soll.</p>
+      <p style="margin:0;display:flex;flex-wrap:wrap;gap:8px">
+        <button class="thema-knopf" type="button" data-test-datei="beispiele/Testbild-versteckte-Anweisung.png" data-test-typ="image/png" data-i18n="pr_65">🧪 Test: Bild mit blasser Anweisung</button>
+        <button class="thema-knopf" type="button" data-test-datei="testvorlagen/Vorlage-0D-PDF-versteckter-Text.pdf" data-test-typ="application/pdf" data-i18n="pr_66">🧪 Test: PDF mit unsichtbarem Text</button>
+        <a class="thema-knopf" href="testvorlagen/" data-i18n="pr_67">Alle Testvorlagen</a>
+      </p>
+    </div>
     <p class="feldhinweis" style="margin:16px 0 0" data-datei-grenze="liest-nur" data-i18n-html="pr_63">Gelesen wird der <strong>Dateikopf</strong>, nicht der Name: Daten hinter dem Bildende, Metadaten, Skripte in Grafiken, Makros und Verweise in Office-Dateien, Programme. Text in der Datei geht durch denselben Prüfer wie eine Textdatei. Text im Bild liest eine Texterkennung auf dem Gerät. Bei einem PDF vergleicht sie die ersten 10 Seiten mit ihrer Textebene: was im Text steht, auf der Seite aber nicht zu sehen ist, wird gemeldet. Ausgeführt wird nichts. In Bildpunkten versteckte Botschaften sucht er nur auf den Knopf „Bildpunkte auf Verdacht prüfen“ unter dem Ergebnis — und auch dann nur unverschlüsselten Text in einem PNG oder verlustfreien WebP.</p>
   </section>
 
@@ -752,24 +765,24 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
 
 </main>
 
-<script src="assets/i18n-pruefer.js?v=96"></script>
-<script src="assets/sprache.js?v=96"></script>
-<script src="assets/thema.js?v=96"></script>
-<script src="assets/pruefer.js?v=96"></script>
+<script src="assets/i18n-pruefer.js?v=97"></script>
+<script src="assets/sprache.js?v=97"></script>
+<script src="assets/thema.js?v=97"></script>
+<script src="assets/pruefer.js?v=97"></script>
 <!-- ⚠ REIHENFOLGE. `pruefer-formate.js` holt sich die Fülltext-Liste aus
      `pruefer.js` — eine zweite, eigene Liste wäre eine Drift-Quelle mit Ansage.
      Und `pruefer-ui.js` steht zuletzt, weil es alle drei bedient. -->
-<script src="assets/pruefer-formate.js?v=96"></script>
-<script src="assets/pruefer-browser.js?v=96"></script>
+<script src="assets/pruefer-formate.js?v=97"></script>
+<script src="assets/pruefer-browser.js?v=97"></script>
 <!-- ⚠ NACH `pruefer-formate.js`: der Mail-Eingang leiht sich dessen
      Schlüssel-Muster und die IBAN-Prüfung, statt zweite Listen zu führen.
      Fehlt die Datei, sagt er das im Ergebnis, statt still weniger zu prüfen. -->
-<script src="assets/pruefer-mail.js?v=96"></script>
+<script src="assets/pruefer-mail.js?v=97"></script>
 <!-- Anhänge und einzelne Dateien öffnen — hier gepflegt, byte-1:1 im Sende-Prüfer. -->
-<script src="assets/pruefer-anhang.js?v=96"></script>
-<script src="assets/pruefer-ui.js?v=96"></script>
+<script src="assets/pruefer-anhang.js?v=97"></script>
+<script src="assets/pruefer-ui.js?v=97"></script>
 <!-- Knopf „Installieren" in der Kopfleiste (Klaus 2026-09-30, aus dem Sende-Prüfer). -->
-<script src="assets/installieren.js?v=96"></script>
+<script src="assets/installieren.js?v=97"></script>
 <!-- ══ SBKIM — der Auslieferungsprüfer als eigener Knoten im Mycel ═══════════
      Eigene Identität, eigene Spore, das schwebende Verbinden-Fenster, die
      Status-Pille von Modul 17 und das selbstausfüllende Siegel mit dem
@@ -785,9 +798,9 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
      `netz.js` steht ZUERST: die Relais-Liste des Prüfers liest die des
      Marktplatzes ab, statt sie abzuschreiben — zwei Listen derselben
      Poststellen laufen auseinander. -->
-<script src="assets/config/netz.js?v=96"></script>
-<script src="assets/config/pruefer-netz.js?v=96"></script>
-<script src="assets/pruefer-sbkim-init.js?v=96"></script>
+<script src="assets/config/netz.js?v=97"></script>
+<script src="assets/config/pruefer-netz.js?v=97"></script>
+<script src="assets/pruefer-sbkim-init.js?v=97"></script>
 <!-- ⚠ EIGENE APP SEIT 2026-09-26: im Marktplatz registrierte die STARTSEITE den
      Service-Worker, der Prüfer nicht. Als eigenständige PWA braucht er ihn selbst,
      sonst läuft er offline nicht. -->

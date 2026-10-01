@@ -530,3 +530,13 @@ Stelle, wo das Problem aufgetaucht ist. Oder der Text kenntlich gemacht werden."
   gefangen, 0 blind, 0 tote Anker. Cache v23, `?v=96`. Byte-1:1 in den Sende-Prüfer.
 - ⚠ Nicht gemessen: Markierung am Tablet; ob die Kästen bei schrägen Fotos sitzen.
 
+
+## 🧪 Test-Dateien zum Anklicken (Klaus 2026-10-01)
+
+„Diese Testdateien auch im Auslieferungsprüfer … zum Anklicken. Deutlich als Test oder Beispiel deklariert." Im Eingang
+„Foto · Datei prüfen" steht ein gestrichelter Kasten `[data-test-dateien]` mit zwei Knöpfen (`data-test-datei`):
+`beispiele/Testbild-versteckte-Anweisung.png` (eine blasse Anweisung an eine KI, dasselbe Bild wie in Workflow PDF) und
+`testvorlagen/Vorlage-0D-PDF-versteckter-Text.pdf`. Dazu ein Link auf alle Testvorlagen. Ein Tipp holt die Datei und
+prüft sie über `dateiPruefen`. Der erste Hinweis sagt, dass es eine Test-Datei ist und ein Befund hier das Soll.
+Kommt die Datei nicht (offline beim ersten Mal), steht das da. Die Dateien liegen nicht im Installations-Vorrat.
+Texte pr_64–pr_67 (DE/EN). Probe in `smoke_pruefer` · Gegenprobe `NUR_FALL="TESTDATEI:"` (4 Fälle). Cache v24, `?v=97`.
