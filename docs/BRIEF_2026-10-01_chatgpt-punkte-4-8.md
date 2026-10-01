@@ -1,6 +1,6 @@
 # Brief · Auslieferungsprüfer · ChatGPT-Prüfbericht, Punkte 4–8
 
-**Stand:** 2026-10-01, `origin/main` `d5a2338`. Die Befunde stammen aus dem
+**Stand:** 2026-10-01 abends, `origin/main` `e10bbad` (nach #35 „Im Prüfer prüfen“). Die Befunde stammen aus dem
 ChatGPT-Prüfbericht vom 2026-10-01 (geprüft an `70b2918`). Jeder wurde damals
 im Code **nachgelesen**, aber keiner ist nachgestellt. Die Punkte 1–3 (Sende-Prüfer) sind fertig
 (Sende-Pruefer #53, #54). Das Prüfsiegel steht in `BRIEF_2026-10-01_pruefsiegel.md`
@@ -38,7 +38,7 @@ Weder gefahren noch gegengeprüft. Anwenden mit `git apply`, dann messen.
   `tests/gegenprobe.sh` (Präfixe `KITEXT:` · `VERDBER:` · `UNGEPR:` · `UNSICHTBILD:` · `LAUF:`).
   Die Gegenprobe in einer **Kopie** fahren, vorher committen. ⚠ Diese Gegenprobe kennt
   `NUR_ANKER` nicht.
-- `CACHE_VERSION` und alle `?v=` erhöhen (zuletzt v24 / `?v=97`).
+- `CACHE_VERSION` und alle `?v=` erhöhen (zuletzt v25 / `?v=98`).
 - `pruefer-anhang.js` (und `pruefer-mail.js`, falls geändert) **byte-1:1** in den Sende-Prüfer kopieren
   und dort `ANHANG_SHA` (`MAIL_SHA`) in `tests/anhaenge.mjs` nachziehen, dort `CACHE_VERSION`
   erhöhen (zuletzt `sende-pruefer-v44`), `npm test` grün.
@@ -50,6 +50,16 @@ Weder gefahren noch gegengeprüft. Anwenden mit `git apply`, dann messen.
 Erweiterter LSB-Decoder (mehr Varianten = mehr Fehlalarme) · Backend/Server ·
 eigenes Ergebnis-Format mit Prüfsumme (`anhangLauf` reicht) · Texterkennung im
 Installations-Vorrat.
+
+## Seit dem ersten Entwurf dazugekommen (#35)
+
+Auf `testvorlagen/` öffnet „🧪 Im Prüfer prüfen“ jede Vorlage über
+`auslieferungspruefer.html?test=<Datei>` direkt im Prüfer (Namen nur nach
+`^Vorlage-[A-Za-z0-9-]+\.(pdf|png|jpg|txt|svg|docx|eml)$`). Für Punkt 4 bietet sich
+eine neue Vorlage an, etwa `Vorlage-H6-Text-mit-KI-Anweisung.txt`: erfunden, gebaut mit
+`node tools/testvorlagen-bauen.mjs`, mit eigenem Link auf der Seite. Dann misst sie die
+smoke-Probe gleich mit. ⚠ Die Vorlage `H1` (.txt) muss **ohne** KI-Befund bleiben, damit sie als
+Gegenrichtung dient.
 
 ## Abschluss
 
