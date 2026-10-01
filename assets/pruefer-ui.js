@@ -210,7 +210,7 @@
     /* Stufe 2 D (2026-09-29): der Seitentext wird mit pdf.js gelesen und mit
        derselben Liste geprüft wie eine Mail. */
     "PDF-KI-ANWEISUNG": {
-      kurz: "Anweisung an ein Programm",
+      kurz: "Anweisung an eine KI",
       kopf: "Auf einer Seite des PDFs steht eine Anweisung an einen KI-Assistenten.",
       rat: "Lässt jemand das PDF von einer KI zusammenfassen, könnte sie den Satz " +
            "als Auftrag verstehen — oft steht er weiß auf weiß oder winzig klein, " +
@@ -241,8 +241,7 @@
            "Text. Mit bloßem Auge ist davon nichts zu sehen. Eine KI, die das Bild " +
            "genauer ausliest, oder ein Programm, das darauf wartet, kann ihn finden. " +
            "⚠ Ein Verdacht, kein Beweis: gemessen ist, dass dort Text steht, nicht, " +
-           "wer ihn hineingeschrieben hat. Abhilfe: die sichere Fassung (neu " +
-           "gezeichnet, als JPEG) weitergeben statt des Originals."
+           "wer ihn hineingeschrieben hat. Was zu tun ist, steht darunter."
     },
 
     /* Stufe 2 E (2026-09-30): die Textebene eines PDFs wird gegen das gelesen,
@@ -378,7 +377,7 @@
            "gewöhnlichem Text haben sie nichts verloren."
     },
     "KI-ANWEISUNG": {
-      kurz: "Anweisung an ein Programm",
+      kurz: "Anweisung an eine KI",
       kopf: "Im Text steht eine Anweisung, die sich an einen KI-Assistenten richtet.",
       rat: "Liest ein Assistent dein Postfach mit, könnte er sie als Auftrag " +
            "verstehen und Inhalte weitergeben. ⚠ Ein Treffer ist kein Beweis: " +
@@ -545,6 +544,21 @@
    * @param {string} text       der geprüfte Rohtext (für die Quellzeile); "" bei PDF
    * @param {object} opt        {titel, hinweise[], erwartet, leerSatz, ungeprueft}
    */
+  /* ══ WAS JETZT TUN (Klaus 2026-10-01): „sodass jemand weiß, was er machen
+     soll, falls er in Panik gerät." Die Schritte kommen aus pruefer-anhang.js
+     (eine Quelle für beide Apps). Fehlt die Datei, steht kein Kasten da —
+     der Rat darüber bleibt. */
+  function wasTunKasten(kennung) {
+    var A = window.PrueferAnhang, schritte = A && A.wasTun ? A.wasTun(kennung) : [];
+    if (!schritte.length) return null;
+    var box = t("div", "pr-ruhe");
+    box.setAttribute("data-was-tun", kennung);
+    box.appendChild(t("p", "pr-ruhe-kopf", "Was jetzt tun"));
+    var ol = t("ol", "pr-ruhe-liste");
+    schritte.forEach(function (x) { ol.appendChild(t("li", "", x)); });
+    box.appendChild(ol);
+    return box;
+  }
   function zeige(treffer, text, opt) {
     opt = opt || {};
     ergebnis.textContent = "";
@@ -642,9 +656,15 @@
         li.appendChild(t("p", "pr-wirt pr-anzahl", g.stellen.length + " Stellen"));
       }
       if (k.rat) li.appendChild(t("p", "pr-rat", k.rat));
+      var ruhe = wasTunKasten(g.kennung);
+      if (ruhe) li.appendChild(ruhe);
 
       bericht.push(k.kopf + (g.wirt ? "  [" + g.wirt + "]" : ""));
       if (k.rat) bericht.push("  " + k.rat);
+      if (ruhe) {
+        bericht.push("  Was jetzt tun:");
+        window.PrueferAnhang.wasTun(g.kennung).forEach(function (x, i) { bericht.push("  " + (i + 1) + ". " + x); });
+      }
       g.saetze.forEach(function (satz) { bericht.push("  " + satz); });
 
       /* ⚠ BEI VIELEN STELLEN NUR DIE ERSTEN FÜNF IM BILD — aber ALLE im
@@ -1311,7 +1331,9 @@
             li.appendChild(p);
           });
           r.hinweise.forEach(function (h) { li.appendChild(t("p", "feldhinweis", h)); });
+          if (lage === "ja") { var ruhe = wasTunKasten("BILD-LSB-VERDACHT"); if (ruhe) li.appendChild(ruhe); }
           liste.appendChild(li);
+          if (lage === "ja") return markiertZeigen(li, x.name, x.bytes, r.befunde);
         }, function () {
           var li = t("li", "pr-treffer pr-karte", x.name + " — nicht geprüft: das Bild ließ sich nicht lesen.");
           li.setAttribute("data-verdacht", "ungeprueft");
@@ -1321,6 +1343,39 @@
       kette.then(function () { knopf.disabled = false; });
     });
     ergebnis.appendChild(box);
+  }
+  /* ══ DIE STELLE IM BILD (Klaus 2026-10-01) ══════════════════════════════
+     „… ein Vermerk gemacht werden an der Stelle, wo das Problem aufgetaucht
+     ist. Oder der Text kenntlich gemacht werden." Unter die Karte kommt eine
+     KOPIE des Bildes mit roter Umrandung, dazu „⬇ Markierte Kopie speichern"
+     (JPEG — die untersten Bits gehen dabei verloren, die Kopie trägt also
+     keine versteckte Botschaft weiter). Die Datei selbst bleibt unverändert. */
+  function markiertZeigen(ziel, name, bytes, befunde) {
+    var A = window.PrueferAnhang;
+    if (!A || !A.markieren || !ziel || !A.marken(befunde).length) return Promise.resolve(false);
+    return A.markieren(bytes, befunde).then(function (c) {
+      if (!c || !document.contains(ziel)) return false;
+      var box = t("figure", "pr-markiert");
+      box.setAttribute("data-markiert", String(c.__marken || 0));
+      var bild = document.createElement("img");
+      bild.alt = name + " — die Stelle ist rot markiert";
+      bild.src = c.toDataURL("image/jpeg", 0.88);
+      box.appendChild(bild);
+      box.appendChild(t("figcaption", "feldhinweis",
+        "Rot markiert: die Stelle im Bild, an der der Befund steht. Das ist eine Kopie zum Ansehen — die Datei selbst ist unverändert."));
+      var knopf = t("button", "btn", "⬇ Markierte Kopie speichern");
+      knopf.type = "button";
+      knopf.setAttribute("data-markiert-speichern", "");
+      knopf.addEventListener("click", function () {
+        var a = document.createElement("a");
+        a.href = bild.src;
+        a.download = name.replace(/\.[^.]+$/, "") + "-markiert.jpg";
+        document.body.appendChild(a); a.click(); a.remove();
+      });
+      box.appendChild(knopf);
+      ziel.appendChild(box);
+      return true;
+    }, function () { return false; });
   }
   function dateiPruefen(f, vorweg) {
     ergebnis.textContent = "";
@@ -1347,6 +1402,7 @@
                   "versteckte Botschaften sucht er nur auf den Knopf darunter. Steht darüber „Text im " +
                   "Bild ungeprüft“, wurde der Text im Bild NICHT gelesen."
       });
+      markiertZeigen(ergebnis, f.name, bytes, r.befunde);
       verdachtKnopf([{ name: f.name, bytes: bytes }]);
     }, function () {
       ergebnis.textContent = "";
@@ -1549,7 +1605,7 @@
       hinweise: r.hinweise,
       leerSatz: "Kein Befund heißt: keine der bekannten Tarnungen, keine " +
                 "gefährliche Anhang-Endung, kein versteckter Text, keine " +
-                "Anweisung an ein Programm. Es heißt NICHT, dass die Mail echt " +
+                "Anweisung an eine KI. Es heißt NICHT, dass die Mail echt " +
                 "ist — und es war KEINE Virenprüfung."
     };
     zeige(r.stellen, r.text, opt);
@@ -1572,7 +1628,7 @@
     if (!A) return;
     var liste = A.ausMail(inhalt);
     if (!liste.length) return;
-    var mein = ++anhangLauf, stellen = [], hinweise = [], bildUngeprueft = false;
+    var mein = ++anhangLauf, stellen = [], hinweise = [], bildUngeprueft = false, markiert = [];
     Promise.all(liste.map(function (a) {
       if (a.zuGross) {
         hinweise.push("Anhang „" + a.name + "\" (" + A.gross(a.groesse) + ") ist zu groß und wurde NICHT geöffnet — ungeprüft, nicht sauber.");
@@ -1580,6 +1636,7 @@
       }
       return A.pruefe(a.name, a.bytes).then(function (x) {
         stellen = stellen.concat(anhangTreffer(a.name, x, "Anhang "));
+        markiert.push({ name: a.name, bytes: a.bytes, befunde: x.befunde });
         if (x.bildUngeprueft) bildUngeprueft = true;
         hinweise.push("Anhang „" + a.name + "\" geöffnet: " + x.artName + ", " + A.gross(a.groesse) + ".");
       }, function () {
@@ -1598,6 +1655,7 @@
       }).concat(hinweise);
       var alle = r.stellen.concat(stellen);
       zeige(alle, r.text, o);
+      markiert.forEach(function (m) { markiertZeigen(ergebnis, m.name, m.bytes, m.befunde); });
       verdachtKnopf(liste.filter(function (a) { return !a.zuGross; }));
       if (danach) danach({ stellen: alle, text: r.text, hinweise: o.hinweise, anhaenge: true });
     });

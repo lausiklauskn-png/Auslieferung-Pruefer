@@ -29,6 +29,28 @@ ok("assets/pruefer-anhang.js lädt ohne Browser (PrueferAnhang.pruefe, .ausMail)
    !!A && typeof A.pruefe === "function" && typeof A.ausMail === "function" && globalThis.PrueferAnhang === A);
 const p = (n, x) => A.pruefe(n, x);
 
+/* Was jetzt tun (Klaus 2026-10-01): je Verdachts- und Anweisungs-Art ruhige
+   Schritte, im Indikativ, und eine Kopie — wer sie ändert, ändert nicht die Quelle. */
+{ const arten = ["KI-ANWEISUNG", "PDF-KI-ANWEISUNG", "BILD-KI-ANWEISUNG", "BILD-LSB-VERDACHT", "PDF-VERSTECKTER-TEXT", "VERSTECKTER-TEXT"];
+  const leer = arten.filter((k) => A.wasTun(k).length < 3);
+  ok("Was jetzt tun: jede Verdachts- und Anweisungs-Art hat mindestens 3 Schritte", leer.length === 0, leer.join(", "));
+  ok("… und eine Art ohne Verdacht (PERSONENBEZUG) hat keine", A.wasTun("PERSONENBEZUG").length === 0);
+  ok("… der erste Schritt beruhigt (beginnt mit „Ruhig bleiben“)", arten.every((k) => /^Ruhig bleiben/.test(A.wasTun(k)[0])));
+  const konj = arten.flatMap((k) => A.wasTun(k)).filter((x) => /\b(wäre|würde|hätte|ließe|käme|müsste|erführe)\b/i.test(x));
+  ok("… im Indikativ, ohne Konjunktiv", konj.length === 0, konj.join(" | "));
+  const kopie = A.wasTun("KI-ANWEISUNG"); kopie.push("x");
+  ok("… und wasTun() gibt eine Kopie heraus", A.wasTun("KI-ANWEISUNG").length === kopie.length - 1); }
+
+/* Markierung im Bild (Klaus 2026-10-01): nur Befunde mit Kasten und nur die
+   zwei Arten, die an einer Stelle im Bild stehen; dieselbe Stelle nur einmal.
+   Ohne Browser gibt markieren() null — es gibt nichts zu zeichnen. */
+{ const box = { x: 0.1, y: 0.5, w: 0.6, h: 0.04 };
+  const m = A.marken([{ kennung: "BILD-KI-ANWEISUNG", satz: "a", box }, { kennung: "BILD-LSB-VERDACHT", satz: "b", box },
+    { kennung: "PERSONENBEZUG", satz: "c", box }, { kennung: "BILD-KI-ANWEISUNG", satz: "d" }]);
+  ok("Markierung: nur Befunde mit Kasten, nur Anweisung/Verdacht, dieselbe Stelle einmal", m.length === 1 && m[0].kennung === "BILD-KI-ANWEISUNG", JSON.stringify(m));
+  ok("… und ohne Befund mit Kasten gibt es nichts zu markieren", A.marken([{ kennung: "PERSONENBEZUG", satz: "c", box }]).length === 0);
+  ok("… ohne Browser gibt markieren() null", (await A.markieren(M.png({}), [{ kennung: "BILD-KI-ANWEISUNG", satz: "a", box }])) === null); }
+
 let r = await p("foto.png", M.png({ text: "Author\0Eva", hinten: "GEHEIM ".repeat(20) }));
 ok("PNG: Daten hinter dem Bildende werden gemeldet (BILD-ANHAENGSEL)", kennungen(r).includes("BILD-ANHAENGSEL"), JSON.stringify(r.befunde));
 ok("PNG: ein Text-Feld in den Metadaten wird gemeldet (BILD-METADATEN)", kennungen(r).includes("BILD-METADATEN"));

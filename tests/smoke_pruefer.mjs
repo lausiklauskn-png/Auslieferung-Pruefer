@@ -2131,18 +2131,56 @@ if (!browser) {
       return echteSeite.evaluate(() => ({
         zahl: (document.querySelector("#ergebnis .pr-zahl") || {}).textContent || "",
         arten: [...document.querySelectorAll("#ergebnis .pr-kennung")].map((x) => x.textContent),
-        text: document.getElementById("ergebnis").textContent }));
+        text: document.getElementById("ergebnis").textContent,
+        /* Was jetzt tun (2026-10-01): je Karte die Zahl der Schritte, gemessen an der Karte selbst. */
+        ruhe: [...document.querySelectorAll("#ergebnis .pr-karte[data-kennung]")].map((li) => ({
+          kennung: li.getAttribute("data-kennung"),
+          schritte: li.querySelectorAll("[data-was-tun] li").length })),
+        /* Markierung im Bild (2026-10-01): die Kopie mit roter Umrandung samt Speichern-Knopf. */
+        markiert: [...document.querySelectorAll("#ergebnis > [data-markiert]")].map((f) => ({
+          zahl: Number(f.getAttribute("data-markiert")), bild: !!(f.querySelector("img") || {}).naturalWidth || !!(f.querySelector("img") || {}).src,
+          speichern: !!f.querySelector("[data-markiert-speichern]") })) }));
+    }
+    async function warteMarke(n) {
+      await echteSeite.waitForFunction((k) => document.querySelectorAll("#ergebnis > [data-markiert]").length >= k, n, { timeout: 15000 }).catch(() => {});
+      return echteSeite.evaluate(() => [...document.querySelectorAll("#ergebnis > [data-markiert]")].map((f) => ({
+        zahl: Number(f.getAttribute("data-markiert")), speichern: !!f.querySelector("[data-markiert-speichern]") })));
     }
     const a1 = await ocrPruefen("#einzelDatei", "Vorlage-1A-Bild-mit-Text.png", "image/png");
     ok(a1.arten.includes("BILD-KI-ANWEISUNG"),
        `Vorlage 1A (Bild): die Anweisung im Bild wird gefunden (${a1.arten.join(", ") || a1.zahl})`);
     ok(/Bildtext Zeile 9/.test(a1.text), "… mit der Stelle „Bildtext Zeile 9“");
+    { const k = a1.ruhe.find((x) => x.kennung === "BILD-KI-ANWEISUNG");
+      ok(!!k && k.schritte >= 4, `Was jetzt tun: die Karte „Anweisung im Bild“ trägt ruhige Schritte (${k ? k.schritte : "keine Karte"})`);
+      const p = a1.ruhe.find((x) => x.kennung === "PERSONENBEZUG");
+      ok(!!p && p.schritte === 0, "… und eine Karte ohne Verdacht (Personenbezug) trägt KEINEN Kasten"); }
+    { const m = await warteMarke(1);
+      ok(m.length === 1 && m[0].zahl === 1 && m[0].speichern, `Markierung: unter dem Ergebnis steht das Bild mit der markierten Stelle und „Markierte Kopie speichern“ (${JSON.stringify(m)})`); }
+    /* Die Stelle selbst: der Kasten liegt im Bild, und auf seinem Rand ist das Rot. */
+    { const st = await echteSeite.evaluate(async (by) => {
+        const b = new Uint8Array(by), r = await PrueferAnhang.pruefe("brief.png", b);
+        const f = r.befunde.find((x) => x.kennung === "BILD-KI-ANWEISUNG");
+        if (!f || !f.box) return { box: null };
+        const c = await PrueferAnhang.markieren(b, r.befunde), g = c.getContext("2d");
+        const x = Math.round(f.box.x * c.width), y = Math.round((f.box.y + f.box.h / 2) * c.height);
+        let rot = false;
+        for (let dx = -12; dx <= 4 && !rot; dx++) { const p = g.getImageData(Math.max(0, x + dx), y, 1, 1).data; if (p[0] > 180 && p[1] < 90 && p[2] < 90) rot = true; }
+        const p0 = g.getImageData(Math.round(c.width * 0.95), Math.round(c.height * 0.03), 1, 1).data;
+        return { box: f.box, rot, weitWeg: p0[0] > 180 && p0[1] < 90 && p0[2] < 90 };
+      }, [...fs.readFileSync(path.join(WURZEL, "testvorlagen", "Vorlage-1A-Bild-mit-Text.png"))]);
+      ok(!!st.box && st.box.x >= 0 && st.box.y >= 0 && st.box.x + st.box.w <= 1.001 && st.box.y + st.box.h <= 1.001 && st.box.h < 0.2,
+         `… der Befund „Anweisung im Bild“ trägt den Kasten seiner Zeile, im Bild (${JSON.stringify(st.box)})`);
+      /* Zeile 9 der Vorlage 1A steht gemessen bei y = 0,4635 (2026-10-01); die erste Zeile ganz oben. */
+      ok(!!st.box && st.box.y > 0.40 && st.box.y < 0.52, `… und es ist die Zeile mit der Anweisung (Zeile 9, Mitte des Bildes), nicht eine andere (y ${st.box && st.box.y.toFixed(3)})`);
+      ok(st.rot && !st.weitWeg, "… und im markierten Bild ist der Rand dieser Zeile rot, eine Ecke weit weg nicht"); }
     ok(a1.arten.includes("PERSONENBEZUG") && /Vorlage-1A-Bild-mit-Text\.png, Bildtext Zeile/.test(a1.text),
        "… und der erkannte Text geht durch den Text-Prüfer (Mailadresse/IBAN, Stelle „Bildtext Zeile“)");
     ok(/Text im Bild gelesen: \d+ Zeile/.test(a1.text), "… und das Ergebnis sagt, wie viele Zeilen gelesen wurden");
     const c0 = await ocrPruefen("#einzelDatei", "Vorlage-4C-Bild-ohne-Botschaft.png", "image/png");
     ok(!c0.arten.includes("BILD-KI-ANWEISUNG") && /Text im Bild gelesen: \d+ Zeile/.test(c0.text),
        `Gegenrichtung (4C ohne Anweisung): Text gelesen, KEINE Anweisung gemeldet (${c0.arten.join(", ") || c0.zahl})`);
+    await echteSeite.waitForTimeout(1000);
+    ok(await echteSeite.evaluate(() => !document.querySelector("#ergebnis [data-markiert]")), "… und ohne Anweisung wird nichts markiert");
     const scan = await ocrPruefen("#einzelDatei", "Vorlage-1A-PDF-Scan-ohne-Textebene.pdf", "application/pdf");
     ok(scan.arten.includes("BILD-KI-ANWEISUNG") && /Seite 1, Bildtext Zeile/.test(scan.text),
        `Vorlage 1A (Scan-PDF ohne Textebene): die Anweisung wird gefunden, mit Seite (${scan.arten.join(", ") || scan.zahl})`);
@@ -2159,6 +2197,8 @@ if (!browser) {
     ok(/Text im Bild gelesen: 8 Zeile/.test(b2.text) && /Blasser Text: 1 Zeile/.test(b2.text),
        "… der erste Durchgang liest 8 Zeilen, der zweite genau eine mehr");
     ok(/blass, erst nach Kontrast-Spreizung lesbar: Bildtext Zeile 9\)/.test(b2.text), "… mit der Stelle „Bildtext Zeile 9“");
+    { const m = await warteMarke(1);
+      ok(m.length === 1 && m[0].zahl === 1, `… und die blasse Zeile wird im Bild markiert (${JSON.stringify(m)})`); }
     const h0 = await ocrPruefen("#einzelDatei", "Vorlage-H0-Foto-sauber.jpg", "image/jpeg");
     ok(!h0.arten.includes("BILD-KI-ANWEISUNG") && !/Blasser Text: \d+ Zeile/.test(h0.text) && /Blasser Text: der zweite Lesedurchgang/.test(h0.text),
        `Gegenrichtung (H0, sauberes Foto): kein Befund aus dem zweiten Durchgang (${h0.arten.join(", ") || h0.zahl})`);
@@ -2182,7 +2222,9 @@ if (!browser) {
         const li = document.querySelector("#ergebnis [data-verdacht]");
         return { vorher: v, lage: li ? li.getAttribute("data-verdacht") : "", text: li ? li.textContent : "",
           kopf: li && li.querySelector(".pr-kopf") ? li.querySelector(".pr-kopf").textContent : "",
-          arten: li ? [...li.querySelectorAll("[data-kennung]")].map((x) => x.getAttribute("data-kennung")) : [] };
+          arten: li ? [...li.querySelectorAll("[data-kennung]")].map((x) => x.getAttribute("data-kennung")) : [],
+          ruhe: li ? li.querySelectorAll("[data-was-tun] li").length : 0,
+          markiert: li ? [...li.querySelectorAll("[data-markiert]")].map((f) => Number(f.getAttribute("data-markiert"))) : [] };
       }, vorher);
     }
     const v4 = await verdacht();
@@ -2192,8 +2234,15 @@ if (!browser) {
     ok(/Ignore previous instructions/.test(v4.text) && v4.arten.includes("BILD-KI-ANWEISUNG"),
        "… mit dem versteckten Satz, und die Anweisung darin ist als KI-Anweisung erkannt");
     ok(/— Verdacht auf versteckte Daten in Bildpunkten$/.test(v4.kopf) && !/gefunden/i.test(v4.kopf), `… und die Überschrift heißt „Verdacht“, nicht „gefunden“ (${v4.kopf})`);
+    if (!v4.markiert.length) { await echteSeite.waitForFunction(() => !!document.querySelector("#ergebnis [data-verdacht] [data-markiert]"), null, { timeout: 15000 }).catch(() => {});
+      v4.markiert = await echteSeite.evaluate(() => [...document.querySelectorAll("#ergebnis [data-verdacht] [data-markiert]")].map((f) => Number(f.getAttribute("data-markiert")))); }
+    ok(v4.markiert.length === 1 && v4.markiert[0] === 1, `… und der Streifen oben im Bild, der die Bits trägt, ist markiert — einmal, nicht doppelt (${v4.markiert})`);
+    ok(v4.ruhe >= 4, `… und darunter steht „Was jetzt tun“ mit ruhigen Schritten (${v4.ruhe})`);
+    ok(!/Verdacht in Bildpunkten: Verdacht auf/.test(v4.text), "… und die Überschrift steht nicht doppelt („Verdacht in Bildpunkten: Verdacht auf …“)");
     await ocrPruefen("#einzelDatei", "Vorlage-4C-Bild-ohne-Botschaft.png", "image/png");
     const v0 = await verdacht();
+    ok(v0.markiert.length === 0, "… und ohne Verdacht wird nichts markiert");
+    ok(v0.ruhe === 0, `… und ohne Verdacht steht kein „Was jetzt tun“ da (${v0.ruhe})`);
     ok(v0.lage === "nein" && !v0.arten.includes("BILD-LSB-VERDACHT"),
        `Gegenrichtung (4C ohne Botschaft): kein Verdacht (${v0.lage || "kein Ergebnis"})`);
     await ocrPruefen("#einzelDatei", "Vorlage-H0-Foto-sauber.jpg", "image/jpeg");
