@@ -4146,6 +4146,9 @@ probe "TESTLISTE: ein Link zeigt auf eine Datei, die es nicht gibt" \
 probe "TESTLISTE: eine Beschriftung fehlt im englischen Wörterbuch" \
       assets/i18n-pruefer.js \
       's|^    "pr_85": "4C · the same image without a message",$|    "pr_85x": "4C",|'
+probe "TESTLISTE: der Knopf ist wieder ein Flex-Summary und zerlegt seinen Satz" \
+      auslieferungspruefer.html \
+      's|^\.pr-testliste > summary { cursor: pointer; min-height: var(--ziel); padding: 10px 0;|.pr-testliste > summary { cursor: pointer; min-height: var(--ziel); display: flex;|'
 probe "LAUF: smoke_start endet ohne Browser wieder grün" \
       tests/smoke_start.mjs \
       's|server.close(); process.exit(2); }|server.close(); process.exit(0); }|'
