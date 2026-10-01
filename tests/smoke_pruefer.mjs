@@ -2269,6 +2269,31 @@ if (!browser) {
        `Vorlage 3E: „Was man sieht und was im Text steht, weicht ab (Seite 1)“ (${e3.arten.join(", ") || e3.zahl})`);
     const e3pdf = await ocrPruefen("#pdfDatei", "Vorlage-3E-PDF-Bild-und-Textebene-widersprechen.pdf", "application/pdf");
     ok(e3pdf.arten.includes("PDF-VERSTECKTER-TEXT"), `… auch im PDF-Eingang (${e3pdf.arten.join(", ") || e3pdf.zahl})`);
+    /* ══ 🧪 TEST-DATEIEN ZUM ANKLICKEN (Klaus 2026-10-01): „deutlich als Test oder Beispiel
+       deklariert". Gemessen wird der KNOPF: er holt die Datei und prüft sie, und das Ergebnis
+       sagt zuerst, dass es eine Test-Datei ist und ein Befund das Soll. */
+    {
+      const kasten = await echteSeite.evaluate(() => { const k = document.querySelector("[data-test-dateien]");
+        return k ? { text: k.textContent, knoepfe: k.querySelectorAll("button[data-test-datei]").length } : null; });
+      ok(kasten && kasten.knoepfe === 2 && /Test-Dateien/.test(kasten.text) && /erfunden/.test(kasten.text),
+         "🧪 Im Eingang „Foto · Datei prüfen“ steht ein Kasten „Test-Dateien“ mit zwei Knöpfen, als erfunden benannt");
+      async function testKnopf(pfad) {
+        await echteSeite.evaluate(() => { document.getElementById("ergebnis").textContent = ""; });
+        await echteSeite.evaluate((p) => document.querySelector(`[data-test-datei="${p}"]`).click(), pfad);
+        await echteSeite.waitForFunction(() => !!document.querySelector("#ergebnis .pr-zahl"), null, { timeout: 150000 }).catch(() => {});
+        return echteSeite.evaluate(() => ({ arten: [...document.querySelectorAll("#ergebnis .pr-kennung")].map((x) => x.textContent),
+          text: document.getElementById("ergebnis").textContent,
+          offen: !document.getElementById("feld-datei").hidden }));
+      }
+      const tb = await testKnopf("beispiele/Testbild-versteckte-Anweisung.png");
+      ok(tb.offen && tb.arten.includes("BILD-KI-ANWEISUNG") && /blass/.test(tb.text),
+         `🧪 „Bild mit blasser Anweisung“ → Anweisung an eine KI, blass (${tb.arten.join(", ")})`);
+      ok(/mitgelieferte Test-Datei/.test(tb.text) && /Ein Befund ist hier das Soll/.test(tb.text),
+         "… und das Ergebnis sagt, dass es eine Test-Datei ist und ein Befund das Soll");
+      const tp = await testKnopf("testvorlagen/Vorlage-0D-PDF-versteckter-Text.pdf");
+      ok(tp.arten.includes("PDF-VERSTECKTER-TEXT") && /mitgelieferte Test-Datei/.test(tp.text),
+         `🧪 „PDF mit unsichtbarem Text“ → unsichtbarer Text im PDF (${tp.arten.join(", ")})`);
+    }
     /* ein sauberes PDF: gedruckter Text, alles sichtbar */
     {
       const vmE = await import("node:vm");

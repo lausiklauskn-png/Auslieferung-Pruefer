@@ -4066,6 +4066,20 @@ probe "MARKE: ohne Rand, nur Beschriftung" \
       assets/pruefer-anhang.js \
       's|g.lineWidth = dick; g.strokeStyle = "#d61e1e"; g.strokeRect|g.lineWidth = dick; g.strokeStyle = "#d61e1e"; void|'
 
+# ══ TESTDATEI: zwei Test-Dateien zum Anklicken (Klaus 2026-10-01) ══
+probe "TESTDATEI: der Kasten fehlt" \
+      auslieferungspruefer.html \
+      's|<div class="pr-test" data-test-dateien>|<div class="pr-test">|'
+probe "TESTDATEI: der Knopf holt die Datei, prüft sie aber nicht" \
+      assets/pruefer-ui.js \
+      's|        dateiPruefen(new File(\[b\], name|        void (new File([b], name|'
+probe "TESTDATEI: das Ergebnis sagt nicht mehr, dass es eine Test-Datei ist" \
+      assets/pruefer-ui.js \
+      's|"🧪 Das ist eine mitgelieferte Test-Datei — |"|'
+probe "TESTDATEI: der Bild-Knopf zeigt auf eine Datei, die es nicht gibt" \
+      auslieferungspruefer.html \
+      's|data-test-datei="beispiele/Testbild-versteckte-Anweisung.png"|data-test-datei="beispiele/fehlt.png"|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1

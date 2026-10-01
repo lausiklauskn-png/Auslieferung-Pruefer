@@ -1290,6 +1290,30 @@
     var f = this.files && this.files[0];
     if (f) dateiPruefen(f, []);
   });
+  /* 🧪 Test-Dateien (Klaus 2026-10-01): mit Absicht präpariert, alles erfunden. Ein Tipp
+     holt die Datei aus diesem Depot und prüft sie wie eine eigene; der erste Hinweis sagt,
+     dass ein Befund hier das Soll ist. Kommt die Datei nicht (offline beim ersten Mal),
+     steht das da — nie ein leeres Ergebnis. */
+  Array.prototype.forEach.call(document.querySelectorAll("[data-test-datei]"), function (k) {
+    k.addEventListener("click", function () {
+      var pfad = k.getAttribute("data-test-datei"), name = pfad.split("/").pop();
+      zeigeEingang("datei");
+      ergebnis.textContent = "";
+      ergebnis.appendChild(t("p", "feldhinweis", "Die Test-Datei wird geholt …"));
+      fetch(pfad).then(function (a) {
+        if (!a.ok) throw new Error("HTTP " + a.status);
+        return a.blob();
+      }).then(function (b) {
+        dateiPruefen(new File([b], name, { type: k.getAttribute("data-test-typ") || b.type }),
+          ["🧪 Das ist eine mitgelieferte Test-Datei — mit Absicht präpariert, alles darin ist erfunden. " +
+           "Ein Befund ist hier das Soll: so sieht es aus, wenn der Prüfer etwas findet."]);
+      }).catch(function (e) {
+        ergebnis.textContent = "";
+        ergebnis.appendChild(t("p", "feldhinweis", "Die Test-Datei ließ sich nicht laden (" +
+          (e && e.message || e) + ") — beim ersten Mal braucht es Internet."));
+      });
+    });
+  });
   /* ══ VERDACHT IN BILDPUNKTEN — Stufe 2 C (2026-10-01) ════════════════════
      Klaus: C läuft NICHT bei jeder Prüfung, sondern auf einen eigenen Knopf,
      und der heißt „Verdacht", nie „gefunden". Der Knopf steht unter dem
