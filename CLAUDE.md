@@ -571,8 +571,9 @@ Sätze zitiert, wird gemeldet.
 Prüfsumme, Texterkennung im Installations-Vorrat.
 
 Gemessen (2026-10-01): `node tests/alle.mjs` Rückgabe 0 — smoke_knoten 160 · smoke_anhang 134 ·
-smoke_pruefer 357 · smoke_vorbelegung 9 · smoke_start 21, alle 0 ROT. Gegenprobe in einer Kopie:
-siehe unten. Cache v26, `?v=99`. `pruefer-anhang.js` byte-1:1 in den Sende-Prüfer.
+smoke_pruefer 357 · smoke_vorbelegung 9 · smoke_start 21, alle 0 ROT. Gegenprobe in einer Kopie
+(gefiltert, je Gruppe): `KITEXT:` 4 · `VERDBER:` 2 · `UNGEPR:` 5 · `UNSICHTBILD:` 1 · `LAUF:` 3 —
+alle gefangen, 0 blind, 0 tote Anker. Cache v26, `?v=99`. `pruefer-anhang.js` byte-1:1 in den Sende-Prüfer.
 ⚠ Nicht gemessen: echte Word-Dateien von Klaus, das Tablet.
 
 ## 🧪 Alle Testvorlagen direkt im Prüfer (Klaus 2026-10-01)
@@ -585,3 +586,10 @@ Das ist derselbe Weg wie „Im Prüfer prüfen". Texte pr_69–pr_85 (DE/EN). `s
 gegen `data-im-pruefer` auf `testvorlagen/index.html` (gefunden, nicht gepflegt): wer dort eine Vorlage ergänzt,
 ergänzt sie hier. Gegenprobe `NUR_FALL="TESTLISTE:"` (4 Fälle). Cache v27, `?v=100`.
 Gemessen im Browser bei 1300 und 380 px: Knopf im Datei-Reiter sichtbar, H6 → „Anweisung an eine KI". ⚠ Tablet nicht gemessen.
+
+⚠ **#38 HAT `main` ROT GEMACHT.** Das `<summary>` trug `display:flex` und zerlegte seinen Satz in zwei
+Zeilen — der Wächter „kein Aufklapper zerlegt seinen Satz" in `smoke_pruefer` stand seit 2026-08-23 da.
+Vor dem Merge lief nur `smoke_knoten`; gefunden hat es erst der Gegenprobe-Lauf („schon vor der
+Gegenprobe rot"). Jetzt Innenabstand statt Flex, ein fünfter Fall `TESTLISTE:` baut den Rückfall ein.
+**Wer die Seite ändert, fährt `node tests/alle.mjs`, nicht nur eine Probe.** Gemessen danach:
+`alle.mjs` Rückgabe 0 (165 · 134 · 357 · 9 · 21) · `TESTLISTE:` 5 gefangen, 0 blind, 0 tote Anker. Cache v28, `?v=101`.
