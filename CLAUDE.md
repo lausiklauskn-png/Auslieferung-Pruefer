@@ -153,10 +153,10 @@ dem Öffnen in der Anzeige ersetzt, nicht verschwiegen.
 Reiterwechsel und jede Mail-Prüfung; ein älterer Lauf zeichnet nicht mehr.
 Gemessen in beide Richtungen (mit Wechsel: nichts · ohne: der Anhang kommt).
 
-⚠ **BENANNTE GRENZEN:** kein Virenscanner · **in Bildpunkten versteckte
-Botschaften (Steganografie) und Text im Bild werden NICHT gelesen** (der
-Seitentext eines PDFs seit Stufe 2 D schon, siehe unten) — der Plan steht im Sende-Prüfer unter
-`docs/BRIEF_2026-09-29_anhaenge-stufe2.md`.
+⚠ **BENANNTE GRENZEN:** kein Virenscanner. Seitentext (D), Text im Bild (A, B),
+unsichtbarer Text im PDF (E) und Text in den untersten Bits (C, nur auf Knopf)
+werden seit Stufe 2 gelesen, jeweils in den Abschnitten unten. Der Plan steht im
+Sende-Prüfer unter `docs/BRIEF_2026-09-29_anhaenge-stufe2.md`.
 
 Proben: `tests/smoke_anhang.mjs` (ohne Browser, 36 Zusicherungen, Muster in
 `tests/anhang-muster.mjs`) · `tests/smoke_pruefer.mjs` (Eingang, Mail-Anhänge,
@@ -451,3 +451,46 @@ ist; mit `?adresse=`/Hash geht es direkt in den Prüfer. `manifest.json` startet
 ⚠ „Warum es diese App gibt“ und die Schritte unter „Was tun“ sind ein Entwurf,
 nicht Klaus' Wortlaut. Probe `tests/smoke_start.mjs` · Gegenprobe `NUR_FALL="START:"`.
 Cache v21, `?v=94`.
+
+## 🔍 Stufe 2 C · Verdacht in den Bildpunkten (2026-10-01)
+
+Eine Botschaft kann in den untersten Bits der Farben stecken (LSB-Steganografie).
+Das Auge sieht sie nicht, ein Skript liest sie. **Erst gemessen, dann gebaut**,
+wie der Brief es verlangt:
+
+| Verfahren | 17 Testfotos (`Workflow-PDF/tests/scan-fotos/`) | 4C ohne | 4C mit Botschaft |
+|---|---|---|---|
+| **Text aus den untersten Bits lesen** (ab Bildpunkt 0, R · G · B · RGB; Längenkopf 16 Bit + UTF-8 oder ein Lauf ≥ 16 druckbarer ASCII-Zeichen) | **0 Fehlalarme** | **0** | **gefunden** (Rot, wörtlich) |
+| Chi-Quadrat (Westfeld/Pfitzmann), Fenster p ≥ 0,99 | 0 | 0 | **nicht gefunden**: Klartext auf Weiß macht die Bits ungleich |
+| Chi-Quadrat, Fenster p ≥ 0,05 / 0,01 | **Fehlalarme** bis 2048 / 4096 Bildpunkte | — | nur 512 |
+| Chi-Quadrat über das ganze Bild | p = 0 auf allen sauberen Fotos; nur volle Einbettung sichtbar (p 0,0033–0,93) | — | — |
+
+Gebaut ist nur das Text-Lesen. **Mit der gelieferten Funktion nachgemessen**
+(`bildpunkteLesen`, Pixel im Browser ausgepackt): die 17 Fotos und die Vorlagen 1A, 2B,
+4C ohne, H0 und H2 ergeben keinen Fund, 4C mit ergibt einen Fund. Das sind 1 von 23,
+20–40 ms je Bild (Behälter). Eingebettete Texte (8 B, ein KI-Satz, 512 B) mit Kopf
+wurden in allen 23 Bildern gefunden. **Zufällige oder verschlüsselte Bits wurden nie
+gefunden; diese Grenze ist benannt.**
+
+- **Nur auf den eigenen Knopf** „🔍 Bildpunkte auf Verdacht prüfen“ (`verdachtKnopf` in
+  `pruefer-ui.js`). Er steht im Eingang „Foto · Datei prüfen“ und unter geöffneten
+  Mail-Anhängen, nur wenn ein Bild dabei ist. Vor dem Tipp läuft nichts.
+- **Das Ergebnis heißt „Verdacht“**, nie „gefunden“. Der Befund **`BILD-LSB-VERDACHT`**
+  nennt Kanal, Länge und den Text (gekürzt auf 160 Zeichen) und sagt, was gemessen wurde.
+  Steht im versteckten Text eine Anweisung an eine KI, kommt `BILD-KI-ANWEISUNG` dazu
+  („in den Bildpunkten versteckt“).
+- **Nie still:** JPEG, GIF und verlustbehaftetes WebP (dort tragen die untersten Bits die
+  Kompression), Nicht-Bilder, Bilder über 40 Millionen Bildpunkte und Läufe ohne Browser
+  ergeben **„nicht geprüft“** mit Grund. Durchsichtige Bildpunkte werden als Hinweis genannt.
+- Alles steht als `textContent` da und wird nie ausgeführt. pdf.js und Tesseract bleiben
+  draußen; diese Prüfung braucht keins von beiden.
+- **Byte-1:1 in den Sende-Prüfer** (`ANHANG_SHA`).
+
+Proben: `smoke_anhang` mit gestellten Pixeln in beide Richtungen; JPEG und ohne Browser
+ergeben „nicht geprüft“. `smoke_pruefer` misst mit echtem Browser: kein Lauf vor dem Tipp ·
+4C mit → Verdacht samt Satz und KI-Anweisung · 4C ohne → kein Verdacht · H0 → nicht geprüft ·
+PDF → kein Knopf. Gegenprobe: `NUR_FALL="VERDACHT:"` (8 Fälle). Cache v22, `?v=95`.
+
+⚠ **Nicht gemessen:** Zeit und Speicher am Tablet; echte Fotos mit eingebetteter
+Botschaft aus fremden Werkzeugen (steghide, OpenStego, die oft verschlüsseln oder verstreuen);
+Bilder mit Farbprofil (gemessen mit `colorSpaceConversion: "none"`).
