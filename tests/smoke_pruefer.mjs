@@ -2170,6 +2170,8 @@ if (!browser) {
       }, [...fs.readFileSync(path.join(WURZEL, "testvorlagen", "Vorlage-1A-Bild-mit-Text.png"))]);
       ok(!!st.box && st.box.x >= 0 && st.box.y >= 0 && st.box.x + st.box.w <= 1.001 && st.box.y + st.box.h <= 1.001 && st.box.h < 0.2,
          `… der Befund „Anweisung im Bild“ trägt den Kasten seiner Zeile, im Bild (${JSON.stringify(st.box)})`);
+      /* Zeile 9 der Vorlage 1A steht gemessen bei y = 0,4635 (2026-10-01); die erste Zeile ganz oben. */
+      ok(!!st.box && st.box.y > 0.40 && st.box.y < 0.52, `… und es ist die Zeile mit der Anweisung (Zeile 9, Mitte des Bildes), nicht eine andere (y ${st.box && st.box.y.toFixed(3)})`);
       ok(st.rot && !st.weitWeg, "… und im markierten Bild ist der Rand dieser Zeile rot, eine Ecke weit weg nicht"); }
     ok(a1.arten.includes("PERSONENBEZUG") && /Vorlage-1A-Bild-mit-Text\.png, Bildtext Zeile/.test(a1.text),
        "… und der erkannte Text geht durch den Text-Prüfer (Mailadresse/IBAN, Stelle „Bildtext Zeile“)");

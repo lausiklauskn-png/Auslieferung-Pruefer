@@ -4046,6 +4046,26 @@ probe "WASTUN: die Überschrift steht wieder doppelt" \
       assets/pruefer-anhang.js \
       's|melde("BILD-LSB-VERDACHT", "In den untersten Bits (|melde("BILD-LSB-VERDACHT", "Verdacht auf versteckte Daten in Bildpunkten: in den untersten Bits (|'
 
+# ══ DIE STELLE IM BILD (Klaus 2026-10-01) — rot markiert, als Kopie
+probe "MARKE: die Anweisung im Bild trägt keinen Kasten mehr" \
+      assets/pruefer-anhang.js \
+      's|"Bildtext Zeile " + st.zeile + ")", boxen ? boxen\[st.zeile - 1\] : null);|"Bildtext Zeile " + st.zeile + ")", null);|'
+probe "MARKE: der Kasten zeigt auf die falsche Zeile" \
+      assets/pruefer-anhang.js \
+      's|boxen ? boxen\[st.zeile - 1\] : null);|boxen ? boxen[0] : null);|'
+probe "MARKE: die Datei-Prüfung zeigt das markierte Bild nicht" \
+      assets/pruefer-ui.js \
+      's|      markiertZeigen(ergebnis, f.name, bytes, r.befunde);|      void 0;|'
+probe "MARKE: der Verdacht zeigt das markierte Bild nicht" \
+      assets/pruefer-ui.js \
+      's|          if (lage === "ja") return markiertZeigen(li, x.name, x.bytes, r.befunde);||'
+probe "MARKE: dieselbe Stelle wird doppelt markiert" \
+      assets/pruefer-anhang.js \
+      's|      if (gesehen\[k\]) return;  |      if (false) return;  |'
+probe "MARKE: ohne Rand, nur Beschriftung" \
+      assets/pruefer-anhang.js \
+      's|g.lineWidth = dick; g.strokeStyle = "#d61e1e"; g.strokeRect|g.lineWidth = dick; g.strokeStyle = "#d61e1e"; void|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1
