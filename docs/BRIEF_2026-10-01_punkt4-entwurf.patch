@@ -1,0 +1,56 @@
+diff --git a/assets/pruefer-anhang.js b/assets/pruefer-anhang.js
+index 75f1448..c3920fb 100644
+--- a/assets/pruefer-anhang.js
++++ b/assets/pruefer-anhang.js
+@@ -926,6 +926,30 @@
+     }, function () { return null; });
+   }
+ 
++  /* ══ TEXT IN DATEIEN AUF ANWEISUNGEN AN EINE KI (Punkt 4, 2026-10-01)
++   * ChatGPT-Prüfbericht vom 2026-10-01: Text aus TXT, SVG, HTML und Word ging
++   * nur durch pruefeText (Schlüssel, Mailadressen, IBAN), nicht durch die
++   * Liste der KI-Anweisungen. Jetzt dieselbe Liste wie der Mail-Eingang.
++   * Übernommen werden nur KI-ANWEISUNG, UNSICHTBARE-ZEICHEN und
++   * VERSTECKTER-TEXT — der Rest gehört zu Mails (Absender, Links).
++   * ⚠ Ein "\n" davor: pruefeMail hält eine erste Zeile wie „Hinweis: …"
++   *   sonst für einen Mailkopf und verschiebt die Zeilen. Abgezogen wird 1.
++   * Fehlt pruefer-mail.js, ist der Text ungeprüft, nicht sauber. */
++  var DATEI_KI_ARTEN = ["KI-ANWEISUNG", "UNSICHTBARE-ZEICHEN", "VERSTECKTER-TEXT"];
++  function dateitextPruefen(text, melde, hinweise, stand) {
++    if (!text || !String(text).trim()) return;
++    var PM = welt.PrueferMail;
++    if (!PM) {
++      hinweise.push("Der Text der Datei wurde gelesen, aber die Liste der KI-Anweisungen (assets/pruefer-mail.js) ist nicht geladen — auf Anweisungen an eine KI ist er ungeprüft, nicht sauber.");
++      stand.bildUngeprueft = true; stand.textUngeprueft = true;
++      return;
++    }
++    PM.pruefeMail("\n" + text).stellen.forEach(function (st) {
++      if (DATEI_KI_ARTEN.indexOf(st.kennung) < 0) return;
++      melde(st.kennung, st.satz + " (Zeile " + Math.max(1, st.zeile - 1) + ")");
++    });
++  }
++
+   /* ══ DIE EINE TÜR
+    * @returns Promise<{art, artName, befunde:[{kennung,satz}], text:string|null,
+    *                   textQuelle:"bild"|null, seiten:[{seite,text,bild?}]|null,
+@@ -969,13 +993,19 @@
+         if (s && s.length) { seiten = s; text = s.map(function (x) { return x.text; }).join("\n"); }
+       });
+     }
++    /* HTML: der Quelltext (dort stehen CSS-Verstecke und die echten Zeilen),
++       sonst der gelesene Text der Datei. */
++    var htmlRoh = art === "html" ? new TextDecoder("utf-8").decode(b).replace(/^\uFEFF/, "") : null;
++    weiter = weiter.then(function () {
++      if (/^(text|svg|html|docx|xlsx|pptx|odt|zip)$/.test(art) || htmlRoh) dateitextPruefen(htmlRoh || text, melde, hinweise, stand);
++    });
+     var textQuelle = null;
+     if (/^(png|jpeg|webp|gif)$/.test(art)) weiter = weiter.then(function () {
+       return bildTextPruefen(b, art, melde, hinweise, stand).then(function (t) { if (t) { text = t; textQuelle = "bild"; } });
+     });
+     return weiter.then(function () {
+       return { art: art, artName: ART_NAME[art] || art, befunde: befunde, text: text, textQuelle: textQuelle, seiten: seiten, hinweise: hinweise,
+-        bildUngeprueft: stand.bildUngeprueft,
++        bildUngeprueft: stand.bildUngeprueft, textUngeprueft: !!stand.textUngeprueft,
+         sicher: /^(png|jpeg|webp|gif|svg)$/.test(art) };
+     });
+   }
