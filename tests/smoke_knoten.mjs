@@ -397,5 +397,20 @@ console.log('\n── Was ohne JavaScript dasteht ──');
      /Tesseract\.js 7\.0\.0/.test(lies('THIRD_PARTY.md')) && /traineddata/.test(lies('THIRD_PARTY.md')) && /tessdata_fast/.test(lies('THIRD_PARTY.md')));
 }
 
+// ── LAUF: fehlt der Browser, ist eine Probe NICHT grün (Punkt 8, 2026-10-01) ──
+// Gemessen, nicht gelesen: jede Browser-Probe wird mit einem Browser-Ordner
+// gestartet, den es nicht gibt, und muss mit 2 enden („nicht lauffähig").
+// Danach dasselbe für tests/alle.mjs — LAUF_INNEN hält diesen Block dort still,
+// sonst riefe er sich selbst wieder auf.
+if (!process.env.LAUF_INNEN) {
+  console.log('\nLAUF · fehlt der Browser, endet die Probe mit 2');
+  const { spawnSync } = await import('node:child_process');
+  const env = { ...process.env, PLAYWRIGHT_BROWSERS_PATH: '/gibt-es-nicht', LAUF_INNEN: '1' };
+  for (const p of ['smoke_pruefer.mjs', 'smoke_vorbelegung.mjs', 'smoke_start.mjs', 'alle.mjs']) {
+    const r = spawnSync('node', [new URL(`../tests/${p}`, import.meta.url).pathname], { env, encoding: 'utf8', timeout: 240000 });
+    ok(`LAUF: ${p} ohne Browser endet mit 2, nicht grün`, r.status === 2, `Rückgabe ${r.status}`);
+  }
+}
+
 console.log(`\n${pass} grün · ${fail} ROT`);
 process.exitCode = fail ? 1 : 0;

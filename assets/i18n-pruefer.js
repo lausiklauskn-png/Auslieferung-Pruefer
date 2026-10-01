@@ -84,6 +84,7 @@ window.PT_SEITE_I18N = {
     "pr_65": "🧪 Test: Bild mit blasser Anweisung",
     "pr_66": "🧪 Test: PDF mit unsichtbarem Text",
     "pr_67": "Alle Testvorlagen",
+    "pr_68": "<strong>Anweisungen an eine KI findet er nur in bekannter Form.</strong> Gesucht wird nach einer Liste fester Wendungen. Eine umformulierte Anweisung fällt durch, und ein Fachartikel, der solche Sätze zitiert, wird gemeldet.",
     "pr_bsp_hier": "— der Marktplatz PWA Toolpoint",
     "pr_fuss_recht": "Impressum & Datenschutz",
     "pr_fuss_satz": "Läuft im Browser. Kein Konto, kein Hochladen, keine fremde Adresse."
@@ -163,6 +164,7 @@ window.PT_SEITE_I18N = {
     "pr_65": "🧪 Test: image with a faint instruction",
     "pr_66": "🧪 Test: PDF with invisible text",
     "pr_67": "All test samples",
+    "pr_68": "<strong>It only finds instructions to an AI in known forms.</strong> It searches a list of fixed phrases. A reworded instruction slips through, and a specialist article that quotes such sentences is reported.",
     "pr_bsp_hier": "— the PWA Toolpoint marketplace",
     "pr_fuss_recht": "Imprint & Privacy",
     "pr_fuss_satz": "Runs in the browser. No account, no upload, no outside address."

@@ -1215,13 +1215,14 @@
       ]).then(function (beide) {
           var r = beide[0], ra = beide[1], stellen = r.stellen.slice(), mehr = [];
           if (ra) {
-            anhangTreffer(f.name, { befunde: ra.befunde.filter(function (b) { return b.kennung === "PDF-KI-ANWEISUNG" || b.kennung === "BILD-KI-ANWEISUNG" || b.kennung === "PDF-VERSTECKTER-TEXT"; }),
+            anhangTreffer(f.name, { befunde: ra.befunde.filter(function (b) { return b.kennung === "PDF-KI-ANWEISUNG" || b.kennung === "BILD-KI-ANWEISUNG" || b.kennung === "PDF-VERSTECKTER-TEXT" || b.kennung === "UNSICHTBARE-ZEICHEN"; }),
               seiten: ra.seiten }, "").forEach(function (x) { stellen.push(x); });
             mehr = ra.hinweise.filter(function (h) { return r.hinweise.indexOf(h) < 0; });
           } else mehr = ["Der Datei-Prüfer (assets/pruefer-anhang.js) ist nicht geladen — der Seitentext ist ungeprüft."];
           zeige(stellen, "", {
             titel: "Auslieferungsprüfer · PDF",
             ungeprueft: !!(ra && ra.bildUngeprueft),
+            ungeprueftSatz: (ra && ra.ungeprueftSatz) || "",
             hinweise: [f.name].concat(r.hinweise).concat(mehr).concat([
               "⚠ Ein PDF hat keine Zeilennummern. Die Stelle heißt deshalb " +
               "„Objekt\" — das ist die Nummer, unter der das Dokument sie selbst " +
@@ -1343,7 +1344,7 @@
     knopf.addEventListener("click", function () {
       knopf.disabled = true;
       liste.textContent = "";
-      var kette = Promise.resolve();
+      var kette = Promise.resolve(), zeilen = [];
       bilder.forEach(function (x) {
         kette = kette.then(function () { return A.verdachtPruefen(x.name, x.bytes); }).then(function (r) {
           if (!document.contains(box)) return;
@@ -1353,7 +1354,9 @@
           li.appendChild(t("p", "pr-kopf", x.name + " — " + (lage === "ja" ? "Verdacht auf versteckte Daten in Bildpunkten"
             : lage === "nein" ? "kein Verdacht" : "nicht geprüft")));
           if (!r.geprueft) li.appendChild(t("p", "pr-satz", r.grund));
+          zeilen.push(x.name + ": " + (lage === "ja" ? "Verdacht auf versteckte Daten in Bildpunkten" : lage === "nein" ? "kein Verdacht" : "nicht geprüft — " + r.grund));
           r.befunde.forEach(function (b) {
+            zeilen.push("  " + ((KLARTEXT[b.kennung] || {}).kurz || b.kennung) + (VERDECKT_AUF ? ": " + verdeckteMarke(b.kennung) : ": " + b.satz));
             var p = t("p", "pr-satz", ((KLARTEXT[b.kennung] || {}).kurz || b.kennung) + ": " + b.satz);
             p.setAttribute("data-kennung", b.kennung);
             li.appendChild(p);
@@ -1363,12 +1366,27 @@
           liste.appendChild(li);
           if (lage === "ja") return markiertZeigen(li, x.name, x.bytes, r.befunde);
         }, function () {
+          zeilen.push(x.name + ": nicht geprüft — das Bild ließ sich nicht lesen.");
           var li = t("li", "pr-treffer pr-karte", x.name + " — nicht geprüft: das Bild ließ sich nicht lesen.");
           li.setAttribute("data-verdacht", "ungeprueft");
           liste.appendChild(li);
         });
       });
-      kette.then(function () { knopf.disabled = false; });
+      kette.then(function () {
+        knopf.disabled = false;
+        /* Punkt 5 (ChatGPT-Prüfbericht 2026-10-01): der Verdacht gehört in den
+           Bericht. „Bericht kopieren/speichern" lieferte sonst den Stand ohne
+           ihn — und wer nur den Bericht weitergibt, gibt den Verdacht nicht mit.
+           Ein zweiter Tipp ersetzt den Block, er stapelt nicht. */
+        if (!document.contains(box) || !zeilen.length) return;
+        var MARKE = "── Bildpunkte auf Verdacht geprüft ──";
+        var alt = letzterBericht.split("\n\n" + MARKE)[0];
+        if (!alt) alt = "Auslieferungsprüfer — Verdacht in Bildpunkten";
+        letzterBericht = alt + "\n\n" + MARKE + "\n" + zeilen.join("\n") +
+          "\nVerdacht ist kein Beweis; verschlüsselte Botschaften erkennt diese Suche nicht.";
+        box.setAttribute("data-verdacht-im-bericht", "");
+        mitreiheZeigen(true);
+      });
     });
     ergebnis.appendChild(box);
   }
@@ -1422,7 +1440,7 @@
         titel: "Auslieferungsprüfer · Datei",
         ungeprueft: r.bildUngeprueft,
         /* Eine HTML-Seite ohne HTML-Prüfer ist kein Bild — der Kopf sagt, was fehlt. */
-        ungeprueftSatz: r.art === "html" ? "HTML-Seite ungeprüft" : "",
+        ungeprueftSatz: r.ungeprueftSatz || (r.art === "html" ? "HTML-Seite ungeprüft" : ""),
         hinweise: vorweg.concat([f.name + " · " + r.artName + " · " + window.PrueferAnhang.gross(f.size)])
           .concat(r.hinweise),
         leerSatz: "Kein Befund heißt: nichts von dem gefunden, wonach dieser " +
@@ -1656,7 +1674,7 @@
     if (!A) return;
     var liste = A.ausMail(inhalt);
     if (!liste.length) return;
-    var mein = ++anhangLauf, stellen = [], hinweise = [], bildUngeprueft = false, markiert = [];
+    var mein = ++anhangLauf, stellen = [], hinweise = [], bildUngeprueft = false, ungeprueftSatz = "", markiert = [];
     Promise.all(liste.map(function (a) {
       if (a.zuGross) {
         hinweise.push("Anhang „" + a.name + "\" (" + A.gross(a.groesse) + ") ist zu groß und wurde NICHT geöffnet — ungeprüft, nicht sauber.");
@@ -1665,7 +1683,7 @@
       return A.pruefe(a.name, a.bytes).then(function (x) {
         stellen = stellen.concat(anhangTreffer(a.name, x, "Anhang "));
         markiert.push({ name: a.name, bytes: a.bytes, befunde: x.befunde });
-        if (x.bildUngeprueft) bildUngeprueft = true;
+        if (x.bildUngeprueft) { bildUngeprueft = true; if (!ungeprueftSatz && x.ungeprueftSatz) ungeprueftSatz = "Anhang „" + a.name + "\": " + x.ungeprueftSatz; }
         hinweise.push("Anhang „" + a.name + "\" geöffnet: " + x.artName + ", " + A.gross(a.groesse) + ".");
       }, function () {
         hinweise.push("Anhang „" + a.name + "\" ließ sich nicht lesen — ungeprüft.");
@@ -1674,7 +1692,7 @@
       if (mein !== anhangLauf) return;          // inzwischen wurde etwas anderes geprüft
       hinweise.push("In Bildpunkten versteckte Botschaften werden nur auf den Knopf darunter gesucht („Verdacht“).");
       var o = {}; for (var k in opt) o[k] = opt[k];
-      if (bildUngeprueft) o.ungeprueft = true;
+      if (bildUngeprueft) { o.ungeprueft = true; if (ungeprueftSatz) o.ungeprueftSatz = ungeprueftSatz; }
       /* pruefer-mail.js sagt „Kein Anhang wurde geöffnet" — das stimmt nach
          diesem Lauf nicht mehr. Ersetzt wird der Satz, nicht verschwiegen. */
       o.hinweise = (opt.hinweise || []).map(function (h) {

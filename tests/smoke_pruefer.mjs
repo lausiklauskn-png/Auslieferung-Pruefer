@@ -25,6 +25,7 @@ import { execFileSync } from "node:child_process";
 import zlib from "node:zlib";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
+import { findeChromium } from "./chromium-finden.mjs";
 
 const WURZEL = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const KIMHUB = path.join(WURZEL, "werkzeuge/pruefe-seite.py");
@@ -1074,27 +1075,11 @@ ok(ML.pruefeMail(null).stellen.length === 0, "… und `null` ebenso");
 /* ---------- B · die Seite im echten Browser ---------- */
 console.log("\nB · die Seite im echten Browser");
 
-/* Der Chromium im Bild trägt eine Build-Nummer, die playwright-core nicht
-   unbedingt erwartet — ein fest eingetragener Pfad ist beim nächsten Container
-   wieder falsch und die Probe dann STUMM statt rot. Also gesucht statt
-   geraten. */
-function chromiumPfad() {
-  const kandidaten = [];
-  const wurzel = "/opt/pw-browsers";
-  if (fs.existsSync(wurzel)) {
-    for (const e of fs.readdirSync(wurzel)) {
-      if (!/^chromium/.test(e)) continue;
-      for (const rest of ["chrome-linux/chrome", "chrome-headless-shell-linux64/chrome-headless-shell"]) {
-        const voll = path.join(wurzel, e, rest);
-        if (fs.existsSync(voll)) kandidaten.push(voll);
-      }
-    }
-  }
-  return kandidaten[0] || null;
-}
-
+/* Der Browser wird an EINER Stelle gesucht (tests/chromium-finden.mjs) —
+   die eigene Kopie hier suchte nur `chrome-linux/chrome` und fand Chrome for
+   Testing (`chrome-linux64`) nicht (Punkt 8, ChatGPT-Prüfbericht 2026-10-01). */
 let browser = null;
-const chromePfad = chromiumPfad();
+const chromePfad = findeChromium();
 try {
   const { chromium } = await import("playwright-core");
   browser = chromePfad ? await chromium.launch({ executablePath: chromePfad })
@@ -1772,6 +1757,11 @@ if (!browser) {
   ok(/Texterkennung.*file:\/\//.test(sauber.text), "… und der Grund steht da (lokal geöffnete Datei)");
   ok(/Bildpunkten/.test(sauber.text) && /KEINE Virenprüfung/.test(sauber.text),
      "… und sagt, was es nicht geprüft hat");
+  /* Punkt 6 c (2026-10-01): eine Datei, deren Art der Prüfer nicht kennt, ist
+     nicht „kein Befund", sondern ungeprüft — und der Kopf sagt, warum. */
+  const unbek = await dateiPruefen("daten.bin", "application/octet-stream", Buffer.from([0, 1, 2, 3, 250, 251, 0, 7, 9, 200, 0, 0, 0, 1]));
+  ok(/Dateiart nicht erkannt/.test(unbek.zahl) && unbek.zahl !== "kein Befund",
+     `UNGEPR: eine unbekannte Binärdatei zeigt oben „Dateiart nicht erkannt — ungeprüft“ (${unbek.zahl || "keine Zahl"})`);
   const getarnt = await dateiPruefen("urlaub.jpg", "image/jpeg",
     Buffer.concat([PNG, Buffer.from("PK\x03\x04versteckt-4711")]));
   ok(getarnt.arten.includes("BILD-ANHAENGSEL") && getarnt.arten.includes("ANHANG-TARNUNG"),
@@ -2239,6 +2229,38 @@ if (!browser) {
     ok(v4.markiert.length === 1 && v4.markiert[0] === 1, `… und der Streifen oben im Bild, der die Bits trägt, ist markiert — einmal, nicht doppelt (${v4.markiert})`);
     ok(v4.ruhe >= 4, `… und darunter steht „Was jetzt tun“ mit ruhigen Schritten (${v4.ruhe})`);
     ok(!/Verdacht in Bildpunkten: Verdacht auf/.test(v4.text), "… und die Überschrift steht nicht doppelt („Verdacht in Bildpunkten: Verdacht auf …“)");
+    /* Punkt 5 (2026-10-01): der Verdacht steht im Bericht, den „Als Textdatei
+       sichern" hinausgibt — gelesen wird der Blob, den die Seite baut. */
+    await echteSeite.waitForFunction(() => !!document.querySelector("#ergebnis [data-verdacht-im-bericht]"), null, { timeout: 15000 }).catch(() => {});
+    const ber = await echteSeite.evaluate(async () => {
+      const box = document.querySelector("#ergebnis [data-verdacht-box]");
+      let blob = null; const alt = URL.createObjectURL;
+      URL.createObjectURL = function (b) { blob = b; return alt.call(URL, b); };
+      const k = document.getElementById("sichernKnopf");
+      const sichtbar = !!k && !!k.getClientRects().length;
+      if (k) k.click();
+      URL.createObjectURL = alt;
+      return { sichtbar, marke: !!box && box.hasAttribute("data-verdacht-im-bericht"), text: blob ? await blob.text() : "" };
+    });
+    ok(ber.sichtbar && ber.marke && /Bildpunkte auf Verdacht geprüft/.test(ber.text) && /Verdacht/.test(ber.text.split("Bildpunkte auf Verdacht geprüft")[1] || ""),
+       `VERDBER: der Bildpunkt-Verdacht steht im gesicherten Bericht (Knopf ${ber.sichtbar}, Marke ${ber.marke}, ${ber.text.length} Zeichen)`);
+    /* Ein zweiter Tipp auf den Verdacht-Knopf ersetzt den Block, er stapelt nicht. */
+    await echteSeite.evaluate(() => {
+      const box = document.querySelector("#ergebnis [data-verdacht-box]");
+      if (box) box.removeAttribute("data-verdacht-im-bericht");
+      const k = document.querySelector("#ergebnis [data-verdacht-knopf]");
+      if (k) k.click();
+    });
+    await echteSeite.waitForFunction(() => !!document.querySelector("#ergebnis [data-verdacht-im-bericht]"), null, { timeout: 15000 }).catch(() => {});
+    const ber2 = await echteSeite.evaluate(async () => {
+      let blob = null; const alt = URL.createObjectURL;
+      URL.createObjectURL = function (b) { blob = b; return alt.call(URL, b); };
+      const k = document.getElementById("sichernKnopf"); if (k) k.click();
+      URL.createObjectURL = alt;
+      return blob ? await blob.text() : "";
+    });
+    ok((ber2.match(/Bildpunkte auf Verdacht geprüft/g) || []).length === 1 && /Verdacht/.test(ber2.split("Bildpunkte auf Verdacht geprüft")[1] || ""),
+       `VERDBER: … und nach einem zweiten Tipp nur einmal, nicht gestapelt (${(ber2.match(/Bildpunkte auf Verdacht geprüft/g) || []).length}×)`);
     await ocrPruefen("#einzelDatei", "Vorlage-4C-Bild-ohne-Botschaft.png", "image/png");
     const v0 = await verdacht();
     ok(v0.markiert.length === 0, "… und ohne Verdacht wird nichts markiert");
@@ -2317,6 +2339,10 @@ if (!browser) {
       const l1 = await perLink("Vorlage-H1-Text-mit-Angaben.txt");
       ok(l1.datei && l1.arten.length > 0 && /mitgelieferte Test-Datei/.test(l1.text),
          `🧪 ?test=Vorlage-H1 → im Eingang „Foto · Datei prüfen" geprüft, als Test benannt (${l1.arten.join(", ")})`);
+      ok(!l1.arten.some((x) => /Anweisung/.test(x)), `🧪 Gegenrichtung: H1 trägt keine Anweisung an eine KI (${l1.arten.join(", ")})`);
+      const l6 = await perLink("Vorlage-H6-Text-mit-KI-Anweisung.txt");
+      ok(l6.datei && l6.arten.includes("KI-ANWEISUNG") && /Zeile 5/.test(l6.text),
+         `KITEXT: 🧪 ?test=Vorlage-H6 → „Anweisung an eine KI“ in Zeile 5 (${l6.arten.join(", ")}; ${(l6.text.match(/Zeile \d+/g) || []).join(" ")})`);
       const l2 = await perLink("Vorlage-Alle-als-Mail.eml");
       ok(l2.mail && l2.arten.length > 0 && /mitgelieferte Test-Datei/.test(l2.text),
          `🧪 ?test=Vorlage-Alle-als-Mail.eml → im Mail-Eingang geprüft (${l2.arten.length} Befundarten)`);
@@ -2780,4 +2806,8 @@ if (!browser) {
 
 console.log(`\n${gruen} grün, ${rot} ROT, ${uebersprungen} übersprungen`);
 if (uebersprungen) console.log("⚠ Übersprungen ist NICHT grün — diese Prüfungen haben nichts gemessen.");
-process.exit(rot ? 1 : 0);
+/* Punkt 8: ohne Browser ist die halbe Probe ungemessen — „nicht lauffähig"
+   ist Rückgabe 2, nicht grün. */
+const ohneBrowser = !browser;
+if (ohneBrowser) console.log("⊘ nicht lauffähig: kein Browser — Rückgabe 2, nicht grün.");
+process.exit(rot ? 1 : ohneBrowser ? 2 : 0);

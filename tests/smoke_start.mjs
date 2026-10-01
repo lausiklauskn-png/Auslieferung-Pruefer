@@ -5,7 +5,9 @@ import http from "node:http";
 import { readFileSync, existsSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright-core";
+let chromium;
+try { ({ chromium } = await import("playwright-core")); }
+catch { console.log("⊘ nicht lauffähig: playwright-core fehlt"); process.exit(2); }
 import { findeChromium } from "./chromium-finden.mjs";
 
 const W = fileURLToPath(new URL("..", import.meta.url));
@@ -23,7 +25,7 @@ const B = `http://127.0.0.1:${server.address().port}/`;
 const pfad = findeChromium();
 let browser;
 try { browser = await chromium.launch(pfad ? { executablePath: pfad } : {}); }
-catch (e) { console.log("⊘ nicht lauffähig: kein Browser"); server.close(); process.exit(0); }
+catch (e) { console.log("⊘ nicht lauffähig: kein Browser"); server.close(); process.exit(2); }
 
 const ctx = await browser.newContext({ viewport: { width: 360, height: 780 } });
 const p = await ctx.newPage();

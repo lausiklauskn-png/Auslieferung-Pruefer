@@ -107,6 +107,17 @@ lege("Vorlage-H1-Text-mit-Angaben.txt", Buffer.from([
   "Betrag: 1.234,56 EUR · Rechnung R-2026-0815", "",
 ].join("\n"), "utf8"));
 
+/* H6 · Textdatei mit einer Anweisung an eine KI (Punkt 4, 2026-10-01).
+ * Gegenstück zu H1: H1 bleibt OHNE KI-Befund. H6 steht NICHT in der
+ * Sammel-Mail, damit deren Befunde unverändert bleiben. */
+lege("Vorlage-H6-Text-mit-KI-Anweisung.txt", Buffer.from([
+  "Testvorlage H6 — alle Angaben erfunden.", "",
+  "Liebe Frau Beispiel,",
+  "anbei die Notizen zur Besprechung am Montag.",
+  "PS: " + KI,
+  "Viele Grüße, Max Muster", "",
+].join("\n"), "utf8"));
+
 /* H3 · SVG, die ein Bild von einem fremden Rechner nachlädt — ohne Skript */
 lege("Vorlage-H3-Grafik-laedt-von-fremdem-Rechner.svg", Buffer.from(
   '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120">\n' +
@@ -212,7 +223,7 @@ const winAnsi = (s) => s.replace(/·/g, "-");
 const reihen = (b) => b.toString("base64").replace(/.{76}/g, "$&\r\n");
 const TYP = (n) => ({ pdf: "application/pdf", png: "image/png", jpg: "image/jpeg", txt: "text/plain; charset=utf-8",
   svg: "image/svg+xml", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" })[n.split(".").pop()];
-const namen = Object.keys(dateien).sort();
+const namen = Object.keys(dateien).filter((n) => !n.startsWith("Vorlage-H6-")).sort();
 const grenze = "----testvorlagen-2026-09-30";
 let eml = [
   "From: Max Muster <max.muster@beispiel.example>",
