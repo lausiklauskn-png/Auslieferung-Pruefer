@@ -540,3 +540,13 @@ Stelle, wo das Problem aufgetaucht ist. Oder der Text kenntlich gemacht werden."
 prüft sie über `dateiPruefen`. Der erste Hinweis sagt, dass es eine Test-Datei ist und ein Befund hier das Soll.
 Kommt die Datei nicht (offline beim ersten Mal), steht das da. Die Dateien liegen nicht im Installations-Vorrat.
 Texte pr_64–pr_67 (DE/EN). Probe in `smoke_pruefer` · Gegenprobe `NUR_FALL="TESTDATEI:"` (4 Fälle). Cache v24, `?v=97`.
+
+## 🧪 „Im Prüfer prüfen" auf testvorlagen/ (Klaus 2026-10-01)
+
+„Wie bei ChatGPT: draufdrücken, und sie werden im Auslieferungsprüfer als Test geladen, nicht heruntergeladen."
+Neben jedem ⬇ auf `testvorlagen/index.html` steht `a.pruef` → `../auslieferungspruefer.html?test=<Datei>`.
+`pruefer-ui.js` liest `?test=` nur, wenn der Name `^Vorlage-[A-Za-z0-9-]+\.(pdf|png|jpg|txt|svg|docx|eml)$` ist
+(kein Pfad, keine fremde Adresse), und holt `testvorlagen/<Datei>`. Eine `.eml` geht in den Mail-Eingang, alles
+andere über `testDateiLaden` in „Foto · Datei prüfen". Der Test-Hinweis (`TEST_HINWEIS`, `[data-testvorlage]`)
+steht bei der Mail erst NACH dem Zeichnen der Anhänge (Rückruf von `pruefeMailJetzt`), sonst nimmt das
+Neuzeichnen ihn mit. Probe in `smoke_pruefer` · Gegenprobe `NUR_FALL="TESTLINK:"` (4 Fälle). Cache v25, `?v=98`.
