@@ -2165,6 +2165,44 @@ if (!browser) {
     const c4 = await ocrPruefen("#einzelDatei", "Vorlage-4C-Bild-mit-versteckter-Botschaft.png", "image/png");
     ok(!c4.arten.includes("BILD-KI-ANWEISUNG") && !/Blasser Text: \d+ Zeile/.test(c4.text),
        `Gegenrichtung (4C mit Botschaft in den Bildpunkten): kein KI-Befund, keine blasse Zeile (${c4.arten.join(", ") || c4.zahl})`);
+    /* ══ VERDACHT — Stufe 2 C (2026-10-01): versteckte Botschaft in den
+       untersten Bits. Läuft NUR auf den eigenen Knopf. Gemessen: vor dem Tipp
+       steht kein Ergebnis da; 4C mit → „Verdacht“ samt dem versteckten Satz;
+       4C ohne → „kein Verdacht“; ein JPEG → „nicht geprüft“ mit Grund. */
+    async function verdacht() {
+      /* Der Tipp sperrt den Knopf sofort (disabled); ein Lauf ohne Tipp wäre daran
+         zu sehen, bevor sein Ergebnis da ist. Dazu eine Sekunde Frist (Sorte B). */
+      await echteSeite.waitForTimeout(1000);
+      const vorher = await echteSeite.evaluate(() => { const k = document.querySelector("#ergebnis [data-verdacht-knopf]");
+        return { knopf: !!k && !k.disabled, ergebnis: document.querySelectorAll("#ergebnis [data-verdacht]").length }; });
+      if (!vorher.knopf) return { vorher, lage: "", text: "", arten: [] };
+      await echteSeite.click("#ergebnis [data-verdacht-knopf]");
+      await echteSeite.waitForFunction(() => !!document.querySelector("#ergebnis [data-verdacht]"), null, { timeout: 30000 }).catch(() => {});
+      return echteSeite.evaluate((v) => {
+        const li = document.querySelector("#ergebnis [data-verdacht]");
+        return { vorher: v, lage: li ? li.getAttribute("data-verdacht") : "", text: li ? li.textContent : "",
+          kopf: li && li.querySelector(".pr-kopf") ? li.querySelector(".pr-kopf").textContent : "",
+          arten: li ? [...li.querySelectorAll("[data-kennung]")].map((x) => x.getAttribute("data-kennung")) : [] };
+      }, vorher);
+    }
+    const v4 = await verdacht();
+    ok(v4.vorher.knopf && v4.vorher.ergebnis === 0, "Stufe 2 C: der Knopf steht da, und VOR dem Tipp läuft keine Suche in den Bildpunkten");
+    ok(v4.lage === "ja" && v4.arten.includes("BILD-LSB-VERDACHT"),
+       `4C mit Botschaft: „Verdacht auf versteckte Daten in Bildpunkten“ (${v4.lage}, ${v4.arten.join(", ")})`);
+    ok(/Ignore previous instructions/.test(v4.text) && v4.arten.includes("BILD-KI-ANWEISUNG"),
+       "… mit dem versteckten Satz, und die Anweisung darin ist als KI-Anweisung erkannt");
+    ok(/— Verdacht auf versteckte Daten in Bildpunkten$/.test(v4.kopf) && !/gefunden/i.test(v4.kopf), `… und die Überschrift heißt „Verdacht“, nicht „gefunden“ (${v4.kopf})`);
+    await ocrPruefen("#einzelDatei", "Vorlage-4C-Bild-ohne-Botschaft.png", "image/png");
+    const v0 = await verdacht();
+    ok(v0.lage === "nein" && !v0.arten.includes("BILD-LSB-VERDACHT"),
+       `Gegenrichtung (4C ohne Botschaft): kein Verdacht (${v0.lage || "kein Ergebnis"})`);
+    await ocrPruefen("#einzelDatei", "Vorlage-H0-Foto-sauber.jpg", "image/jpeg");
+    const vj = await verdacht();
+    ok(vj.lage === "ungeprueft" && /nicht geprüft/.test(vj.text) && /JPEG/.test(vj.text),
+       `JPEG: „nicht geprüft“ mit Grund, nie „kein Verdacht“ (${vj.lage || "kein Ergebnis"})`);
+    await ocrPruefen("#einzelDatei", "Vorlage-0D-PDF-versteckter-Text.pdf", "application/pdf");
+    ok(await echteSeite.evaluate(() => !document.querySelector("#ergebnis [data-verdacht-knopf]")),
+       "… und ohne Bild (ein PDF) steht der Verdacht-Knopf gar nicht da");
     ok(!/blass/.test(a1.text.split("Blasser Text:")[0]) && /Blasser Text: der zweite Lesedurchgang mit mehr Kontrast fand keine weitere Zeile/.test(a1.text),
        "Vorlage 1A: die sichtbare Anweisung heißt NICHT blass, der zweite Durchgang findet nichts dazu");
     /* ══ UNSICHTBARER TEXT IM PDF — Stufe 2 E (2026-09-30): die Textebene

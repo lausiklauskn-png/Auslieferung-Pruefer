@@ -233,6 +233,18 @@
            "Auge kaum zu sehen — genau das ist der Trick (Stufe 2 B)."
     },
 
+    /* Stufe 2 C (2026-10-01): nur auf den Knopf „Verdacht prüfen". */
+    "BILD-LSB-VERDACHT": {
+      kurz: "Verdacht in Bildpunkten",
+      kopf: "Verdacht auf versteckte Daten in Bildpunkten.",
+      rat: "In den untersten Bits der Farben steht ab dem ersten Bildpunkt lesbarer " +
+           "Text. Mit bloßem Auge ist davon nichts zu sehen. Eine KI, die das Bild " +
+           "genauer ausliest, oder ein Programm, das darauf wartet, kann ihn finden. " +
+           "⚠ Ein Verdacht, kein Beweis: gemessen ist, dass dort Text steht, nicht, " +
+           "wer ihn hineingeschrieben hat. Abhilfe: die sichere Fassung (neu " +
+           "gezeichnet, als JPEG) weitergeben statt des Originals."
+    },
+
     /* Stufe 2 E (2026-09-30): die Textebene eines PDFs wird gegen das gelesen,
        was die Texterkennung auf dem gezeichneten Seitenbild sieht. */
     "PDF-VERSTECKTER-TEXT": {
@@ -1258,6 +1270,58 @@
     var f = this.files && this.files[0];
     if (f) dateiPruefen(f, []);
   });
+  /* ══ VERDACHT IN BILDPUNKTEN — Stufe 2 C (2026-10-01) ════════════════════
+     Klaus: C läuft NICHT bei jeder Prüfung, sondern auf einen eigenen Knopf,
+     und der heißt „Verdacht", nie „gefunden". Der Knopf steht unter dem
+     Ergebnis, sobald ein Bild dabei ist. Ein Bild, das sich nicht prüfen lässt
+     (JPEG, GIF, zu groß), heißt „nicht geprüft", mit Grund — nie still.
+     Alles steht als textContent da; ausgeführt oder angezeigt wird nichts. */
+  function verdachtKnopf(dateien) {
+    var A = window.PrueferAnhang;
+    if (!A || !A.verdachtPruefen) return;
+    var bilder = dateien.filter(function (x) { return x.bytes && /^(png|jpeg|webp|gif)$/.test(A.artVon(x.bytes)); });
+    if (!bilder.length) return;
+    var box = t("div", "pr-verdacht");
+    box.setAttribute("data-verdacht-box", "");
+    var knopf = t("button", "btn", spracheText("pr_vd_knopf", "🔍 Bildpunkte auf Verdacht prüfen"));
+    knopf.type = "button";
+    knopf.setAttribute("data-i18n", "pr_vd_knopf");
+    knopf.setAttribute("data-verdacht-knopf", "");
+    var erkl = t("p", "feldhinweis", spracheText("pr_vd_erkl",
+      "Sucht in den untersten Bits der Farben nach lesbarem Text, den man nicht sieht. Was er findet, heißt Verdacht — kein Beweis. Verschlüsselte Botschaften erkennt er nicht."));
+    erkl.setAttribute("data-i18n", "pr_vd_erkl");
+    var liste = t("ul", "pr-liste");
+    box.appendChild(knopf); box.appendChild(erkl); box.appendChild(liste);
+    knopf.addEventListener("click", function () {
+      knopf.disabled = true;
+      liste.textContent = "";
+      var kette = Promise.resolve();
+      bilder.forEach(function (x) {
+        kette = kette.then(function () { return A.verdachtPruefen(x.name, x.bytes); }).then(function (r) {
+          if (!document.contains(box)) return;
+          var lage = !r.geprueft ? "ungeprueft" : r.verdacht ? "ja" : "nein";
+          var li = t("li", "pr-treffer pr-karte");
+          li.setAttribute("data-verdacht", lage);
+          li.appendChild(t("p", "pr-kopf", x.name + " — " + (lage === "ja" ? "Verdacht auf versteckte Daten in Bildpunkten"
+            : lage === "nein" ? "kein Verdacht" : "nicht geprüft")));
+          if (!r.geprueft) li.appendChild(t("p", "pr-satz", r.grund));
+          r.befunde.forEach(function (b) {
+            var p = t("p", "pr-satz", ((KLARTEXT[b.kennung] || {}).kurz || b.kennung) + ": " + b.satz);
+            p.setAttribute("data-kennung", b.kennung);
+            li.appendChild(p);
+          });
+          r.hinweise.forEach(function (h) { li.appendChild(t("p", "feldhinweis", h)); });
+          liste.appendChild(li);
+        }, function () {
+          var li = t("li", "pr-treffer pr-karte", x.name + " — nicht geprüft: das Bild ließ sich nicht lesen.");
+          li.setAttribute("data-verdacht", "ungeprueft");
+          liste.appendChild(li);
+        });
+      });
+      kette.then(function () { knopf.disabled = false; });
+    });
+    ergebnis.appendChild(box);
+  }
   function dateiPruefen(f, vorweg) {
     ergebnis.textContent = "";
     if (!window.PrueferAnhang) {
@@ -1266,8 +1330,10 @@
       return;
     }
     ergebnis.appendChild(t("p", "feldhinweis", "Die Datei wird gelesen …"));
+    var bytes = null;
     f.arrayBuffer().then(function (buf) {
-      return window.PrueferAnhang.pruefe(f.name, new Uint8Array(buf));
+      bytes = new Uint8Array(buf);
+      return window.PrueferAnhang.pruefe(f.name, bytes);
     }).then(function (r) {
       zeige(anhangTreffer(f.name, r, ""), "", {
         titel: "Auslieferungsprüfer · Datei",
@@ -1278,9 +1344,10 @@
           .concat(r.hinweise),
         leerSatz: "Kein Befund heißt: nichts von dem gefunden, wonach dieser " +
                   "Prüfer sucht. Es war KEINE Virenprüfung, und in Bildpunkten " +
-                  "versteckte Botschaften sucht er nicht. Steht darüber „Text im " +
+                  "versteckte Botschaften sucht er nur auf den Knopf darunter. Steht darüber „Text im " +
                   "Bild ungeprüft“, wurde der Text im Bild NICHT gelesen."
       });
+      verdachtKnopf([{ name: f.name, bytes: bytes }]);
     }, function () {
       ergebnis.textContent = "";
       ergebnis.appendChild(t("p", "feldhinweis", "Die Datei ließ sich nicht lesen."));
@@ -1520,7 +1587,7 @@
       });
     })).then(function () {
       if (mein !== anhangLauf) return;          // inzwischen wurde etwas anderes geprüft
-      hinweise.push("In Bildpunkten versteckte Botschaften werden nicht gelesen.");
+      hinweise.push("In Bildpunkten versteckte Botschaften werden nur auf den Knopf darunter gesucht („Verdacht“).");
       var o = {}; for (var k in opt) o[k] = opt[k];
       if (bildUngeprueft) o.ungeprueft = true;
       /* pruefer-mail.js sagt „Kein Anhang wurde geöffnet" — das stimmt nach
@@ -1531,6 +1598,7 @@
       }).concat(hinweise);
       var alle = r.stellen.concat(stellen);
       zeige(alle, r.text, o);
+      verdachtKnopf(liste.filter(function (a) { return !a.zuGross; }));
       if (danach) danach({ stellen: alle, text: r.text, hinweise: o.hinweise, anhaenge: true });
     });
   }

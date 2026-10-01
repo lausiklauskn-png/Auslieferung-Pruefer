@@ -4003,6 +4003,32 @@ probe "START: der Überblick fehlt in der Kopfleiste" auslieferungspruefer.html 
 probe "START: ?adresse= landet auf der Startseite" index.html \
   's|if (!location.search \&\& |if (|'
 
+# ══ VERDACHT: versteckte Botschaft in Bildpunkten (Stufe 2 C, 2026-10-01) ══
+probe "VERDACHT: der Längenkopf wird nicht mehr gelesen" \
+      assets/pruefer-anhang.js \
+      's|if (t \&\& lsbTextOk(t)) { funde.push|if (false) { funde.push|'
+probe "VERDACHT: ein Lauf druckbarer Zeichen zählt nicht mehr" \
+      assets/pruefer-anhang.js \
+      's|if (r >= VERDACHT_MIN_LAUF) funde.push|if (false) funde.push|'
+probe "VERDACHT: jedes Byte gilt als druckbar (Fehlalarm bei weißen Bildern)" \
+      assets/pruefer-anhang.js \
+      's|function lsbDruckbar(x) { return x === 9|function lsbDruckbar(x) { return true \|\| x === 9|'
+probe "VERDACHT: ein JPEG heißt wieder kein Verdacht statt nicht geprüft" \
+      assets/pruefer-anhang.js \
+      's|if (art === "jpeg") return Promise.resolve(aus(false,|if (art === "jpeg") return Promise.resolve(aus(true,|'
+probe "VERDACHT: die Anweisung im versteckten Text wird nicht mehr erkannt" \
+      assets/pruefer-anhang.js \
+      's|if (st.kennung === "KI-ANWEISUNG") melde("BILD-KI-ANWEISUNG"|if (false) melde("BILD-KI-ANWEISUNG"|'
+probe "VERDACHT: die Suche läuft ohne Knopf bei jeder Prüfung" \
+      assets/pruefer-ui.js \
+      's|    ergebnis.appendChild(box);$|    ergebnis.appendChild(box); knopf.click();|'
+probe "VERDACHT: der Knopf erscheint auch ohne Bild" \
+      assets/pruefer-ui.js \
+      's|    if (!bilder.length) return;$|    if (!bilder.length) bilder = dateien;|'
+probe "VERDACHT: das Ergebnis heißt wieder gefunden statt Verdacht" \
+      assets/pruefer-ui.js \
+      's|(lage === "ja" ? "Verdacht auf versteckte Daten in Bildpunkten"|(lage === "ja" ? "versteckte Botschaft gefunden"|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1
