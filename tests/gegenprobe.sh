@@ -4133,6 +4133,19 @@ probe "UNGEPR: die Seite zeigt den Grund des Prüfers nicht mehr" \
 probe "UNSICHTBILD: unsichtbare Zeichen im Bildtext fallen wieder durch" \
       assets/pruefer-anhang.js \
       's|, "UNSICHTBARE-ZEICHEN": "UNSICHTBARE-ZEICHEN" };| };|'
+# ══ TESTLISTE: alle Testvorlagen direkt im Prüfer, über allen Reitern (Klaus 2026-10-01) ══
+probe "TESTLISTE: der Block fehlt" \
+      auslieferungspruefer.html \
+      's|<details class="pr-test pr-testliste" data-testliste>|<details class="pr-test">|'
+probe "TESTLISTE: eine Vorlage fehlt in der Liste" \
+      auslieferungspruefer.html \
+      's|      <a class="thema-knopf" href="?test=Vorlage-H6-Text-mit-KI-Anweisung.txt"|      <a class="thema-knopf" href="#"|'
+probe "TESTLISTE: ein Link zeigt auf eine Datei, die es nicht gibt" \
+      auslieferungspruefer.html \
+      's|href="?test=Vorlage-2B-Bild-blasser-Text.png"|href="?test=Vorlage-2B-fehlt.png"|'
+probe "TESTLISTE: eine Beschriftung fehlt im englischen Wörterbuch" \
+      assets/i18n-pruefer.js \
+      's|^    "pr_85": "4C · the same image without a message",$|    "pr_85x": "4C",|'
 probe "LAUF: smoke_start endet ohne Browser wieder grün" \
       tests/smoke_start.mjs \
       's|server.close(); process.exit(2); }|server.close(); process.exit(0); }|'
