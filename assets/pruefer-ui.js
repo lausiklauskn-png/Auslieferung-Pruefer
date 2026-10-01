@@ -210,7 +210,7 @@
     /* Stufe 2 D (2026-09-29): der Seitentext wird mit pdf.js gelesen und mit
        derselben Liste geprüft wie eine Mail. */
     "PDF-KI-ANWEISUNG": {
-      kurz: "Anweisung an ein Programm",
+      kurz: "Anweisung an eine KI",
       kopf: "Auf einer Seite des PDFs steht eine Anweisung an einen KI-Assistenten.",
       rat: "Lässt jemand das PDF von einer KI zusammenfassen, könnte sie den Satz " +
            "als Auftrag verstehen — oft steht er weiß auf weiß oder winzig klein, " +
@@ -241,8 +241,7 @@
            "Text. Mit bloßem Auge ist davon nichts zu sehen. Eine KI, die das Bild " +
            "genauer ausliest, oder ein Programm, das darauf wartet, kann ihn finden. " +
            "⚠ Ein Verdacht, kein Beweis: gemessen ist, dass dort Text steht, nicht, " +
-           "wer ihn hineingeschrieben hat. Abhilfe: die sichere Fassung (neu " +
-           "gezeichnet, als JPEG) weitergeben statt des Originals."
+           "wer ihn hineingeschrieben hat. Was zu tun ist, steht darunter."
     },
 
     /* Stufe 2 E (2026-09-30): die Textebene eines PDFs wird gegen das gelesen,
@@ -378,7 +377,7 @@
            "gewöhnlichem Text haben sie nichts verloren."
     },
     "KI-ANWEISUNG": {
-      kurz: "Anweisung an ein Programm",
+      kurz: "Anweisung an eine KI",
       kopf: "Im Text steht eine Anweisung, die sich an einen KI-Assistenten richtet.",
       rat: "Liest ein Assistent dein Postfach mit, könnte er sie als Auftrag " +
            "verstehen und Inhalte weitergeben. ⚠ Ein Treffer ist kein Beweis: " +
@@ -545,6 +544,21 @@
    * @param {string} text       der geprüfte Rohtext (für die Quellzeile); "" bei PDF
    * @param {object} opt        {titel, hinweise[], erwartet, leerSatz, ungeprueft}
    */
+  /* ══ WAS JETZT TUN (Klaus 2026-10-01): „sodass jemand weiß, was er machen
+     soll, falls er in Panik gerät." Die Schritte kommen aus pruefer-anhang.js
+     (eine Quelle für beide Apps). Fehlt die Datei, steht kein Kasten da —
+     der Rat darüber bleibt. */
+  function wasTunKasten(kennung) {
+    var A = window.PrueferAnhang, schritte = A && A.wasTun ? A.wasTun(kennung) : [];
+    if (!schritte.length) return null;
+    var box = t("div", "pr-ruhe");
+    box.setAttribute("data-was-tun", kennung);
+    box.appendChild(t("p", "pr-ruhe-kopf", "Was jetzt tun"));
+    var ol = t("ol", "pr-ruhe-liste");
+    schritte.forEach(function (x) { ol.appendChild(t("li", "", x)); });
+    box.appendChild(ol);
+    return box;
+  }
   function zeige(treffer, text, opt) {
     opt = opt || {};
     ergebnis.textContent = "";
@@ -642,9 +656,15 @@
         li.appendChild(t("p", "pr-wirt pr-anzahl", g.stellen.length + " Stellen"));
       }
       if (k.rat) li.appendChild(t("p", "pr-rat", k.rat));
+      var ruhe = wasTunKasten(g.kennung);
+      if (ruhe) li.appendChild(ruhe);
 
       bericht.push(k.kopf + (g.wirt ? "  [" + g.wirt + "]" : ""));
       if (k.rat) bericht.push("  " + k.rat);
+      if (ruhe) {
+        bericht.push("  Was jetzt tun:");
+        window.PrueferAnhang.wasTun(g.kennung).forEach(function (x, i) { bericht.push("  " + (i + 1) + ". " + x); });
+      }
       g.saetze.forEach(function (satz) { bericht.push("  " + satz); });
 
       /* ⚠ BEI VIELEN STELLEN NUR DIE ERSTEN FÜNF IM BILD — aber ALLE im
@@ -1311,6 +1331,7 @@
             li.appendChild(p);
           });
           r.hinweise.forEach(function (h) { li.appendChild(t("p", "feldhinweis", h)); });
+          if (lage === "ja") { var ruhe = wasTunKasten("BILD-LSB-VERDACHT"); if (ruhe) li.appendChild(ruhe); }
           liste.appendChild(li);
         }, function () {
           var li = t("li", "pr-treffer pr-karte", x.name + " — nicht geprüft: das Bild ließ sich nicht lesen.");
@@ -1549,7 +1570,7 @@
       hinweise: r.hinweise,
       leerSatz: "Kein Befund heißt: keine der bekannten Tarnungen, keine " +
                 "gefährliche Anhang-Endung, kein versteckter Text, keine " +
-                "Anweisung an ein Programm. Es heißt NICHT, dass die Mail echt " +
+                "Anweisung an eine KI. Es heißt NICHT, dass die Mail echt " +
                 "ist — und es war KEINE Virenprüfung."
     };
     zeige(r.stellen, r.text, opt);

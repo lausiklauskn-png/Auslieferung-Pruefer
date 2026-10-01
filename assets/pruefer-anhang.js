@@ -818,7 +818,7 @@
       if (durch) hinweise.push(durch + " der ersten " + probe + " Bildpunkte sind durchsichtig — dort gehen beim Auspacken die untersten Bits verloren; was dort steckt, ist ungeprüft.");
       var funde = bildpunkteLesen(d, w, h);
       funde.forEach(function (f) {
-        melde("BILD-LSB-VERDACHT", "Verdacht auf versteckte Daten in Bildpunkten: in den untersten Bits (" + f.weg + ") steht ab dem ersten Bildpunkt lesbarer Text" +
+        melde("BILD-LSB-VERDACHT", "In den untersten Bits (" + f.weg + ") steht ab dem ersten Bildpunkt lesbarer Text" +
           (f.kopf ? " mit einer Längenangabe davor" : "") + ", " + f.text.length + " Zeichen: „" + (f.text.length > 160 ? f.text.slice(0, 160) + " …" : f.text) +
           "“. Gemessen wurde, ob dort Text steht — nicht, wer ihn hineingeschrieben hat.");
         var PM = welt.PrueferMail;
@@ -831,6 +831,39 @@
       return aus(true);
     }, function () { return aus(false, nicht + "das Bild ließ sich nicht auspacken."); });
   }
+
+  /* ══ WAS JETZT TUN (Klaus 2026-10-01) ══════════════════════════════════
+     „… eine Handlungsoption bereitstellen, sodass jemand weiß, was er machen
+     soll, falls er in Panik gerät." Je Befundart ruhige Schritte, im
+     Indikativ, ohne Fachwort. EINE Quelle für beide Apps (Auslieferungs-
+     prüfer und Sende-Prüfer tragen diese Datei byte-1:1) — eine zweite
+     Fassung derselben Anleitung liefe auseinander. Gemeinsame Teile stehen
+     einmal und werden zusammengesetzt. */
+  var RUHE_LESEN = "Ruhig bleiben: Ansehen und Lesen schadet nicht. Gefährlich wird so ein Satz erst, wenn eine KI die Datei oder Mail verarbeitet.";
+  var RUHE_ABSENDER = "Kennen Sie den Absender, fragen Sie auf einem anderen Weg nach, zum Beispiel am Telefon. Kennen Sie ihn nicht: löschen.";
+  var RUHE_SCHON = "Haben Sie die Datei schon einer KI gegeben, sehen Sie nach, was die KI danach getan hat (gesendete Nachrichten, geteilte Dateien), und ändern Sie Passwörter, die darin standen.";
+  var RUHE_KI = [RUHE_LESEN,
+    "Die Datei oder Mail nicht an eine KI geben: keinen Assistenten zusammenfassen, übersetzen oder antworten lassen.",
+    RUHE_ABSENDER,
+    "Wird der Inhalt trotzdem gebraucht: die nötigen Stellen von Hand abschreiben, ohne den verdächtigen Satz.",
+    RUHE_SCHON];
+  var WAS_TUN = {
+    "KI-ANWEISUNG": RUHE_KI,
+    "PDF-KI-ANWEISUNG": RUHE_KI,
+    "BILD-KI-ANWEISUNG": RUHE_KI,
+    "BILD-LSB-VERDACHT": ["Ruhig bleiben: Ansehen schadet nicht. Versteckter Text in den Bildpunkten tut von allein nichts.",
+      "Das Bild nicht weitergeben und nicht an eine KI geben.",
+      RUHE_ABSENDER,
+      "Wird das Bild gebraucht: ein Bildschirmfoto davon weitergeben statt der Datei. Die versteckten Bits gehen dabei meist verloren; prüfen Sie das Bildschirmfoto hier noch einmal.",
+      RUHE_SCHON],
+    "PDF-VERSTECKTER-TEXT": ["Ruhig bleiben: der unsichtbare Text tut beim Lesen nichts.",
+      "Das PDF nicht an eine KI geben und seinen Text nicht kopieren und woanders einfügen: dabei kommt der unsichtbare Text mit.",
+      RUHE_ABSENDER, RUHE_SCHON],
+    "VERSTECKTER-TEXT": ["Ruhig bleiben: der versteckte Text tut beim Lesen nichts.",
+      "Die Mail nicht an eine KI geben und nicht weiterleiten.",
+      RUHE_ABSENDER, RUHE_SCHON]
+  };
+  function wasTun(kennung) { return (WAS_TUN[kennung] || []).slice(); }
 
   /* ══ DIE EINE TÜR
    * @returns Promise<{art, artName, befunde:[{kennung,satz}], text:string|null,
@@ -952,7 +985,7 @@
     BEFUNDE: BEFUNDE, gross: gross, GROESSE_MAX: GROESSE_MAX, pfade: pfade, SEITEN_TEXT_MAX: SEITEN_TEXT_MAX,
     OCR_SICHER: OCR_SICHER, OCR_SEITEN_MAX: OCR_SEITEN_MAX,
     kontrastStrecken: kontrastStrecken, neueZeilen: neueZeilen,
-    verdachtPruefen: verdachtPruefen, bildpunkteLesen: bildpunkteLesen, VERDACHT_MIN_LAUF: VERDACHT_MIN_LAUF, VERDACHT_MAX_PIXEL: VERDACHT_MAX_PIXEL,
+    wasTun: wasTun, verdachtPruefen: verdachtPruefen, bildpunkteLesen: bildpunkteLesen, VERDACHT_MIN_LAUF: VERDACHT_MIN_LAUF, VERDACHT_MAX_PIXEL: VERDACHT_MAX_PIXEL,
     vergleiche: vergleiche, GEGEN_SEITEN_MAX: GEGEN_SEITEN_MAX, GEGEN_MIN_VERSTECKT: GEGEN_MIN_VERSTECKT, versteckteWoerter: versteckteWoerter, wortKaesten: wortKaesten,
     /* nur für die Proben: die Frist kürzen, um das Hängen zu messen */
     ocrFrist: function (ms) { if (ms > 0) OCR_FRIST = ms; return OCR_FRIST; } };

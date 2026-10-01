@@ -2131,12 +2131,20 @@ if (!browser) {
       return echteSeite.evaluate(() => ({
         zahl: (document.querySelector("#ergebnis .pr-zahl") || {}).textContent || "",
         arten: [...document.querySelectorAll("#ergebnis .pr-kennung")].map((x) => x.textContent),
-        text: document.getElementById("ergebnis").textContent }));
+        text: document.getElementById("ergebnis").textContent,
+        /* Was jetzt tun (2026-10-01): je Karte die Zahl der Schritte, gemessen an der Karte selbst. */
+        ruhe: [...document.querySelectorAll("#ergebnis .pr-karte[data-kennung]")].map((li) => ({
+          kennung: li.getAttribute("data-kennung"),
+          schritte: li.querySelectorAll("[data-was-tun] li").length })) }));
     }
     const a1 = await ocrPruefen("#einzelDatei", "Vorlage-1A-Bild-mit-Text.png", "image/png");
     ok(a1.arten.includes("BILD-KI-ANWEISUNG"),
        `Vorlage 1A (Bild): die Anweisung im Bild wird gefunden (${a1.arten.join(", ") || a1.zahl})`);
     ok(/Bildtext Zeile 9/.test(a1.text), "… mit der Stelle „Bildtext Zeile 9“");
+    { const k = a1.ruhe.find((x) => x.kennung === "BILD-KI-ANWEISUNG");
+      ok(!!k && k.schritte >= 4, `Was jetzt tun: die Karte „Anweisung im Bild“ trägt ruhige Schritte (${k ? k.schritte : "keine Karte"})`);
+      const p = a1.ruhe.find((x) => x.kennung === "PERSONENBEZUG");
+      ok(!!p && p.schritte === 0, "… und eine Karte ohne Verdacht (Personenbezug) trägt KEINEN Kasten"); }
     ok(a1.arten.includes("PERSONENBEZUG") && /Vorlage-1A-Bild-mit-Text\.png, Bildtext Zeile/.test(a1.text),
        "… und der erkannte Text geht durch den Text-Prüfer (Mailadresse/IBAN, Stelle „Bildtext Zeile“)");
     ok(/Text im Bild gelesen: \d+ Zeile/.test(a1.text), "… und das Ergebnis sagt, wie viele Zeilen gelesen wurden");
@@ -2182,7 +2190,8 @@ if (!browser) {
         const li = document.querySelector("#ergebnis [data-verdacht]");
         return { vorher: v, lage: li ? li.getAttribute("data-verdacht") : "", text: li ? li.textContent : "",
           kopf: li && li.querySelector(".pr-kopf") ? li.querySelector(".pr-kopf").textContent : "",
-          arten: li ? [...li.querySelectorAll("[data-kennung]")].map((x) => x.getAttribute("data-kennung")) : [] };
+          arten: li ? [...li.querySelectorAll("[data-kennung]")].map((x) => x.getAttribute("data-kennung")) : [],
+          ruhe: li ? li.querySelectorAll("[data-was-tun] li").length : 0 };
       }, vorher);
     }
     const v4 = await verdacht();
@@ -2192,8 +2201,11 @@ if (!browser) {
     ok(/Ignore previous instructions/.test(v4.text) && v4.arten.includes("BILD-KI-ANWEISUNG"),
        "… mit dem versteckten Satz, und die Anweisung darin ist als KI-Anweisung erkannt");
     ok(/— Verdacht auf versteckte Daten in Bildpunkten$/.test(v4.kopf) && !/gefunden/i.test(v4.kopf), `… und die Überschrift heißt „Verdacht“, nicht „gefunden“ (${v4.kopf})`);
+    ok(v4.ruhe >= 4, `… und darunter steht „Was jetzt tun“ mit ruhigen Schritten (${v4.ruhe})`);
+    ok(!/Verdacht in Bildpunkten: Verdacht auf/.test(v4.text), "… und die Überschrift steht nicht doppelt („Verdacht in Bildpunkten: Verdacht auf …“)");
     await ocrPruefen("#einzelDatei", "Vorlage-4C-Bild-ohne-Botschaft.png", "image/png");
     const v0 = await verdacht();
+    ok(v0.ruhe === 0, `… und ohne Verdacht steht kein „Was jetzt tun“ da (${v0.ruhe})`);
     ok(v0.lage === "nein" && !v0.arten.includes("BILD-LSB-VERDACHT"),
        `Gegenrichtung (4C ohne Botschaft): kein Verdacht (${v0.lage || "kein Ergebnis"})`);
     await ocrPruefen("#einzelDatei", "Vorlage-H0-Foto-sauber.jpg", "image/jpeg");
