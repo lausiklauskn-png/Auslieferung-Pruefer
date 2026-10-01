@@ -2170,15 +2170,18 @@ if (!browser) {
        steht kein Ergebnis da; 4C mit → „Verdacht“ samt dem versteckten Satz;
        4C ohne → „kein Verdacht“; ein JPEG → „nicht geprüft“ mit Grund. */
     async function verdacht() {
-      const vorher = await echteSeite.evaluate(() => ({
-        knopf: !!document.querySelector("#ergebnis [data-verdacht-knopf]"),
-        ergebnis: document.querySelectorAll("#ergebnis [data-verdacht]").length }));
+      /* Der Tipp sperrt den Knopf sofort (disabled); ein Lauf ohne Tipp wäre daran
+         zu sehen, bevor sein Ergebnis da ist. Dazu eine Sekunde Frist (Sorte B). */
+      await echteSeite.waitForTimeout(1000);
+      const vorher = await echteSeite.evaluate(() => { const k = document.querySelector("#ergebnis [data-verdacht-knopf]");
+        return { knopf: !!k && !k.disabled, ergebnis: document.querySelectorAll("#ergebnis [data-verdacht]").length }; });
       if (!vorher.knopf) return { vorher, lage: "", text: "", arten: [] };
       await echteSeite.click("#ergebnis [data-verdacht-knopf]");
       await echteSeite.waitForFunction(() => !!document.querySelector("#ergebnis [data-verdacht]"), null, { timeout: 30000 }).catch(() => {});
       return echteSeite.evaluate((v) => {
         const li = document.querySelector("#ergebnis [data-verdacht]");
         return { vorher: v, lage: li ? li.getAttribute("data-verdacht") : "", text: li ? li.textContent : "",
+          kopf: li && li.querySelector(".pr-kopf") ? li.querySelector(".pr-kopf").textContent : "",
           arten: li ? [...li.querySelectorAll("[data-kennung]")].map((x) => x.getAttribute("data-kennung")) : [] };
       }, vorher);
     }
@@ -2188,7 +2191,7 @@ if (!browser) {
        `4C mit Botschaft: „Verdacht auf versteckte Daten in Bildpunkten“ (${v4.lage}, ${v4.arten.join(", ")})`);
     ok(/Ignore previous instructions/.test(v4.text) && v4.arten.includes("BILD-KI-ANWEISUNG"),
        "… mit dem versteckten Satz, und die Anweisung darin ist als KI-Anweisung erkannt");
-    ok(/Verdacht/.test(v4.text) && !/gefunden:/i.test(v4.text.split("Verdacht")[0]), "… und das Ergebnis heißt „Verdacht“");
+    ok(/— Verdacht auf versteckte Daten in Bildpunkten$/.test(v4.kopf) && !/gefunden/i.test(v4.kopf), `… und die Überschrift heißt „Verdacht“, nicht „gefunden“ (${v4.kopf})`);
     await ocrPruefen("#einzelDatei", "Vorlage-4C-Bild-ohne-Botschaft.png", "image/png");
     const v0 = await verdacht();
     ok(v0.lage === "nein" && !v0.arten.includes("BILD-LSB-VERDACHT"),
