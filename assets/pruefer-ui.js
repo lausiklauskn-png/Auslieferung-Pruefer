@@ -1333,6 +1333,7 @@
           r.hinweise.forEach(function (h) { li.appendChild(t("p", "feldhinweis", h)); });
           if (lage === "ja") { var ruhe = wasTunKasten("BILD-LSB-VERDACHT"); if (ruhe) li.appendChild(ruhe); }
           liste.appendChild(li);
+          if (lage === "ja") return markiertZeigen(li, x.name, x.bytes, r.befunde);
         }, function () {
           var li = t("li", "pr-treffer pr-karte", x.name + " — nicht geprüft: das Bild ließ sich nicht lesen.");
           li.setAttribute("data-verdacht", "ungeprueft");
@@ -1342,6 +1343,39 @@
       kette.then(function () { knopf.disabled = false; });
     });
     ergebnis.appendChild(box);
+  }
+  /* ══ DIE STELLE IM BILD (Klaus 2026-10-01) ══════════════════════════════
+     „… ein Vermerk gemacht werden an der Stelle, wo das Problem aufgetaucht
+     ist. Oder der Text kenntlich gemacht werden." Unter die Karte kommt eine
+     KOPIE des Bildes mit roter Umrandung, dazu „⬇ Markierte Kopie speichern"
+     (JPEG — die untersten Bits gehen dabei verloren, die Kopie trägt also
+     keine versteckte Botschaft weiter). Die Datei selbst bleibt unverändert. */
+  function markiertZeigen(ziel, name, bytes, befunde) {
+    var A = window.PrueferAnhang;
+    if (!A || !A.markieren || !ziel || !A.marken(befunde).length) return Promise.resolve(false);
+    return A.markieren(bytes, befunde).then(function (c) {
+      if (!c || !document.contains(ziel)) return false;
+      var box = t("figure", "pr-markiert");
+      box.setAttribute("data-markiert", String(c.__marken || 0));
+      var bild = document.createElement("img");
+      bild.alt = name + " — die Stelle ist rot markiert";
+      bild.src = c.toDataURL("image/jpeg", 0.88);
+      box.appendChild(bild);
+      box.appendChild(t("figcaption", "feldhinweis",
+        "Rot markiert: die Stelle im Bild, an der der Befund steht. Das ist eine Kopie zum Ansehen — die Datei selbst ist unverändert."));
+      var knopf = t("button", "btn", "⬇ Markierte Kopie speichern");
+      knopf.type = "button";
+      knopf.setAttribute("data-markiert-speichern", "");
+      knopf.addEventListener("click", function () {
+        var a = document.createElement("a");
+        a.href = bild.src;
+        a.download = name.replace(/\.[^.]+$/, "") + "-markiert.jpg";
+        document.body.appendChild(a); a.click(); a.remove();
+      });
+      box.appendChild(knopf);
+      ziel.appendChild(box);
+      return true;
+    }, function () { return false; });
   }
   function dateiPruefen(f, vorweg) {
     ergebnis.textContent = "";
@@ -1368,6 +1402,7 @@
                   "versteckte Botschaften sucht er nur auf den Knopf darunter. Steht darüber „Text im " +
                   "Bild ungeprüft“, wurde der Text im Bild NICHT gelesen."
       });
+      markiertZeigen(ergebnis, f.name, bytes, r.befunde);
       verdachtKnopf([{ name: f.name, bytes: bytes }]);
     }, function () {
       ergebnis.textContent = "";
@@ -1593,7 +1628,7 @@
     if (!A) return;
     var liste = A.ausMail(inhalt);
     if (!liste.length) return;
-    var mein = ++anhangLauf, stellen = [], hinweise = [], bildUngeprueft = false;
+    var mein = ++anhangLauf, stellen = [], hinweise = [], bildUngeprueft = false, markiert = [];
     Promise.all(liste.map(function (a) {
       if (a.zuGross) {
         hinweise.push("Anhang „" + a.name + "\" (" + A.gross(a.groesse) + ") ist zu groß und wurde NICHT geöffnet — ungeprüft, nicht sauber.");
@@ -1601,6 +1636,7 @@
       }
       return A.pruefe(a.name, a.bytes).then(function (x) {
         stellen = stellen.concat(anhangTreffer(a.name, x, "Anhang "));
+        markiert.push({ name: a.name, bytes: a.bytes, befunde: x.befunde });
         if (x.bildUngeprueft) bildUngeprueft = true;
         hinweise.push("Anhang „" + a.name + "\" geöffnet: " + x.artName + ", " + A.gross(a.groesse) + ".");
       }, function () {
@@ -1619,6 +1655,7 @@
       }).concat(hinweise);
       var alle = r.stellen.concat(stellen);
       zeige(alle, r.text, o);
+      markiert.forEach(function (m) { markiertZeigen(ergebnis, m.name, m.bytes, m.befunde); });
       verdachtKnopf(liste.filter(function (a) { return !a.zuGross; }));
       if (danach) danach({ stellen: alle, text: r.text, hinweise: o.hinweise, anhaenge: true });
     });

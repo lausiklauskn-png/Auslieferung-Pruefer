@@ -41,6 +41,16 @@ const p = (n, x) => A.pruefe(n, x);
   const kopie = A.wasTun("KI-ANWEISUNG"); kopie.push("x");
   ok("… und wasTun() gibt eine Kopie heraus", A.wasTun("KI-ANWEISUNG").length === kopie.length - 1); }
 
+/* Markierung im Bild (Klaus 2026-10-01): nur Befunde mit Kasten und nur die
+   zwei Arten, die an einer Stelle im Bild stehen; dieselbe Stelle nur einmal.
+   Ohne Browser gibt markieren() null — es gibt nichts zu zeichnen. */
+{ const box = { x: 0.1, y: 0.5, w: 0.6, h: 0.04 };
+  const m = A.marken([{ kennung: "BILD-KI-ANWEISUNG", satz: "a", box }, { kennung: "BILD-LSB-VERDACHT", satz: "b", box },
+    { kennung: "PERSONENBEZUG", satz: "c", box }, { kennung: "BILD-KI-ANWEISUNG", satz: "d" }]);
+  ok("Markierung: nur Befunde mit Kasten, nur Anweisung/Verdacht, dieselbe Stelle einmal", m.length === 1 && m[0].kennung === "BILD-KI-ANWEISUNG", JSON.stringify(m));
+  ok("… und ohne Befund mit Kasten gibt es nichts zu markieren", A.marken([{ kennung: "PERSONENBEZUG", satz: "c", box }]).length === 0);
+  ok("… ohne Browser gibt markieren() null", (await A.markieren(M.png({}), [{ kennung: "BILD-KI-ANWEISUNG", satz: "a", box }])) === null); }
+
 let r = await p("foto.png", M.png({ text: "Author\0Eva", hinten: "GEHEIM ".repeat(20) }));
 ok("PNG: Daten hinter dem Bildende werden gemeldet (BILD-ANHAENGSEL)", kennungen(r).includes("BILD-ANHAENGSEL"), JSON.stringify(r.befunde));
 ok("PNG: ein Text-Feld in den Metadaten wird gemeldet (BILD-METADATEN)", kennungen(r).includes("BILD-METADATEN"));
