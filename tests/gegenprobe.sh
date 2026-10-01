@@ -78,7 +78,7 @@ nur_pruefer() {                 # nur_pruefer <Datei ...> — 0, wenn alle zum P
   local d
   for d in "$@"; do
     case "$d" in
-      auslieferungspruefer.html|start.html|index.html|assets/start.css|assets/sprache.js|assets/pruefer*|assets/i18n-pruefer.js|assets/config/pruefer-netz.js|werkzeuge/*|vendor/pdfjs/*) ;;
+      auslieferungspruefer.html|start.html|index.html|assets/start.css|assets/sprache.js|assets/pruefer*|assets/i18n-pruefer.js|assets/config/pruefer-netz.js|werkzeuge/*|vendor/pdfjs/*|testvorlagen/index.html) ;;
       *) return 1 ;;
     esac
     [ -f "$d" ] || return 1
@@ -4079,6 +4079,20 @@ probe "TESTDATEI: das Ergebnis sagt nicht mehr, dass es eine Test-Datei ist" \
 probe "TESTDATEI: der Bild-Knopf zeigt auf eine Datei, die es nicht gibt" \
       auslieferungspruefer.html \
       's|data-test-datei="beispiele/Testbild-versteckte-Anweisung.png"|data-test-datei="beispiele/fehlt.png"|'
+
+# ══ TESTLINK: „Im Prüfer prüfen" auf testvorlagen/ (Klaus 2026-10-01) ══
+probe "TESTLINK: ?test= nimmt auch Pfade mit ../" \
+      assets/pruefer-ui.js \
+      's#/^Vorlage-\[A-Za-z0-9-\]+\\.(pdf#/^[A-Za-z0-9./-]+\\.(js|pdf#'
+probe "TESTLINK: an der Text-Vorlage fehlt der Link" \
+      testvorlagen/index.html \
+      's|<a class="pruef" href="../auslieferungspruefer.html?test=Vorlage-H1-Text-mit-Angaben.txt"|<a class="x" href="#"|'
+probe "TESTLINK: die Mail geht in den Datei-Eingang" \
+      assets/pruefer-ui.js \
+      's|testTreffer\[1\] === "eml")|testTreffer[1] === "nie")|'
+probe "TESTLINK: ?test= wird gar nicht gelesen" \
+      assets/pruefer-ui.js \
+      's|get("test");|get("test-aus");|'
 
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"

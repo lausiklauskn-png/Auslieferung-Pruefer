@@ -2294,6 +2294,36 @@ if (!browser) {
       ok(tp.arten.includes("PDF-VERSTECKTER-TEXT") && /mitgelieferte Test-Datei/.test(tp.text),
          `🧪 „PDF mit unsichtbarem Text“ → unsichtbarer Text im PDF (${tp.arten.join(", ")})`);
     }
+    /* ══ 🧪 TESTVORLAGE PER LINK (Klaus 2026-10-01): auf testvorlagen/ steht an jeder
+       Vorlage „Im Prüfer prüfen". Gemessen wird beides: der Link steht an JEDER Vorlage,
+       und ?test= lädt sie in den Prüfer — eine fremde Angabe lädt nichts. */
+    {
+      const vs = fs.readFileSync(path.join(WURZEL, "testvorlagen/index.html"), "utf8");
+      const lade = [...vs.matchAll(/<a class="lade" href="([^"]+)"/g)].map((m) => m[1]);
+      const pruef = [...vs.matchAll(/href="\.\.\/auslieferungspruefer\.html\?test=([^"]+)"/g)].map((m) => m[1]);
+      ok(lade.length > 10 && lade.every((f) => pruef.includes(f)),
+         `🧪 Jede Testvorlage hat „Im Prüfer prüfen" (${pruef.length} von ${lade.length})`);
+      async function perLink(name, frist) {
+        const s2 = await browser.newPage();
+        await s2.goto("http://127.0.0.1:8213/auslieferungspruefer.html?test=" + encodeURIComponent(name));
+        await s2.waitForFunction(() => !!document.querySelector("#ergebnis .pr-kennung"), null, { timeout: frist || 150000 }).catch(() => {});
+        await s2.waitForTimeout(frist ? 3000 : 300);
+        const r = await s2.evaluate(() => ({ arten: [...document.querySelectorAll("#ergebnis .pr-kennung")].map((x) => x.textContent),
+          text: document.getElementById("ergebnis").textContent,
+          datei: !document.getElementById("feld-datei").hidden, mail: !document.getElementById("feld-mail").hidden }));
+        await s2.close();
+        return r;
+      }
+      const l1 = await perLink("Vorlage-H1-Text-mit-Angaben.txt");
+      ok(l1.datei && l1.arten.length > 0 && /mitgelieferte Test-Datei/.test(l1.text),
+         `🧪 ?test=Vorlage-H1 → im Eingang „Foto · Datei prüfen" geprüft, als Test benannt (${l1.arten.join(", ")})`);
+      const l2 = await perLink("Vorlage-Alle-als-Mail.eml");
+      ok(l2.mail && l2.arten.length > 0 && /mitgelieferte Test-Datei/.test(l2.text),
+         `🧪 ?test=Vorlage-Alle-als-Mail.eml → im Mail-Eingang geprüft (${l2.arten.length} Befundarten)`);
+      const l3 = await perLink("../sw.js", 4000);
+      ok(!/Test-Datei/.test(l3.text) && l3.arten.length === 0,
+         "🧪 ?test=../sw.js lädt nichts — nur Vorlagen-Namen aus testvorlagen/");
+    }
     /* ein sauberes PDF: gedruckter Text, alles sichtbar */
     {
       const vmE = await import("node:vm");

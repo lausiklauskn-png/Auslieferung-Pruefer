@@ -1294,24 +1294,28 @@
      holt die Datei aus diesem Depot und prüft sie wie eine eigene; der erste Hinweis sagt,
      dass ein Befund hier das Soll ist. Kommt die Datei nicht (offline beim ersten Mal),
      steht das da — nie ein leeres Ergebnis. */
+  var TEST_HINWEIS = "🧪 Das ist eine mitgelieferte Test-Datei — mit Absicht präpariert, alles darin ist erfunden. " +
+           "Ein Befund ist hier das Soll: so sieht es aus, wenn der Prüfer etwas findet.";
+  function testDateiLaden(pfad, typ) {
+    var name = pfad.split("/").pop();
+    zeigeEingang("datei");
+    ergebnis.textContent = "";
+    ergebnis.appendChild(t("p", "feldhinweis", "Die Test-Datei wird geholt …"));
+    fetch(pfad).then(function (a) {
+      if (!a.ok) throw new Error("HTTP " + a.status);
+      return a.blob();
+    }).then(function (b) {
+        dateiPruefen(new File([b], name, { type: typ || b.type }),
+          [TEST_HINWEIS]);
+    }).catch(function (e) {
+      ergebnis.textContent = "";
+      ergebnis.appendChild(t("p", "feldhinweis", "Die Test-Datei ließ sich nicht laden (" +
+        (e && e.message || e) + ") — beim ersten Mal braucht es Internet."));
+    });
+  }
   Array.prototype.forEach.call(document.querySelectorAll("[data-test-datei]"), function (k) {
     k.addEventListener("click", function () {
-      var pfad = k.getAttribute("data-test-datei"), name = pfad.split("/").pop();
-      zeigeEingang("datei");
-      ergebnis.textContent = "";
-      ergebnis.appendChild(t("p", "feldhinweis", "Die Test-Datei wird geholt …"));
-      fetch(pfad).then(function (a) {
-        if (!a.ok) throw new Error("HTTP " + a.status);
-        return a.blob();
-      }).then(function (b) {
-        dateiPruefen(new File([b], name, { type: k.getAttribute("data-test-typ") || b.type }),
-          ["🧪 Das ist eine mitgelieferte Test-Datei — mit Absicht präpariert, alles darin ist erfunden. " +
-           "Ein Befund ist hier das Soll: so sieht es aus, wenn der Prüfer etwas findet."]);
-      }).catch(function (e) {
-        ergebnis.textContent = "";
-        ergebnis.appendChild(t("p", "feldhinweis", "Die Test-Datei ließ sich nicht laden (" +
-          (e && e.message || e) + ") — beim ersten Mal braucht es Internet."));
-      });
+      testDateiLaden(k.getAttribute("data-test-datei"), k.getAttribute("data-test-typ"));
     });
   });
   /* ══ VERDACHT IN BILDPUNKTEN — Stufe 2 C (2026-10-01) ════════════════════
@@ -1798,6 +1802,49 @@
     ergebnis.insertBefore(p, ergebnis.firstChild);
     });
   });
+
+  /* ══ 🧪 TESTVORLAGE PER LINK (Klaus 2026-10-01) ═══════════════════════════
+   * „draufdrücken und dann werden sie in dem Auslieferungsprüfer als Test
+   * geladen und nicht herunterkopiert." Die Seite testvorlagen/ verlinkt jede
+   * Vorlage als `auslieferungspruefer.html?test=<Dateiname>`.
+   *
+   * ⚠ NUR EIN DATEINAME AUS testvorlagen/, und nur eine bekannte Endung. Kein
+   * Pfad, kein Schrägstrich, keine fremde Adresse — sonst holte eine fremde
+   * Adresszeile eine beliebige Datei dieses Depots und nennte sie „Test".
+   * Eine .eml geht in den Mail-Eingang, alles andere in „Foto · Datei prüfen". */
+  var TEST_TYP = { pdf: "application/pdf", png: "image/png", jpg: "image/jpeg", txt: "text/plain",
+                   svg: "image/svg+xml", eml: "message/rfc822",
+                   docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" };
+  try {
+    var testName = new URLSearchParams(location.search).get("test");
+    var testTreffer = testName && /^Vorlage-[A-Za-z0-9-]+\.(pdf|png|jpg|txt|svg|docx|eml)$/.exec(testName);
+    if (testTreffer && testTreffer[1] === "eml") {
+      zeigeEingang("mail");
+      ergebnis.textContent = "";
+      ergebnis.appendChild(t("p", "feldhinweis", "Die Test-Mail wird geholt …"));
+      fetch("testvorlagen/" + testName).then(function (a) {
+        if (!a.ok) throw new Error("HTTP " + a.status);
+        return a.text();
+      }).then(function (x) {
+        if (!mailQuelle) return;
+        mailQuelle.value = x;
+        /* Der Hinweis kommt NACH jedem Zeichnen: die Anhänge zeichnen das
+           Ergebnis später neu und nähmen einen früh gesetzten Hinweis mit. */
+        pruefeMailJetzt(function () {
+          if (ergebnis.querySelector("[data-testvorlage]")) return;
+          var p = t("p", "feldhinweis", TEST_HINWEIS);
+          p.setAttribute("data-testvorlage", testName);
+          ergebnis.insertBefore(p, ergebnis.firstChild);
+        });
+      }).catch(function (e) {
+        ergebnis.textContent = "";
+        ergebnis.appendChild(t("p", "feldhinweis", "Die Test-Mail ließ sich nicht laden (" +
+          (e && e.message || e) + ") — beim ersten Mal braucht es Internet."));
+      });
+    } else if (testTreffer) {
+      testDateiLaden("testvorlagen/" + testName, TEST_TYP[testTreffer[1]]);
+    }
+  } catch (_e) { /* eine unbrauchbare Angabe wird übergangen */ }
 
   /* ══ DER EIGENE WIRT STEHT VON ANFANG AN DRIN (2026-08-23) ════════════════
    * Klaus hat den Bericht seiner eigenen Startseite geschickt, und darin stand
