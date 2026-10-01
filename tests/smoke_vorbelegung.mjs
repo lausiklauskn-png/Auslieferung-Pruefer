@@ -28,9 +28,9 @@ const ok = (bed, satz, info) => {
 
 let chromium;
 try { ({ chromium } = await import("playwright-core")); }
-catch { console.log("⊘ nicht lauffähig: playwright-core fehlt"); process.exit(0); }
+catch { console.log("⊘ nicht lauffähig: playwright-core fehlt"); process.exit(2); }
 const exe = findeChromium();
-if (!exe) { console.log("⊘ nicht lauffähig: kein Chromium"); process.exit(0); }
+if (!exe) { console.log("⊘ nicht lauffähig: kein Chromium"); process.exit(2); }
 
 const TYP = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css",
   ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png" };

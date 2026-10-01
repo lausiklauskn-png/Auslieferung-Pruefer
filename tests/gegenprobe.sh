@@ -78,7 +78,7 @@ nur_pruefer() {                 # nur_pruefer <Datei ...> — 0, wenn alle zum P
   local d
   for d in "$@"; do
     case "$d" in
-      auslieferungspruefer.html|start.html|index.html|assets/start.css|assets/sprache.js|assets/pruefer*|assets/i18n-pruefer.js|assets/config/pruefer-netz.js|werkzeuge/*|vendor/pdfjs/*|testvorlagen/index.html) ;;
+      auslieferungspruefer.html|start.html|index.html|assets/start.css|assets/sprache.js|assets/pruefer*|assets/i18n-pruefer.js|assets/config/pruefer-netz.js|werkzeuge/*|vendor/pdfjs/*|testvorlagen/index.html|tests/smoke_*.mjs|tests/alle.mjs) ;;
       *) return 1 ;;
     esac
     [ -f "$d" ] || return 1
@@ -4093,6 +4093,55 @@ probe "TESTLINK: die Mail geht in den Datei-Eingang" \
 probe "TESTLINK: ?test= wird gar nicht gelesen" \
       assets/pruefer-ui.js \
       's|get("test");|get("test-aus");|'
+
+# ══ ChatGPT-Prüfbericht 2026-10-01, Punkte 4–8 ══
+# ⚠ Die LAUF-Fälle sabotieren die PROBEN selbst (tests/*.mjs) — gemessen wird
+#   das von smoke_knoten, das sie ohne Browser startet und Rückgabe 2 verlangt.
+probe "KITEXT: die KI-Anweisung in Dateien wird nicht mehr übernommen" \
+      assets/pruefer-anhang.js \
+      's|DATEI_KI_ARTEN = \["KI-ANWEISUNG", |DATEI_KI_ARTEN = ["NIE", |'
+probe "KITEXT: ohne KI-Liste heißt der Dateitext nicht mehr ungeprüft" \
+      assets/pruefer-anhang.js \
+      's|stand.bildUngeprueft = true; stand.textUngeprueft = true;|stand.textUngeprueft = false;|'
+probe "KITEXT: die Zeile ist um eins verschoben (der vorgesetzte Umbruch wird nicht abgezogen)" \
+      assets/pruefer-anhang.js \
+      's|Math.max(1, st.zeile - 1)|st.zeile|'
+probe "KITEXT: an der Vorlage H6 fehlt der Link „Im Prüfer prüfen“" \
+      testvorlagen/index.html \
+      's|?test=Vorlage-H6-Text-mit-KI-Anweisung.txt|?test=Vorlage-H6-fehlt.txt|'
+probe "VERDBER: der Verdacht kommt nicht in den Bericht" \
+      assets/pruefer-ui.js \
+      's|^        letzterBericht = alt + |        var nieImBericht = alt + |'
+probe "VERDBER: ein zweiter Lauf stapelt den Block im Bericht" \
+      assets/pruefer-ui.js \
+      's|var alt = letzterBericht.split("\\n\\n" + MARKE)\[0\];|var alt = letzterBericht;|'
+probe "UNGEPR: eine unbekannte Binärdatei heißt wieder sauber" \
+      assets/pruefer-anhang.js \
+      's|ungeprueft(stand, "Dateiart nicht erkannt — ungeprüft");|void 0;|'
+probe "UNGEPR: verworfene Bildzeilen machen das Bild nicht mehr ungeprüft" \
+      assets/pruefer-anhang.js \
+      's|ungeprueft(stand, "Text im Bild teilweise ungeprüft");|void 0;|'
+probe "UNGEPR: ein unlesbares PDF heißt oben nicht mehr ungeprüft" \
+      assets/pruefer-anhang.js \
+      's|ungeprueft(stand, "Seitentext des PDFs ungeprüft");|void 0;|'
+probe "UNGEPR: ohne PDF-Prüfer heißt ein PDF nicht mehr ungeprüft" \
+      assets/pruefer-anhang.js \
+      's|ungeprueft(stand, "PDF ungeprüft"); }|}|'
+probe "UNGEPR: die Seite zeigt den Grund des Prüfers nicht mehr" \
+      assets/pruefer-ui.js \
+      's|ungeprueftSatz: r.ungeprueftSatz [|][|] (r.art|ungeprueftSatz: (r.art|'
+probe "UNSICHTBILD: unsichtbare Zeichen im Bildtext fallen wieder durch" \
+      assets/pruefer-anhang.js \
+      's|, "UNSICHTBARE-ZEICHEN": "UNSICHTBARE-ZEICHEN" };| };|'
+probe "LAUF: smoke_start endet ohne Browser wieder grün" \
+      tests/smoke_start.mjs \
+      's|server.close(); process.exit(2); }|server.close(); process.exit(0); }|'
+probe "LAUF: smoke_pruefer endet ohne Browser wieder grün" \
+      tests/smoke_pruefer.mjs \
+      's|rot ? 1 : ohneBrowser ? 2 : 0|rot ? 1 : 0|'
+probe "LAUF: alle.mjs zählt „nicht lauffähig“ als grün" \
+      tests/alle.mjs \
+      's|process.exitCode = fehl ? 1 : stumm ? 2 : 0;|process.exitCode = fehl ? 1 : 0;|'
 
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
