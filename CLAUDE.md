@@ -550,3 +550,27 @@ Neben jedem ⬇ auf `testvorlagen/index.html` steht `a.pruef` → `../auslieferu
 andere über `testDateiLaden` in „Foto · Datei prüfen". Der Test-Hinweis (`TEST_HINWEIS`, `[data-testvorlage]`)
 steht bei der Mail erst NACH dem Zeichnen der Anhänge (Rückruf von `pruefeMailJetzt`), sonst nimmt das
 Neuzeichnen ihn mit. Probe in `smoke_pruefer` · Gegenprobe `NUR_FALL="TESTLINK:"` (4 Fälle). Cache v25, `?v=98`.
+
+## 🧾 Punkte 4–8 aus dem ChatGPT-Prüfbericht (2026-10-01)
+
+Brief: `docs/BRIEF_2026-10-01_chatgpt-punkte-4-8.md`.
+
+| | was jetzt gilt |
+|---|---|
+| **4 · KI-Anweisungen in Dateien** | `dateitextPruefen` schickt den Text von TXT, SVG, HTML, Word/Excel/PowerPoint, ODT und ZIP durch dieselbe Liste wie den Mail-Eingang (`DATEI_KI_ARTEN`). Befund `KI-ANWEISUNG` mit Zeile. Vorlage **H6** (`testvorlagen/Vorlage-H6-Text-mit-KI-Anweisung.txt`, „Im Prüfer prüfen") meldet Zeile 5; **H1 bleibt ohne KI-Befund** (Gegenrichtung). H6 steht nicht in der Sammel-Mail |
+| **5 · Verdacht im Bericht** | „Bildpunkte auf Verdacht prüfen" hängt seinen Block `── Bildpunkte auf Verdacht geprüft ──` an `letzterBericht`. Kopieren und Speichern tragen ihn. Ein zweiter Tipp ersetzt den Block, er steht nie doppelt |
+| **6 · „ungeprüft" ehrlich** | verworfene OCR-Zeile → „Text im Bild teilweise ungeprüft" · pdf.js-Fehler → „Seitentext des PDFs ungeprüft" · ohne `PrueferFormate` → „PDF ungeprüft" · unbekannte Binärdatei → „Dateiart nicht erkannt — ungeprüft". Ein lesbares PDF heißt nicht „ungeprüft" (Gegenrichtung) |
+| **7 · unsichtbare Zeichen** | `UNSICHTBARE-ZEICHEN` auch im Bildtext und im Seitentext eines PDFs |
+| **8 · ohne Browser rot statt grün** | `smoke_pruefer` (über `tests/chromium-finden.mjs`), `smoke_vorbelegung`, `smoke_start` und `alle.mjs` enden ohne Browser mit **2**. `smoke_knoten` misst das (Block LAUF, mit `PLAYWRIGHT_BROWSERS_PATH=/gibt-es-nicht`) |
+
+⚠ **BENANNTE GRENZE, nicht als Versprechen** (pr_68 in der Anleitung, DE/EN): gesucht wird
+nach festen Wendungen. Eine umformulierte Anweisung fällt durch, ein Fachartikel, der solche
+Sätze zitiert, wird gemeldet.
+
+**Nicht übernommen** (Brief): erweiterter LSB-Leser, Server, eigenes Ergebnisformat mit
+Prüfsumme, Texterkennung im Installations-Vorrat.
+
+Gemessen (2026-10-01): `node tests/alle.mjs` Rückgabe 0 — smoke_knoten 160 · smoke_anhang 134 ·
+smoke_pruefer 357 · smoke_vorbelegung 9 · smoke_start 21, alle 0 ROT. Gegenprobe in einer Kopie:
+siehe unten. Cache v26, `?v=99`. `pruefer-anhang.js` byte-1:1 in den Sende-Prüfer.
+⚠ Nicht gemessen: echte Word-Dateien von Klaus, das Tablet.
