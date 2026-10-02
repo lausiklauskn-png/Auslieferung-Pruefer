@@ -2753,6 +2753,35 @@ if (!browser) {
      `… und er wechselt mit der Sprache (${zweckEn.slice(0, 46)}…)`);
   await seite.evaluate(() => window.PTSprache.anwenden("de"));
 
+  /* ══ DRITTE SPRACHE: RUSSISCH (Klaus 2026-10-02) ═══════════════════════
+   * Gemessen wird der Schirm, nicht das Wörterbuch: jedes Element mit
+   * data-i18n muss nach dem Umschalten kyrillisch dastehen, und der Knopf
+   * geht reihum DE → EN → RU → DE und schreibt den EIGENEN Schlüssel. */
+  await seite.evaluate(() => window.PTSprache.anwenden("ru"));
+  const ru = await seite.evaluate(() => {
+    const ohne = [...document.querySelectorAll("[data-i18n],[data-i18n-html]")]
+      .filter((e) => e.checkVisibility() && e.textContent.trim() && !/[А-Яа-яЁё]/.test(e.textContent))
+      .map((e) => e.getAttribute("data-i18n") || e.getAttribute("data-i18n-html"));
+    return { lang: document.documentElement.lang, zweck: document.querySelector(".pr-zweck").innerText,
+             kurz: (document.querySelector("[data-sprach-kurz]") || {}).textContent, ohne };
+  });
+  ok(ru.lang === "ru" && /[А-Яа-я]/.test(ru.zweck), `Russisch: der Zweck-Satz steht kyrillisch da (${ru.zweck.slice(0, 40)}…)`);
+  ok(ru.kurz === "RU", `… und der Sprachknopf zeigt RU (${ru.kurz})`);
+  ok(ru.ohne.length === 0, `… und kein übersetzter Text bleibt deutsch oder englisch stehen (${ru.ohne.slice(0, 5).join(", ")})`);
+  await seite.evaluate(() => window.PTSprache.anwenden("de"));
+  const reihum = await seite.evaluate(() => {
+    try { localStorage.removeItem("toolpoint_lang"); } catch (e) {}
+    const k = document.querySelector("[data-sprach-kurz]").closest("button");
+    const folge = [];
+    for (let i = 0; i < 3; i++) { k.click(); folge.push(document.documentElement.lang); }
+    return { folge: folge.join(">"), gespeichert: localStorage.getItem("auslieferungspruefer_lang"),
+             wahl: localStorage.getItem("auslieferungspruefer_lang_wahl"), alt: localStorage.getItem("toolpoint_lang") };
+  });
+  ok(reihum.folge === "en>ru>de", `der Sprachknopf geht reihum DE → EN → RU → DE (${reihum.folge})`);
+  ok(reihum.gespeichert === "de" && reihum.wahl === "1" && reihum.alt === null,
+     `… und merkt es unter auslieferungspruefer_lang, nie unter toolpoint_lang (${reihum.gespeichert}/${reihum.wahl}/${reihum.alt})`);
+  await seite.evaluate(() => { try { localStorage.removeItem("auslieferungspruefer_lang_wahl"); localStorage.removeItem("auslieferungspruefer_lang"); } catch (e) {} });
+
   /* ══ INSTALLIEREN-KNOPF (Klaus 2026-09-30) ═════════════════════════════
    * Im Sende-Prüfer hat der Knopf am Tablet getragen; hier ging es ohne ihn
    * nicht. Gemessen: er steht in der Kopfleiste, er erklärt den Weg, wenn der
@@ -2797,6 +2826,10 @@ if (!browser) {
         !/Installieren/.test(document.getElementById("installieren").textContent), null, { timeout: 2000 }).catch(() => {});
       const en = await inst.$eval("#installieren", (e) => e.textContent);
       ok(/Install/.test(en) && !/Installieren/.test(en), `… und er spricht Englisch mit (${en.trim()})`);
+      await inst.evaluate(() => { document.documentElement.lang = "ru"; });
+      await inst.waitForFunction(() => /Установить/.test(document.getElementById("installieren").textContent), null, { timeout: 2000 }).catch(() => {});
+      const ruK = await inst.$eval("#installieren", (e) => e.textContent);
+      ok(/Установить/.test(ruK), `… und Russisch (${ruK.trim()})`);
     }
     await inst.close();
   }

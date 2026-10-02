@@ -281,8 +281,15 @@ for (const [name, buch] of Object.entries(BUCH)) {
   new Function('window', lies(buch))(welt);
   const d = welt.PT_SEITE_I18N || {};
   const alsText = new Set([...seite.matchAll(/data-i18n(?:-ph|-titel)?="([^"]+)"/g)].map((m) => m[1]));
-  ok(`${name}: das Wörterbuch trägt DE und EN, und die Seite benutzt Schlüssel (${alsText.size})`,
-     !!d.de && !!d.en && alsText.size > 0);
+  ok(`${name}: das Wörterbuch trägt DE, EN und RU, und die Seite benutzt Schlüssel (${alsText.size})`,
+     !!d.de && !!d.en && !!d.ru && alsText.size > 0);
+  /* Drei Sprachen (Klaus 2026-10-02): ein Schlüssel, der in einer Sprache
+     fehlt, fällt dort still auf Deutsch zurück — eine halb übersetzte Seite. */
+  const fehltIn = [];
+  for (const lang of ['en', 'ru']) for (const k of Object.keys(d.de || {}))
+    if (typeof (d[lang] || {})[k] !== 'string' || !d[lang][k].trim()) fehltIn.push(`${lang}:${k}`);
+  ok(`${name}: jeder deutsche Schlüssel steht auch auf Englisch und Russisch`,
+     !!d.de && Object.keys(d.de).length > 0 && fehltIn.length === 0, fehltIn.slice(0, 6).join(', '));
   const mitEntitaet = [];
   const fehlen = [];
   for (const lang of Object.keys(d)) {
@@ -335,6 +342,8 @@ console.log('\n── Was ohne JavaScript dasteht ──');
      !!grenzKey && /[Kk]eine Virenprüfung/.test(flach(d.de && d.de[grenzKey])));
   ok('… und auf Englisch',
      !!grenzKey && /not a virus scan/i.test(flach(d.en && d.en[grenzKey])));
+  ok('… und auf Russisch',
+     !!grenzKey && /не антивирус/i.test(flach(d.ru && d.ru[grenzKey])));
 }
 
 /* ══ EIGENSTÄNDIG: pdf.js liegt im eigenen Ordner (Klaus 2026-09-30) ═════════
@@ -417,9 +426,38 @@ console.log('\n── Was ohne JavaScript dasteht ──');
      links.filter((n) => !da('testvorlagen/' + n)).join(', '));
   const i18n = lies('assets/i18n-pruefer.js');
   const keys = [...block.matchAll(/data-i18n(?:-html)?="(pr_\d+)"/g)].map((m) => m[1]);
-  ok('TESTLISTE: jede Beschriftung steht im Wörterbuch, deutsch UND englisch',
-     keys.length >= 17 && keys.every((k) => (i18n.match(new RegExp('"' + k + '":', 'g')) || []).length === 2),
-     keys.filter((k) => (i18n.match(new RegExp('"' + k + '":', 'g')) || []).length !== 2).join(', '));
+  ok('TESTLISTE: jede Beschriftung steht im Wörterbuch, deutsch, englisch UND russisch',
+     keys.length >= 17 && keys.every((k) => (i18n.match(new RegExp('"' + k + '":', 'g')) || []).length === 3),
+     keys.filter((k) => (i18n.match(new RegExp('"' + k + '":', 'g')) || []).length !== 3).join(', '));
+}
+
+// ── SPRACHE: drei Sprachen, ein eigener Schlüssel (Klaus 2026-10-02) ──
+// „Sprachwahl je App getrennt": auf github.io teilen sich alle Apps den
+// localStorage. Mit toolpoint_lang wählte, wer im Prüfer Englisch nahm, es
+// zugleich für den Marktplatz. Gesucht wird in JEDER ausgelieferten Datei —
+// gefunden, nicht gepflegt. Alte Werte werden mit Absicht NICHT übernommen.
+{
+  const ausgeliefert = [
+    ...readdirSync(ROOT).filter((n) => n.endsWith('.html')),
+    ...readdirSync(new URL("assets/", ROOT)).filter((n) => n.endsWith('.js')).map((n) => 'assets/' + n),
+    'sw.js', 'manifest.json',
+  ];
+  const alt = ausgeliefert.filter((n) => lies(n).includes('toolpoint_lang'));
+  ok(`SPRACHE: keine ausgelieferte Datei liest oder schreibt noch toolpoint_lang (${ausgeliefert.length} geprüft)`,
+     ausgeliefert.length > 10 && alt.length === 0, alt.join(', '));
+  const sp = lies('assets/sprache.js');
+  ok('SPRACHE: die Sprachschicht nimmt den eigenen Schlüssel',
+     /LS_SPRACHE\s*=\s*"auslieferungspruefer_lang"/.test(sp) && /LS_WAHL\s*=\s*"auslieferungspruefer_lang_wahl"/.test(sp));
+  ok('SPRACHE: sie kennt genau DE, EN und RU',
+     /SPRACHEN\s*=\s*\["de",\s*"en",\s*"ru"\]/.test(sp));
+  const ohneRiegelRu = ['auslieferungspruefer.html', 'impressum.html', 'datenschutz.html', 'start.html']
+    .filter((n) => { const t = lies(n); return !(t.includes('auslieferungspruefer_lang') && /==="ru"/.test(t)); });
+  ok('SPRACHE: jede Seite setzt Russisch schon im <head>, vor dem ersten Anstrich',
+     ohneRiegelRu.length === 0, ohneRiegelRu.join(', '));
+  const st = lies('start.html');
+  const zahl = (re) => (st.match(re) || []).length;
+  ok(`SPRACHE: die Startseite trägt einen russischen Block mit denselben Funden (${zahl(/<details/g)} details)`,
+     /<div data-l="ru">/.test(st) && /id="tun-ru"/.test(st) && zahl(/<details/g) % 3 === 0 && zahl(/<details/g) >= 18);
 }
 
 // ── LAUF: fehlt der Browser, ist eine Probe NICHT grün (Punkt 8, 2026-10-01) ──

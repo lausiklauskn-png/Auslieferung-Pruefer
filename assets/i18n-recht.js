@@ -22,5 +22,10 @@ window.PT_SEITE_I18N = {
     "recht_h1_impressum": "Imprint",
     "recht_h1_datenschutz": "Privacy",
     "recht_nur_deutsch": "Legal text, German only. This page is deliberately not translated: a translation would look binding without being it — the German version is the binding one. To let your browser translate it anyway, press and hold the language button (🌐) for about a second; that releases the lock this site sets on the translator."
+  },
+  "ru": {
+    "recht_h1_impressum": "Выходные данные",
+    "recht_h1_datenschutz": "Конфиденциальность",
+    "recht_nur_deutsch": "Юридический текст только на немецком. Эта страница намеренно не переводится: перевод выглядел бы обязывающим, не будучи таковым, — обязательна немецкая версия. Чтобы браузер всё же перевёл её, нажмите и удерживайте кнопку языка (🌐) около секунды; это снимает блокировку переводчика, которую ставит сайт."
   }
 };
