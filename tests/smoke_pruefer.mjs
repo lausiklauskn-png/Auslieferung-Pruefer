@@ -2800,6 +2800,26 @@ if (!browser) {
     }
     await inst.close();
   }
+  /* Als installierte App: kein „✓ App“ und keine Meldung „nichts mehr zu tun“
+     (Klaus 2026-10-02: „diesen Button und diese Anmerkung bitte wegnehmen“). */
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1300, height: 800 } });
+    await ctx.addInitScript(() => { const echt = window.matchMedia.bind(window);
+      window.matchMedia = (q) => /display-mode:\s*standalone/.test(q) ? echt("(min-width:0px)") : echt(q); });
+    const app = await ctx.newPage();
+    await app.goto("file://" + path.join(WURZEL, "auslieferungspruefer.html"));
+    await app.waitForFunction(() => !!document.getElementById("installieren"), null, { timeout: 5000 }).catch(() => {});
+    const a = await app.evaluate(() => { const k = document.getElementById("installieren"); if (!k) return null;
+      const lage = k.dataset.lage, sicht = k.checkVisibility(); k.click();
+      const m = document.getElementById("install-meldung");
+      return { lage, sicht, meldung: !!m && !m.hidden, appWirklich: !!(window.AP_INSTALL && window.AP_INSTALL.alsApp()) }; });
+    ok(!!a && a.appWirklich, `als App gestellt: die Seite hält sich wirklich für eine App (${JSON.stringify(a)})`);
+    ok(!!a && a.lage === "app" && !a.sicht, `… der Installieren-Knopf ist nicht zu sehen, kein „✓ App“ (${JSON.stringify(a)})`);
+    ok(!!a && !a.meldung, `… und es erscheint keine Meldung „nichts mehr zu tun“ (${JSON.stringify(a)})`);
+    ok(!/nichts mehr zu tun\./.test(fs.readFileSync(path.join(WURZEL, "assets/installieren.js"), "utf8")),
+       "… der Satz „es ist nichts mehr zu tun“ steht nirgends mehr im Knopf");
+    await ctx.close();
+  }
 
   await browser.close();
 }
