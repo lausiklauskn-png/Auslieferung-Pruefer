@@ -595,3 +595,24 @@ Vor dem Merge lief nur `smoke_knoten`; gefunden hat es erst der Gegenprobe-Lauf 
 Gegenprobe rot"). Jetzt Innenabstand statt Flex, ein fünfter Fall `TESTLISTE:` baut den Rückfall ein.
 **Wer die Seite ändert, fährt `node tests/alle.mjs`, nicht nur eine Probe.** Gemessen danach:
 `alle.mjs` Rückgabe 0 (165 · 134 · 357 · 9 · 21) · `TESTLISTE:` 5 gefangen, 0 blind, 0 tote Anker. Cache v28, `?v=101`.
+
+## 🌐 Drei Sprachen, eigener Schlüssel (Klaus 2026-10-02)
+
+Brief `Sende-Pruefer/docs/BRIEF_2026-10-02_drei-sprachen.md`, Schritt 2. Russisch steht in
+`assets/i18n-pruefer.js` (95 Schlüssel), `assets/i18n-recht.js`, `assets/sprache.js` (BASIS),
+`assets/installieren.js` und als eigener Block auf `start.html` (`data-l="ru"`, `#tun-ru`).
+Der Knopf zeigt die aktuelle Sprache (`[data-sprach-kurz]`) und geht reihum DE → EN → RU → DE.
+
+- **Sprachwahl je App getrennt:** Schlüssel `auslieferungspruefer_lang` / `_wahl` statt
+  `toolpoint_lang` (den teilten sich alle Apps auf github.io). **Alte Werte werden NICHT
+  übernommen** — wer im Prüfer Englisch hatte, wählt einmal neu. `smoke_knoten` § SPRACHE
+  zählt `toolpoint_lang` in jeder ausgelieferten Datei auf 0 (gefunden, nicht gepflegt).
+- Impressum- und Datenschutz-TEXT bleiben deutsch (nur die Überschriften und der Hinweis
+  „nur auf Deutsch" sind übersetzt). Befundtexte aus `pruefer-anhang.js`/`pruefer-mail.js`
+  bleiben deutsch (Python-Zwilling).
+- ⚠ **Benannte Grenze:** die SBKIM-Kanon-Module (Siegel, Widget, Membran) kennen nur DE/EN
+  und fallen bei `ru` auf Deutsch zurück — Entscheidung des Kanons.
+- ⚠ Die russischen Texte sind maschinennah übersetzt, von keinem Muttersprachler gelesen.
+- Proben: `smoke_knoten` (Vollständigkeit je Sprache, Riegel, Schlüssel) · `smoke_start` (Reihum,
+  kein Deutsch/Englisch im RU-Block) · `smoke_pruefer` (Schirm kyrillisch, Reihum, Installieren) ·
+  Gegenprobe `NUR_FALL="SPRACHE3:"` (7 Fälle). Cache v30, `?v=103`.

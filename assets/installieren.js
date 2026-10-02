@@ -11,7 +11,7 @@
  *                                                   Weg über das Chrome-Menü
  * Übernommen aus dem Sende-Prüfer (#38), wo er am Tablet getragen hat
  * (Klaus 2026-09-30). Hier ohne ihn: „funktioniert nicht, irgendwas klemmt".
- * Deutsch und Englisch nach <html lang>; fehlt die Datei, fehlt nur der Knopf.
+ * Deutsch, Englisch und Russisch nach <html lang>; fehlt die Datei, fehlt nur der Knopf.
  * Texte nur über textContent. */
 (function () {
   "use strict";
@@ -25,8 +25,12 @@
     } catch (_e) { return false; }
   }
 
-  function en() { return document.documentElement.lang === "en"; }
-  function T(de, eng) { return en() ? eng : de; }
+  /* Drei Sprachen wie die Sprachschicht (Klaus 2026-10-02). Fehlt eine
+     russische Fassung, gilt die englische — nie ein leerer Text. */
+  function T(de, eng, ru) {
+    var l = document.documentElement.lang;
+    return l === "ru" ? (ru || eng) : l === "en" ? eng : de;
+  }
 
   function melde(text) {
     var m = document.getElementById("install-meldung");
@@ -57,11 +61,12 @@
     k.hidden = app; k.style.display = app ? "none" : "";   /* als App: weg, nicht „✓ App“ */
     k.dataset.lage = app ? "app" : (ereignis ? "angeboten" : "nicht-angeboten");
     k.querySelector("[data-z]").textContent = app ? "✓" : "⬇";
-    k.querySelector(".t").textContent = app ? " App" : T(" Installieren", " Install");
-    k.title = app ? T("Läuft als installierte App", "Running as installed app") :
-      (ereignis ? T("Als App installieren", "Install as app") :
+    k.querySelector(".t").textContent = app ? " App" : T(" Installieren", " Install", " Установить");
+    k.title = app ? T("Läuft als installierte App", "Running as installed app", "Работает как установленное приложение") :
+      (ereignis ? T("Als App installieren", "Install as app", "Установить как приложение") :
         T("Installieren — der Browser bietet es gerade nicht an, ein Tipp sagt warum",
-          "Install — the browser is not offering it right now, tap to see why"));
+          "Install — the browser is not offering it right now, tap to see why",
+          "Установить — браузер сейчас не предлагает установку, нажмите, чтобы узнать почему"));
     k.setAttribute("aria-label", k.title);
   }
 
@@ -73,8 +78,9 @@
       e.userChoice.then(function (w) {
         melde(w && w.outcome === "accepted"
           ? T("Installiert. Die App liegt jetzt auf dem Startbildschirm bzw. in der App-Liste.",
-              "Installed. The app is now on the home screen or in the app list.")
-          : T("Nicht installiert — abgebrochen.", "Not installed — cancelled."));
+              "Installed. The app is now on the home screen or in the app list.",
+              "Установлено. Приложение теперь на главном экране или в списке приложений.")
+          : T("Nicht installiert — abgebrochen.", "Not installed — cancelled.", "Не установлено — отменено."));
         knopfZeichnen();
       }).catch(function () { knopfZeichnen(); });
       return;
@@ -93,7 +99,15 @@
       "To make it an app: long-press the icon → Remove or Uninstall, reload this page, then tap “Install” here.\n\n" +
       "Otherwise by hand: Chrome ⋮ → “Install app” or “Add to home screen”.\n\n" +
       "“App could not be opened” comes from the device, not from this page. If nothing helps: " +
-      "Chrome ⋮ → Settings → Site settings → this site → Delete data, then install again."));
+      "Chrome ⋮ → Settings → Site settings → this site → Delete data, then install again.",
+      "Браузер сейчас не предлагает установку.\n\n" +
+      "Чаще всего причина в том, что Chrome считает приложение уже установленным. Если на значке на главном экране " +
+      "есть маленький знак Chrome, это только ЯРЛЫК (открывается в Chrome), а не приложение.\n\n" +
+      "Как сделать приложение: долго нажать на значок → Удалить, перезагрузить эту страницу, " +
+      "затем нажать здесь «Установить».\n\n" +
+      "Иначе вручную: Chrome ⋮ → «Установить приложение» или «Добавить на главный экран».\n\n" +
+      "«Не удалось открыть приложение» сообщает устройство, а не эта страница. Если ничего не помогает: " +
+      "Chrome ⋮ → Настройки → Настройки сайтов → этот сайт → Удалить данные, затем установить заново."));
   }
 
   function einhaengen() {

@@ -58,13 +58,27 @@ ok("keine Querlauf-Breite bei 360 px", de.quer);
 
 await p.click("#sprache");
 const en = await p.evaluate(() => ({ h1: [...document.querySelectorAll("h1")].find((h) => h.checkVisibility())?.textContent || "",
-  gespeichert: localStorage.getItem("toolpoint_lang"),
+  gespeichert: localStorage.getItem("auslieferungspruefer_lang"), alt: localStorage.getItem("toolpoint_lang"),
   tun: document.querySelectorAll('[data-l="en"] .tun details').length, deTun: document.querySelectorAll('[data-l="de"] .tun details').length,
   deutsch: ([...document.querySelectorAll('[data-l="en"]')].map((e) => e.textContent).join(" ").match(/\b(und|nicht|wenn|Datei)\b/g) || []) }));
-ok("DE/EN schaltet auf Englisch und merkt es wie die App", /Show only/.test(en.h1) && en.gespeichert === "en", en.h1);
+ok("der Sprachknopf schaltet auf Englisch und merkt es wie die App", /Show only/.test(en.h1) && en.gespeichert === "en", en.h1);
 ok("die englische Fassung hat dieselben Funde wie die deutsche", en.tun === en.deTun, en.tun + "/" + en.deTun);
 ok("… und keine deutschen Wörter", en.deutsch.length === 0, en.deutsch.join(" "));
+ok("… und der Schlüssel des Marktplatzes bleibt unberührt (je App getrennt)", en.alt === null, en.alt);
 await p.click("#sprache");
+const ru = await p.evaluate(() => ({ h1: [...document.querySelectorAll("h1")].find((h) => h.checkVisibility())?.textContent || "",
+  gespeichert: localStorage.getItem("auslieferungspruefer_lang"), lang: document.documentElement.lang,
+  sichtbar: [...document.querySelectorAll('[data-l="de"],[data-l="en"]')].filter((e) => e.checkVisibility()).length,
+  tun: document.querySelectorAll('[data-l="ru"] .tun details').length, deTun: document.querySelectorAll('[data-l="de"] .tun details').length,
+  bilder: document.querySelectorAll('[data-l="ru"] img[src^="start/"]').length,
+  latein: ([...document.querySelectorAll('[data-l="ru"]')].map((e) => e.textContent).join(" ").match(/\b(und|nicht|wenn|Datei|the|and|not)\b/g) || []) }));
+ok("ein zweiter Tipp schaltet auf Russisch und merkt es", /Показывайте/.test(ru.h1) && ru.gespeichert === "ru" && ru.lang === "ru", ru.h1);
+ok("… und weder Deutsch noch Englisch ist dabei zu sehen", ru.sichtbar === 0, ru.sichtbar);
+ok("die russische Fassung hat dieselben Funde wie die deutsche", ru.tun === ru.deTun && ru.tun >= 6, ru.tun + "/" + ru.deTun);
+ok("… und dieselben Bilder", ru.bilder >= 4, ru.bilder);
+ok("… und keine deutschen oder englischen Wörter", ru.latein.length === 0, ru.latein.join(" "));
+await p.click("#sprache");
+ok("ein dritter Tipp führt zurück zu Deutsch", await p.evaluate(() => document.documentElement.lang === "de" && localStorage.getItem("auslieferungspruefer_lang") === "de"));
 
 await p.check(".nichtMehr");
 ok("der Haken merkt sich die Wahl", await p.evaluate(() => localStorage.getItem("auslieferungspruefer_start_v1") === "1"));

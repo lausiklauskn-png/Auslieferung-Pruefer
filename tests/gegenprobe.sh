@@ -4167,6 +4167,29 @@ probe "APPWEG: als App kommt wieder die Meldung" \
       assets/installieren.js \
       's|if (alsApp()) return;|if (alsApp()) { melde("App"); return; }|'
 
+# ---- Drei Sprachen, eigener Schlüssel (Klaus 2026-10-02) --------------------
+probe "SPRACHE3: ein russischer Eintrag fehlt im Wörterbuch des Prüfers" \
+      assets/i18n-pruefer.js \
+      's|^    "pr_85": "4C · то же изображение без сообщения",$|    "pr_85x": "4C",|'
+probe "SPRACHE3: ein russischer Eintrag fehlt im Wörterbuch der Rechtsseiten" \
+      assets/i18n-recht.js \
+      's|"recht_h1_impressum": "Выходные данные",|"recht_h1_x": "Выходные данные",|'
+probe "SPRACHE3: die Sprachschicht schreibt wieder den Schlüssel des Marktplatzes" \
+      assets/sprache.js \
+      's|var LS_SPRACHE = "auslieferungspruefer_lang";|var LS_SPRACHE = "toolpoint_lang";|'
+probe "SPRACHE3: der Knopf kennt nur noch DE und EN" \
+      assets/sprache.js \
+      's|var SPRACHEN   = \["de", "en", "ru"\];|var SPRACHEN   = ["de", "en"];|'
+probe "SPRACHE3: der Riegel einer Seite nimmt Russisch nicht an" \
+      impressum.html \
+      's#h.lang=(l==="en"||l==="ru")?l:"de"#h.lang=l==="en"?l:"de"#'
+probe "SPRACHE3: der russische Block der Startseite fehlt" \
+      start.html \
+      's|^<div data-l="ru">$|<div data-l="xx">|'
+probe "SPRACHE3: der Installieren-Knopf spricht kein Russisch" \
+      assets/installieren.js \
+      's|T(" Installieren", " Install", " Установить")|T(" Installieren", " Install")|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1

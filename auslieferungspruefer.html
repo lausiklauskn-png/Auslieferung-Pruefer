@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de">
 <head>
-<script>/* PT-SPRACHRIEGEL — Begründung in assets/sprache.js § Sprachriegel. MUSS inline und VOR dem ersten Anstrich laufen: danach hat Chrome längst entschieden. */(function(){try{if(localStorage.getItem("toolpoint_lang_wahl")!=="1")return;var h=document.documentElement;h.lang=localStorage.getItem("toolpoint_lang")==="en"?"en":"de";h.setAttribute("translate","no");h.classList.add("notranslate");var m=document.createElement("meta");m.name="google";m.content="notranslate";(document.head||h).appendChild(m);}catch(e){}})();</script>
+<script>/* PT-SPRACHRIEGEL — Begründung in assets/sprache.js § Sprachriegel. MUSS inline und VOR dem ersten Anstrich laufen: danach hat Chrome längst entschieden. */(function(){try{if(localStorage.getItem("auslieferungspruefer_lang_wahl")!=="1")return;var h=document.documentElement,l=localStorage.getItem("auslieferungspruefer_lang");h.lang=(l==="en"||l==="ru")?l:"de";h.setAttribute("translate","no");h.classList.add("notranslate");var m=document.createElement("meta");m.name="google";m.content="notranslate";(document.head||h).appendChild(m);}catch(e){}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
@@ -31,10 +31,10 @@
      Goldrand), aber Paket statt Brief und Waldgrün statt Navy. Als Datei aus
      dem eigenen Ordner, nie von einer fremden Adresse. Vorher (2026-08-23 bis
      2026-09-30): ein Pfosten mit zwei Pfeilen, inline als SVG. -->
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=102">
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=102">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=102">
-<link rel="stylesheet" href="assets/style.css?v=102">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=103">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=103">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=103">
+<link rel="stylesheet" href="assets/style.css?v=103">
 <script>
 /* Thema VOR dem ersten Anstrich setzen — sonst blitzt bei jedem Aufruf kurz das
    Standard-Thema auf, bevor die gespeicherte Wahl greift. Absichtlich winzig
@@ -322,9 +322,9 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
         <span aria-hidden="true">⟳</span><span data-i18n="btn_frisch">Aktualisieren</span>
       </button>
       <button class="thema-knopf" id="sprachKnopf" type="button"
-              title="Sprache / Language" aria-pressed="false"
-              aria-label="Sprache umschalten, Deutsch oder Englisch. Langer Druck: Browser-Übersetzer wieder zulassen">
-        <span aria-hidden="true">🌐</span><span>DE&nbsp;/&nbsp;EN</span>
+              title="Sprache / Language / Язык" aria-pressed="false"
+              aria-label="Sprache umschalten: Deutsch, Englisch oder Russisch. Langer Druck: Browser-Übersetzer wieder zulassen">
+        <span aria-hidden="true">🌐</span><span data-sprach-kurz>DE</span>
       </button>
       <button class="thema-knopf" id="themaKnopf" type="button">
         <span class="thema-zeichen" aria-hidden="true">◐</span><span class="thema-name">Nacht</span>
@@ -800,24 +800,24 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
 
 </main>
 
-<script src="assets/i18n-pruefer.js?v=102"></script>
-<script src="assets/sprache.js?v=102"></script>
-<script src="assets/thema.js?v=102"></script>
-<script src="assets/pruefer.js?v=102"></script>
+<script src="assets/i18n-pruefer.js?v=103"></script>
+<script src="assets/sprache.js?v=103"></script>
+<script src="assets/thema.js?v=103"></script>
+<script src="assets/pruefer.js?v=103"></script>
 <!-- ⚠ REIHENFOLGE. `pruefer-formate.js` holt sich die Fülltext-Liste aus
      `pruefer.js` — eine zweite, eigene Liste wäre eine Drift-Quelle mit Ansage.
      Und `pruefer-ui.js` steht zuletzt, weil es alle drei bedient. -->
-<script src="assets/pruefer-formate.js?v=102"></script>
-<script src="assets/pruefer-browser.js?v=102"></script>
+<script src="assets/pruefer-formate.js?v=103"></script>
+<script src="assets/pruefer-browser.js?v=103"></script>
 <!-- ⚠ NACH `pruefer-formate.js`: der Mail-Eingang leiht sich dessen
      Schlüssel-Muster und die IBAN-Prüfung, statt zweite Listen zu führen.
      Fehlt die Datei, sagt er das im Ergebnis, statt still weniger zu prüfen. -->
-<script src="assets/pruefer-mail.js?v=102"></script>
+<script src="assets/pruefer-mail.js?v=103"></script>
 <!-- Anhänge und einzelne Dateien öffnen — hier gepflegt, byte-1:1 im Sende-Prüfer. -->
-<script src="assets/pruefer-anhang.js?v=102"></script>
-<script src="assets/pruefer-ui.js?v=102"></script>
+<script src="assets/pruefer-anhang.js?v=103"></script>
+<script src="assets/pruefer-ui.js?v=103"></script>
 <!-- Knopf „Installieren" in der Kopfleiste (Klaus 2026-09-30, aus dem Sende-Prüfer). -->
-<script src="assets/installieren.js?v=102"></script>
+<script src="assets/installieren.js?v=103"></script>
 <!-- ══ SBKIM — der Auslieferungsprüfer als eigener Knoten im Mycel ═══════════
      Eigene Identität, eigene Spore, das schwebende Verbinden-Fenster, die
      Status-Pille von Modul 17 und das selbstausfüllende Siegel mit dem
@@ -833,9 +833,9 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
      `netz.js` steht ZUERST: die Relais-Liste des Prüfers liest die des
      Marktplatzes ab, statt sie abzuschreiben — zwei Listen derselben
      Poststellen laufen auseinander. -->
-<script src="assets/config/netz.js?v=102"></script>
-<script src="assets/config/pruefer-netz.js?v=102"></script>
-<script src="assets/pruefer-sbkim-init.js?v=102"></script>
+<script src="assets/config/netz.js?v=103"></script>
+<script src="assets/config/pruefer-netz.js?v=103"></script>
+<script src="assets/pruefer-sbkim-init.js?v=103"></script>
 <!-- ⚠ EIGENE APP SEIT 2026-09-26: im Marktplatz registrierte die STARTSEITE den
      Service-Worker, der Prüfer nicht. Als eigenständige PWA braucht er ihn selbst,
      sonst läuft er offline nicht. -->

@@ -1,5 +1,5 @@
 /* ==========================================================================
- * PWA Toolpoint — Sprache DE/EN und der Riegel gegen den Auto-Übersetzer.
+ * Auslieferungsprüfer — Sprache DE/EN/RU und der Riegel gegen den Auto-Übersetzer.
  *
  * WARUM ES DIESE DATEI GIBT (Klaus 2026-09-14):
  *   „oben ist noch keine Englisch-Übersetzung, so wie jetzt in Family Project
@@ -14,15 +14,26 @@
  * Schalter, und `app.js` lädt nur die Startseite. Impressum und Datenschutz
  * laden sonst gar kein Skript außer `thema.js`.
  *
- * ⚠ DIE SPEICHER-SCHLÜSSEL SIND APP-EIGEN (`toolpoint_…`). Auf einer geteilten
- * Adresse liegt der Speicher am Ursprung, nicht an der App — `fp_lang` zu
- * übernehmen hieße, die Sprachwahl mit einer Geschwister-App zu teilen.
+ * ⚠ DIE SPEICHER-SCHLÜSSEL SIND APP-EIGEN (`auslieferungspruefer_lang…`). Auf
+ * einer geteilten Adresse liegt der Speicher am Ursprung, nicht an der App.
+ * Bis 2026-10-02 hießen sie wie im Marktplatz PWA Toolpoint — seit der Prüfer
+ * eine eigene App auf `github.io` ist, teilte er damit die Sprachwahl mit jeder
+ * Geschwister-App, die denselben Namen trug (Klaus: „Sprachwahl je App
+ * getrennt"). Der alte Wert wird NICHT übernommen: wer Englisch gewählt hatte,
+ * wählt einmal neu.
+ *
+ * DREI SPRACHEN seit 2026-10-02: Deutsch, Englisch, Russisch. Der Knopf geht
+ * reihum DE → EN → RU → DE. ⚠ BENANNTE GRENZE: die SBKIM-Kanon-Module (Siegel,
+ * Mycel-Fenster) kennen nur DE/EN und fallen bei Russisch fail-soft auf
+ * Deutsch zurück.
  * ========================================================================== */
 (function (global) {
   "use strict";
 
-  var LS_SPRACHE = "toolpoint_lang";
-  var LS_WAHL    = "toolpoint_lang_wahl";
+  var LS_SPRACHE = "auslieferungspruefer_lang";
+  var LS_WAHL    = "auslieferungspruefer_lang_wahl";
+  var SPRACHEN   = ["de", "en", "ru"];
+  var KURZ       = { de: "DE", en: "EN", ru: "RU" };
 
   /* ---- Basis-Wörterbuch: Kopf, Fuß, Navigation ---------------------------
    * Die Seiten ergänzen ihre eigenen Texte über `window.PT_SEITE_I18N`, das
@@ -76,13 +87,34 @@
       lampe_lebt_t: "alive — own identity loaded",
       lampe_verkehr_t: "traffic — green while listening on the relay",
       lampe_fremd_t: "foreign — red only on a real foreign access"
+    },
+    ru: {
+      nav_eintragen: "Добавить",
+      nav_pruefung: "Как проверяется",
+      nav_start: "На главную",
+      nav_markt: "Маркетплейс",
+      nav_zum_markt: "← Маркетплейс",
+      nav_zur_app: "← Проверка перед выпуском",
+      nav_app: "Проверка перед выпуском",
+      btn_frisch: "Обновить",
+      btn_ueberblick: "Обзор",
+      btn_ueberblick_t: "Обзор: что умеет проверка и что делать, если она что-то нашла",
+      fuss_impressum: "Выходные данные",
+      fuss_datenschutz: "Конфиденциальность",
+      fuss_zurueck: "← на главную",
+      lampe_lebt: "жив",
+      lampe_verkehr: "трафик",
+      lampe_fremd: "чужой",
+      lampe_lebt_t: "жив — собственная идентичность загружена",
+      lampe_verkehr_t: "трафик — зелёный, пока идёт прослушивание реле",
+      lampe_fremd_t: "чужой — красный только при настоящем чужом доступе"
     }
   };
 
   function woerterbuch() {
     var seite = global.PT_SEITE_I18N || {};
-    var aus = { de: {}, en: {} };
-    ["de", "en"].forEach(function (l) {
+    var aus = { de: {}, en: {}, ru: {} };
+    SPRACHEN.forEach(function (l) {
       var a = BASIS[l] || {}, b = seite[l] || {}, k;
       for (k in a) aus[l][k] = a[k];
       for (k in b) aus[l][k] = b[k];
@@ -94,13 +126,13 @@
   var sprache = "de";
   try {
     var g = localStorage.getItem(LS_SPRACHE);
-    if (g === "de" || g === "en") sprache = g;
+    if (SPRACHEN.indexOf(g) >= 0) sprache = g;
   } catch (_e) {}
 
   function getLang() { return sprache; }
 
   function anwenden(l) {
-    sprache = (l === "en") ? "en" : "de";
+    sprache = (SPRACHEN.indexOf(l) >= 0) ? l : "de";
     try { localStorage.setItem(LS_SPRACHE, sprache); } catch (_e) {}
     document.documentElement.lang = sprache;
     var buch = I18N[sprache] || {};
@@ -168,7 +200,7 @@
    * Seite, die VOR dem ersten Anstrich läuft. Danach hat Chrome längst
    * entschieden. Was hier steht, ist der Teil für den Augenblick des Klicks.
    *
-   * ⚠ EINE AUSDRÜCKLICHE WAHL IST NICHT DIE AKTUELLE SPRACHE. `toolpoint_lang`
+   * ⚠ EINE AUSDRÜCKLICHE WAHL IST NICHT DIE AKTUELLE SPRACHE. `auslieferungspruefer_lang`
    * steht bei jedem Start; wäre das der Maßstab, wäre jeder Besucher sofort
    * gesperrt, auch der, der nie etwas gewählt hat. Die Wahl hängt deshalb an
    * einem EIGENEN Schlüssel, den nur ein Klick setzt. */
@@ -208,7 +240,7 @@
    * Übersetzung handelt. */
   function hinweis() {
     if (document.getElementById("ptUebersetzerHinweis")) return;
-    var de = getLang() === "de";
+    var l = getLang();
     var k = document.createElement("div");
     k.id = "ptUebersetzerHinweis";
     k.className = "pt-ue-hinweis notranslate";
@@ -216,20 +248,24 @@
     k.setAttribute("role", "status");
 
     var satz = document.createElement("span");
-    satz.textContent = de
-      ? "Dein Browser übersetzt diese Seite zusätzlich — deshalb springt sie zurück."
-      : "Your browser is translating this page on top — that is why it jumps back.";
+    satz.textContent = ({
+      de: "Dein Browser übersetzt diese Seite zusätzlich — deshalb springt sie zurück.",
+      en: "Your browser is translating this page on top — that is why it jumps back.",
+      ru: "Ваш браузер дополнительно переводит эту страницу — поэтому она возвращается назад."
+    })[l];
     var weg = document.createElement("span");
     weg.className = "pt-ue-weg";
-    weg.textContent = de
-      ? "In Chrome: Menü (⋮) → Übersetzen → dort „nie übersetzen“ wählen."
-      : "In Chrome: menu (⋮) → Translate → choose “never translate” there.";
+    weg.textContent = ({
+      de: "In Chrome: Menü (⋮) → Übersetzen → dort „nie übersetzen“ wählen.",
+      en: "In Chrome: menu (⋮) → Translate → choose “never translate” there.",
+      ru: "В Chrome: меню (⋮) → Перевести → выберите там «никогда не переводить»."
+    })[l];
 
     var zu = document.createElement("button");
     zu.type = "button";
     zu.className = "pt-ue-zu";
     zu.textContent = "✕";
-    zu.setAttribute("aria-label", de ? "Hinweis schließen" : "dismiss notice");
+    zu.setAttribute("aria-label", ({ de: "Hinweis schließen", en: "dismiss notice", ru: "закрыть подсказку" })[l]);
     zu.addEventListener("click", function () { k.remove(); });
 
     k.appendChild(satz); k.appendChild(weg); k.appendChild(zu);
@@ -289,18 +325,26 @@
   function knopfBeschriften() {
     var b = document.getElementById("sprachKnopf");
     if (!b) return;
-    var de = getLang() === "de";
-    b.setAttribute("aria-label", de
-      ? "Sprache umschalten, Deutsch oder Englisch. Langer Druck: Browser-Übersetzer wieder zulassen"
-      : "switch language, German or English. Long press: allow the browser translator again");
-    b.setAttribute("title", de ? "Sprache / Language" : "Language / Sprache");
-    b.setAttribute("aria-pressed", de ? "false" : "true");
+    var l = getLang();
+    b.setAttribute("aria-label", ({
+      de: "Sprache umschalten: Deutsch, Englisch oder Russisch. Langer Druck: Browser-Übersetzer wieder zulassen",
+      en: "switch language: German, English or Russian. Long press: allow the browser translator again",
+      ru: "сменить язык: немецкий, английский или русский. Долгое нажатие: снова разрешить переводчик браузера"
+    })[l]);
+    b.setAttribute("title", ({ de: "Sprache / Language / Язык", en: "Language / Sprache / Язык", ru: "Язык / Sprache / Language" })[l]);
+    b.setAttribute("aria-pressed", l === "de" ? "false" : "true");
+    /* Der Knopf nennt die AKTUELLE Sprache. „DE / EN / RU" wäre breiter als
+       „DE / EN" und brächte die Kopfleiste am Handy zum Umbrechen. */
+    var kurz = b.querySelector("[data-sprach-kurz]");
+    if (kurz) kurz.textContent = KURZ[l];
   }
 
   function knopfVerdrahten() {
     var b = document.getElementById("sprachKnopf");
     if (!b) return;
-    b.addEventListener("click", function () { waehlen(getLang() === "de" ? "en" : "de"); });
+    b.addEventListener("click", function () {
+      waehlen(SPRACHEN[(SPRACHEN.indexOf(getLang()) + 1) % SPRACHEN.length]);
+    });
     langerDruck(b);
   }
 
@@ -399,6 +443,7 @@
     googleHatUebersetzt: googleHatUebersetzt,
     riegeln: riegeln,
     eigennamen: EIGENNAMEN,
+    sprachen: SPRACHEN.slice(),
     schluessel: { sprache: LS_SPRACHE, wahl: LS_WAHL }
   };
 })(window);
