@@ -14,7 +14,7 @@
  * CACHE-BUST: bei jeder Änderung an einer Datei aus CORE die CACHE_VERSION
  * erhöhen — und die ?v=-Angaben in der Seite mitziehen.
  */
-var CACHE_VERSION = "auslieferung-pruefer-v31";
+var CACHE_VERSION = "auslieferung-pruefer-v32";
 
 var CORE = [
   "./",
@@ -22,29 +22,29 @@ var CORE = [
   "auslieferungspruefer.html",
   "start.html",
   "handbuch.html",
-  "assets/start.css?v=104",
+  "assets/start.css?v=105",
   "impressum.html",
   "datenschutz.html",
   "manifest.json",
-  "assets/style.css?v=104",
+  "assets/style.css?v=105",
   "icons/marke-96.png",
-  "icons/favicon-32.png?v=104",
-  "icons/favicon-48.png?v=104",
-  "icons/apple-touch-icon.png?v=104",
-  "assets/thema.js?v=104",
-  "assets/sprache.js?v=104",
-  "assets/i18n-pruefer.js?v=104",
-  "assets/i18n-recht.js?v=104",
-  "assets/config/netz.js?v=104",
-  "assets/config/pruefer-netz.js?v=104",
-  "assets/pruefer.js?v=104",
-  "assets/pruefer-formate.js?v=104",
-  "assets/pruefer-anhang.js?v=104",
-  "assets/pruefer-browser.js?v=104",
-  "assets/pruefer-mail.js?v=104",
-  "assets/pruefer-ui.js?v=104",
-  "assets/installieren.js?v=104",
-  "assets/pruefer-sbkim-init.js?v=104",
+  "icons/favicon-32.png?v=105",
+  "icons/favicon-48.png?v=105",
+  "icons/apple-touch-icon.png?v=105",
+  "assets/thema.js?v=105",
+  "assets/sprache.js?v=105",
+  "assets/i18n-pruefer.js?v=105",
+  "assets/i18n-recht.js?v=105",
+  "assets/config/netz.js?v=105",
+  "assets/config/pruefer-netz.js?v=105",
+  "assets/pruefer.js?v=105",
+  "assets/pruefer-formate.js?v=105",
+  "assets/pruefer-anhang.js?v=105",
+  "assets/pruefer-browser.js?v=105",
+  "assets/pruefer-mail.js?v=105",
+  "assets/pruefer-ui.js?v=105",
+  "assets/installieren.js?v=105",
+  "assets/pruefer-sbkim-init.js?v=105",
   "icons/icon-192.png",
   "icons/icon-512.png"
 ];

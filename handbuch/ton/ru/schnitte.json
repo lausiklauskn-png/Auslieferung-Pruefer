@@ -1,0 +1,83 @@
+{
+ "hinweis": "Gebaut von tools/handbuch-ton.mjs aus einer Aufnahme aller Sprechtexte. Geschnitten in der Mitte einer Pause; gemessen ist die Lage, nicht der Wortlaut.",
+ "sprache": "ru",
+ "quelle": "svetlana-ru.mp3",
+ "dauer": 85.18,
+ "pauseMin": 0.3,
+ "abweichungMax": 2.5,
+ "eindeutig": true,
+ "schnitte": [
+  {
+   "nr": 1,
+   "id": "seite",
+   "datei": "handbuch/ton/ru/01-seite.mp3",
+   "von": 0,
+   "bis": 11.21,
+   "saetze": 3,
+   "groessteAbweichung": 0.94
+  },
+  {
+   "nr": 2,
+   "id": "datei",
+   "datei": "handbuch/ton/ru/02-datei.mp3",
+   "von": 11.21,
+   "bis": 22.83,
+   "saetze": 2,
+   "groessteAbweichung": 1.58
+  },
+  {
+   "nr": 3,
+   "id": "pdf",
+   "datei": "handbuch/ton/ru/03-pdf.mp3",
+   "von": 22.83,
+   "bis": 32.96,
+   "saetze": 2,
+   "groessteAbweichung": 0.56
+  },
+  {
+   "nr": 4,
+   "id": "mail",
+   "datei": "handbuch/ton/ru/04-mail.mp3",
+   "von": 32.96,
+   "bis": 44.22,
+   "saetze": 2,
+   "groessteAbweichung": 0.03
+  },
+  {
+   "nr": 5,
+   "id": "befund",
+   "datei": "handbuch/ton/ru/05-befund.mp3",
+   "von": 44.22,
+   "bis": 54.13,
+   "saetze": 2,
+   "groessteAbweichung": 0.49
+  },
+  {
+   "nr": 6,
+   "id": "was-tun",
+   "datei": "handbuch/ton/ru/06-was-tun.mp3",
+   "von": 54.13,
+   "bis": 63.76,
+   "saetze": 1,
+   "groessteAbweichung": 2.28
+  },
+  {
+   "nr": 7,
+   "id": "verdacht",
+   "datei": "handbuch/ton/ru/07-verdacht.mp3",
+   "von": 63.76,
+   "bis": 73.9,
+   "saetze": 2,
+   "groessteAbweichung": 0.41
+  },
+  {
+   "nr": 8,
+   "id": "testvorlagen",
+   "datei": "handbuch/ton/ru/08-testvorlagen.mp3",
+   "von": 73.9,
+   "bis": 85.18,
+   "saetze": 2,
+   "groessteAbweichung": 0.58
+  }
+ ]
+}
