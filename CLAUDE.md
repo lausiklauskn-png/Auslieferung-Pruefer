@@ -374,6 +374,8 @@ Marktplatz wieder zurück, dann scheint das so zu sein, als wenn das ein Teil vo
 Deshalb steht in der Kopfleiste kein „← Marktplatz“ mehr; Impressum und Datenschutz führen zurück
 in die App. Das Beispiel `https://pwa-toolpoint.de/` heißt nicht mehr „diese Seite hier“.
 Probe `smoke_pruefer` (1300 und 360 px, beide Lagen, Englisch). Cache v16, `?v=91`.
+**Seit 2026-10-02** (Klaus: „Es ist nichts mehr zu tun … wegnehmen“): läuft die Seite als App, ist der Knopf verborgen
+und es gibt keine Meldung mehr. Probe stellt `display-mode: standalone`, Gegenprobe `APPWEG:` (2). Cache v29, `?v=102`.
 ⚠ Am Tablet nicht gemessen.
 
 ## 👁 Stufe 2 E · unsichtbarer Text im PDF (2026-09-30)

@@ -4159,6 +4159,14 @@ probe "LAUF: alle.mjs zählt „nicht lauffähig“ als grün" \
       tests/alle.mjs \
       's|process.exitCode = fehl ? 1 : stumm ? 2 : 0;|process.exitCode = fehl ? 1 : 0;|'
 
+# ---- Installierte App: kein Knopf, keine Meldung (Klaus 2026-10-02) --------
+probe "APPWEG: als App steht wieder der Knopf da" \
+      assets/installieren.js \
+      's|k.hidden = app; k.style.display = app ? "none" : "";|k.hidden = false;|'
+probe "APPWEG: als App kommt wieder die Meldung" \
+      assets/installieren.js \
+      's|if (alsApp()) return;|if (alsApp()) { melde("App"); return; }|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1
