@@ -616,3 +616,23 @@ Der Knopf zeigt die aktuelle Sprache (`[data-sprach-kurz]`) und geht reihum DE �
 - Proben: `smoke_knoten` (Vollständigkeit je Sprache, Riegel, Schlüssel) · `smoke_start` (Reihum,
   kein Deutsch/Englisch im RU-Block) · `smoke_pruefer` (Schirm kyrillisch, Reihum, Installieren) ·
   Gegenprobe `NUR_FALL="SPRACHE3:"` (7 Fälle). Cache v30, `?v=103`.
+
+## ❓ Handbuch mit ?-Knopf (Schritt 4, 2026-10-02)
+
+Brief `Sende-Pruefer/docs/BRIEF_2026-10-02_drei-sprachen.md`, Schritt 4. In der Kopfleiste steht neben ⟳ der
+Knopf **? Handbuch** (`#hilfeKnopf` → `handbuch.html`, `btn_hilfe`/`btn_hilfe_t` in DE/EN/RU in der BASIS von
+`assets/sprache.js`); die Startseite führt im Kopf ebenfalls hin (`#handbuchLink`, drei Sprachen).
+
+- **Gebaut, nie von Hand:** `node tools/handbuch-bauen.mjs` (abgeleitet aus dem Sende-Prüfer) fotografiert die echte
+  App mit den Testvorlagen (`?test=…`) und schreibt `handbuch/NN-*.jpg`, `handbuch/szenen.json` und `handbuch.html`
+  aus `tools/handbuch-vorlage.html` + `tools/handbuch-szenen.mjs` (8 Szenen: Seite · Foto/Datei · PDF 0D · Mail ·
+  Befundkarte H6 · Was jetzt tun · Verdacht 4C · Testvorlagen). **Wer die Oberfläche oder einen Sprechtext ändert,
+  baut neu** — `smoke_knoten` § HANDBUCH meldet sonst „veraltet".
+- Sprechtexte DE/EN/RU je Szene (`sprech`, `sprechText.en/.ru`) für spätere Aufnahmen (Amala/Andrew/Svetlana).
+  Aufnahmen schneidet `node tools/handbuch-ton.mjs <aufnahme.mp3> <de|en|ru>` nach `handbuch/ton/<spr>/`; bis dahin
+  liest ▶ Vorführen nur mit einer Stimme vom Gerät vor, sonst Untertitel.
+- ⚠ **Benannte Grenze:** die Bilder zeigen die deutsche Oberfläche, auch beim englischen und russischen Vorführen.
+- `handbuch.html` steht im Vorrat, die Bilder nicht (der Worker legt sie beim ersten Abruf ab). Cache v31, `?v=104`.
+- Proben: `smoke_knoten` § HANDBUCH (Szenen, Sprechtexte aktuell, Bilder, Knopf, Vorrat, Wörterbuch) · `smoke_start`
+  (Knopf bei 360/1300 px neben ⟳, spricht DE/EN/RU, Link auf der Startseite) · Gegenprobe `NUR_FALL="HANDBUCH:"` (5 Fälle).
+- ⚠ Am Tablet nicht gemessen.
