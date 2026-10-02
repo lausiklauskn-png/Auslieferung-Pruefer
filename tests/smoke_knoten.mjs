@@ -460,6 +460,28 @@ console.log('\n── Was ohne JavaScript dasteht ──');
      /<div data-l="ru">/.test(st) && /id="tun-ru"/.test(st) && zahl(/<details/g) % 3 === 0 && zahl(/<details/g) >= 18);
 }
 
+// ── HANDBUCH (2026-10-02): gebaut von tools/handbuch-bauen.mjs, nie von Hand ──
+console.log('\nHANDBUCH · die Seite, ihre Bilder, ihre Szenen');
+{
+  const { SZENEN } = await import(new URL('../tools/handbuch-szenen.mjs', import.meta.url));
+  const hb = da('handbuch.html') ? lies('handbuch.html') : '';
+  const sj = da('handbuch/szenen.json') ? JSON.parse(lies('handbuch/szenen.json')).szenen : [];
+  ok('HANDBUCH: handbuch.html ist da und trägt so viele Szenen wie tools/handbuch-szenen.mjs',
+     SZENEN.length >= 8 && (hb.match(/<section class="szene/g) || []).length === SZENEN.length, `${(hb.match(/<section class="szene/g) || []).length} von ${SZENEN.length}`);
+  ok('HANDBUCH: szenen.json nennt dieselben Szenen in derselben Folge (sonst veraltet: node tools/handbuch-bauen.mjs)',
+     sj.map((x) => x.id).join() === SZENEN.map((x) => x.id).join(), sj.map((x) => x.id).join());
+  ok('HANDBUCH: jeder Sprechtext im Handbuch ist der aus den Szenen (sonst veraltet)',
+     SZENEN.every((x, i) => sj[i] && sj[i].sprech === x.sprech && sj[i].sprechEn === x.sprechText.en && sj[i].sprechRu === x.sprechText.ru));
+  ok('HANDBUCH: jedes Bild liegt da', sj.length > 0 && sj.every((x) => da(x.bild) && hb.includes(`src="${x.bild}"`)));
+  ok('HANDBUCH: es führt die Knöpfe für Englisch und Russisch', hb.includes('id="vorfuehren-en"') && hb.includes('id="vorfuehren-ru"'));
+  ok('HANDBUCH: keine Platzhalter der Vorlage mehr', !/<!--(SZENEN|NAV|ANZAHL|ENGLISCH|RUSSISCH)-->/.test(hb));
+  const app = lies('auslieferungspruefer.html'), sw = lies('sw.js');
+  ok('HANDBUCH: der ?-Knopf in der Kopfleiste führt zum Handbuch', /id="hilfeKnopf" href="handbuch\.html"/.test(app));
+  ok('HANDBUCH: handbuch.html steht im Installations-Vorrat', /"handbuch\.html"/.test(sw));
+  const spr = lies('assets/sprache.js');
+  ok('HANDBUCH: btn_hilfe und btn_hilfe_t in DE, EN und RU', (spr.match(/btn_hilfe:/g) || []).length === 3 && (spr.match(/btn_hilfe_t:/g) || []).length === 3);
+}
+
 // ── LAUF: fehlt der Browser, ist eine Probe NICHT grün (Punkt 8, 2026-10-01) ──
 // Gemessen, nicht gelesen: jede Browser-Probe wird mit einem Browser-Ordner
 // gestartet, den es nicht gibt, und muss mit 2 enden („nicht lauffähig").

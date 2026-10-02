@@ -78,7 +78,7 @@ nur_pruefer() {                 # nur_pruefer <Datei ...> — 0, wenn alle zum P
   local d
   for d in "$@"; do
     case "$d" in
-      auslieferungspruefer.html|start.html|index.html|assets/start.css|assets/sprache.js|assets/pruefer*|assets/i18n-pruefer.js|assets/installieren.js|assets/config/pruefer-netz.js|werkzeuge/*|vendor/pdfjs/*|testvorlagen/index.html|tests/smoke_*.mjs|tests/alle.mjs) ;;
+      auslieferungspruefer.html|start.html|index.html|assets/start.css|assets/sprache.js|assets/pruefer*|assets/i18n-pruefer.js|assets/installieren.js|assets/config/pruefer-netz.js|werkzeuge/*|vendor/pdfjs/*|testvorlagen/index.html|tests/smoke_*.mjs|tests/alle.mjs|handbuch.html|tools/handbuch-szenen.mjs) ;;
       *) return 1 ;;
     esac
     [ -f "$d" ] || return 1
@@ -4189,6 +4189,23 @@ probe "SPRACHE3: der russische Block der Startseite fehlt" \
 probe "SPRACHE3: der Installieren-Knopf spricht kein Russisch" \
       assets/installieren.js \
       's|T(" Installieren", " Install", " Установить")|T(" Installieren", " Install")|'
+
+# ---- Handbuch mit ?-Knopf (Schritt 4, 2026-10-02) ----------------------------
+probe "HANDBUCH: der ?-Knopf führt nicht mehr zum Handbuch" \
+      auslieferungspruefer.html \
+      's|id="hilfeKnopf" href="handbuch.html"|id="hilfeKnopf" href="#"|'
+probe "HANDBUCH: der ?-Knopf spricht kein Russisch" \
+      assets/sprache.js \
+      's|      btn_hilfe: "Справка",|      btn_hilfex: "Справка",|'
+probe "HANDBUCH: ein Sprechtext wurde geändert, das Handbuch nicht neu gebaut" \
+      tools/handbuch-szenen.mjs \
+      's|Das ist der Auslieferungsprüfer. Oben|Das ist der Prüfer. Oben|'
+probe "HANDBUCH: eine Szene fehlt im Handbuch" \
+      handbuch.html \
+      's|<section class="szene" id="szene-verdacht"|<section class="x" id="szene-verdacht"|'
+probe "HANDBUCH: die Startseite führt nicht mehr zum Handbuch" \
+      start.html \
+      's|id="handbuchLink" href="handbuch.html"|id="handbuchLink" href="#"|'
 
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"

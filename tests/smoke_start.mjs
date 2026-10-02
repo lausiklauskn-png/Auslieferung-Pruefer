@@ -55,6 +55,8 @@ ok("die Bilder aus der App liegen wirklich da", de.bilderDa.length >= 4 && de.bi
 ok("die Grenzen stehen sichtbar da", de.grenze);
 ok("kein Werkstatt-Jargon auf der Seite", de.jargon.length === 0, de.jargon.join(", "));
 ok("keine Querlauf-Breite bei 360 px", de.quer);
+ok("HANDBUCH: die Startseite führt zum Handbuch, in jeder Sprache", await p.evaluate(() => {
+  const a = document.querySelector("#handbuchLink"); return !!a && a.getAttribute("href") === "handbuch.html" && a.querySelectorAll("[data-l]").length === 3 && a.checkVisibility(); }));
 
 await p.click("#sprache");
 const en = await p.evaluate(() => ({ h1: [...document.querySelectorAll("h1")].find((h) => h.checkVisibility())?.textContent || "",
@@ -92,6 +94,18 @@ for (const breite of [360, 1300]) {
       quer: document.documentElement.scrollWidth <= innerWidth + 1, rechts: a ? Math.round(a.getBoundingClientRect().right) : -1 }; });
   ok(`${breite} px: der Überblick steht sichtbar in der Kopfleiste und führt zur Startseite`, k.da && k.rechts <= breite, k.rechts);
   ok(`${breite} px: … ohne Querlauf`, k.quer);
+  const h = await p.evaluate(() => { const a = document.querySelector("#hilfeKnopf"), f = document.querySelector("#frischKnopf");
+    return { da: !!a && a.getAttribute("href") === "handbuch.html" && a.checkVisibility() && !!a.closest("header"),
+      neben: !!a && !!f && a.parentElement === f.parentElement && Math.abs(a.getBoundingClientRect().top - f.getBoundingClientRect().top) < 30,
+      rechts: a ? Math.round(a.getBoundingClientRect().right) : -1 }; });
+  ok(`HANDBUCH: ${breite} px: der ?-Knopf steht sichtbar in der Kopfleiste und führt zum Handbuch`, h.da && h.rechts <= breite, h.rechts);
+  ok(`HANDBUCH: ${breite} px: … neben ⟳ Aktualisieren`, h.neben);
+}
+for (const [lang, wort] of [["en", "Guide"], ["ru", "Справка"], ["de", "Handbuch"]]) {
+  await p.evaluate((l) => { localStorage.setItem("auslieferungspruefer_lang", l); localStorage.setItem("auslieferungspruefer_wahl", "1"); }, lang);
+  await p.reload(); await p.waitForSelector("#hilfeKnopf");
+  const t = await p.evaluate(() => { const a = document.querySelector("#hilfeKnopf"); return a.textContent.replace(/\s+/g, " ").trim() + " | " + (a.getAttribute("title") || ""); });
+  ok(`HANDBUCH: der ?-Knopf spricht ${lang}: „${wort}"`, t.includes(wort), t);
 }
 const mitAnhang = await ctx.newPage();
 await mitAnhang.evaluate(() => 0);
