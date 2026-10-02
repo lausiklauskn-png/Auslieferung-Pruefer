@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Auslieferungsprüfer · Handbuch</title>
+<meta name="description" content="Handbuch zum Auslieferungsprüfer: in 8 Szenen mit echten Bildern der App — wie eine Seite, ein PDF, eine Mail oder ein Foto auf versteckte Angaben und Anweisungen geprüft wird.">
+<meta name="theme-color" content="#0b1418">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<!-- GEBAUT von tools/handbuch-bauen.mjs aus tools/handbuch-vorlage.html und tools/handbuch-szenen.mjs.
+     Nicht von Hand ändern: beim nächsten Bau wäre es weg. -->
+<style>
+:root{--bg:#0b1418;--fl:#122128;--fl2:#17303a;--linie:#24414b;--schrift:#e8f0f3;--leise:#9db3bb;--petrol:#5cc2c9;--glanz:#8fe4ea;--gold:#f3b54a;--gold2:#ffd98a;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:16px}
+body{margin:0;background:var(--bg);color:var(--schrift);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+ background:radial-gradient(60vw 40vw at 85% -10%,rgb(92 194 201/.18),transparent 70%),radial-gradient(50vw 40vw at -10% 110%,rgb(243 181 74/.12),transparent 70%)}
+a{color:var(--glanz)}
+code{font:600 .92em ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--gold2);background:rgb(243 181 74/.12);padding:1px 5px;border-radius:6px}
+.held{padding:48px 20px 28px;text-align:center;max-width:980px;margin:0 auto}
+.bild-held{display:block;height:auto}
+.held-icon{display:block;width:min(180px,40vw);height:auto;margin:0 auto 10px;border-radius:22%;filter:drop-shadow(0 20px 40px rgb(0 0 0/.5))}
+
+.held .zurueck{position:absolute;left:16px;top:14px;font-size:.92rem;text-decoration:none;color:var(--leise)}
+.held h1{margin:10px 0 6px;font-size:clamp(1.9rem,5vw,3.2rem);line-height:1.1;letter-spacing:-.02em;
+ background:linear-gradient(100deg,var(--glanz),#fff 45%,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.held .unter{color:var(--leise);margin:0 auto 22px;max-width:620px}
+/* Die Verwandlung: ein Name wird zum Platzhalter — genau das tut die App. */
+html.bewegt html.bewegt html.bewegt html.bewegt @keyframes weg{0%,35%{opacity:1;filter:none}45%,90%{opacity:0;filter:blur(6px)}100%{opacity:1}}
+@keyframes her{0%,40%{opacity:0;transform:scale(.8)}50%,88%{opacity:1;transform:none}100%{opacity:0}}
+.knoepfe{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.knopf{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--linie);
+ background:linear-gradient(180deg,var(--fl2),var(--fl));color:var(--schrift);font:600 .98rem system-ui,sans-serif;cursor:pointer;text-decoration:none;
+ box-shadow:inset 0 1px 0 rgb(255 255 255/.12),0 6px 18px rgb(0 0 0/.3)}
+.knopf.haupt{border-color:var(--gold);background:linear-gradient(180deg,#3a2c12,#231a0b);color:var(--gold2);box-shadow:inset 0 1px 0 rgb(255 255 255/.18),0 0 24px rgb(243 181 74/.25)}
+.knopf:hover{border-color:var(--petrol)}
+.rahmen{display:grid;grid-template-columns:240px minmax(0,1fr);gap:28px;max-width:1240px;margin:0 auto;padding:0 20px 60px}
+.film{position:sticky;top:16px;align-self:start;display:flex;flex-direction:column;gap:4px;padding:12px;border:1px solid var(--linie);border-radius:18px;background:rgb(18 33 40/.8)}
+.film::before{content:"Szenen";font:700 .72rem system-ui;letter-spacing:.14em;text-transform:uppercase;color:var(--leise);padding:2px 8px 6px}
+.film a{display:flex;gap:10px;align-items:center;padding:7px 10px;border-radius:10px;color:var(--leise);text-decoration:none;font-size:.9rem;line-height:1.25}
+.film a span{font:700 .78rem ui-monospace,Menlo,monospace;color:var(--petrol);min-width:2ch}
+.film a:hover,.film a[aria-current="true"]{background:var(--fl2);color:var(--schrift)}
+.film a[aria-current="true"] span{color:var(--gold)}
+.szenen{display:flex;flex-direction:column;gap:56px;min-width:0}
+.szene{scroll-margin-top:16px}
+.kopfzeile{display:flex;align-items:baseline;gap:14px;margin-bottom:12px}
+.kopfzeile .nr{font:800 2.6rem/1 ui-monospace,Menlo,monospace;color:transparent;-webkit-text-stroke:1.5px var(--gold);opacity:.9}
+.kopfzeile h2{margin:0;font-size:clamp(1.25rem,3vw,1.7rem)}
+.bild{position:relative;margin:0;border-radius:16px;overflow:hidden;border:1px solid var(--linie);background:#000;
+ box-shadow:0 30px 60px rgb(0 0 0/.45),0 0 0 6px rgb(92 194 201/.06)}
+.bild img{display:block;width:100%;height:auto}
+.szene.hoch .bild{max-width:360px;margin-inline:auto;border-radius:28px;border-width:6px;border-color:#1d2c33}
+.ring{position:absolute;border:3px solid var(--gold);border-radius:12px;box-shadow:0 0 0 4px rgb(243 181 74/.25),0 0 30px rgb(243 181 74/.55);pointer-events:none}
+html.bewegt .szene.da .ring{animation:puls 2.2s ease-in-out infinite}
+@keyframes puls{0%,100%{box-shadow:0 0 0 4px rgb(243 181 74/.25),0 0 30px rgb(243 181 74/.55)}50%{box-shadow:0 0 0 10px rgb(243 181 74/.05),0 0 50px rgb(243 181 74/.8)}}
+.text{margin:16px 0 8px;font-size:1.02rem}
+.sprech{margin:0;padding:10px 14px;border-left:3px solid var(--petrol);border-radius:0 12px 12px 0;background:rgb(92 194 201/.08);color:var(--glanz);font-style:italic}
+.mikro{font-style:normal;margin-right:4px}
+/* Ohne Skript steht alles da; erst mit Skript blenden die Szenen beim Rollen ein. */
+html.bewegt .szene{opacity:.25;transform:translateY(24px);transition:opacity .7s,transform .7s}
+html.bewegt .szene.da{opacity:1;transform:none}
+.grenzen{max-width:1240px;margin:0 auto 40px;padding:22px 20px;border-top:1px solid var(--linie);color:var(--leise)}
+/* Vorführen: eine Leiste unten wie Untertitel. */
+.buehne{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:20;width:min(760px,calc(100vw - 24px));padding:12px 16px 14px;
+ border:1px solid var(--gold);border-radius:18px;background:rgb(11 20 24/.94);box-shadow:0 20px 50px rgb(0 0 0/.6);backdrop-filter:blur(6px)}
+.buehne[hidden]{display:none}
+.buehne .zeile{display:flex;gap:12px;align-items:center}
+.buehne .ut{flex:1;font-size:1.02rem;color:var(--schrift)}
+/* Abspieler wie bei einem Video (Klaus 2026-10-02): Regler zum Ziehen, Pause, Szene vor und zurück. */
+.buehne .zu{min-width:40px;padding:6px 10px}
+.buehne .spur{position:relative;margin-top:10px}
+.buehne .marken{position:absolute;left:0;right:0;top:50%;height:10px;margin-top:-5px;pointer-events:none}
+.buehne .marken i{position:absolute;top:0;width:2px;height:10px;margin-left:-1px;background:var(--leise);opacity:.55}
+.buehne input[type=range]{position:relative;width:100%;margin:0;height:28px;background:transparent;accent-color:var(--gold);cursor:pointer}
+.buehne .steuer{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+.buehne .steuer .knopf{min-width:44px;min-height:40px;padding:6px 12px;font-size:1.05rem}
+.buehne .uhr{font-variant-numeric:tabular-nums;color:var(--schrift);font-size:.9rem;margin-left:4px}
+.buehne .welche{color:var(--leise);font-size:.85rem;margin-left:auto}
+.buehne .stimme{font-size:.8rem;color:var(--leise);margin-top:6px}
+.szene.aktiv .bild{border-color:var(--gold);box-shadow:0 30px 60px rgb(0 0 0/.45),0 0 40px rgb(243 181 74/.35)}
+@media (max-width:900px){
+ .rahmen{grid-template-columns:1fr}
+ .film{flex-direction:row;overflow-x:auto;top:0;z-index:10;border-radius:0 0 14px 14px;margin:0 -20px;padding:8px 12px;scrollbar-width:none}
+ .film::before{display:none}
+ .film a{flex:none;white-space:nowrap}
+ .kopfzeile .nr{font-size:2rem}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}html.bewegt .szene{opacity:1;transform:none;transition:none}html.bewegt </style>
+</head>
+<body>
+<header class="held">
+ <a class="zurueck" href="auslieferungspruefer.html">← Zur App</a>
+ <img class="held-icon" src="icons/icon-512.png?v=104" width="512" height="512" alt="Ein Schild vor einem Paket mit Haken">
+ <h1>Auslieferungsprüfer · Handbuch</h1>
+ <p class="unter">In 8 Szenen durch die App: eine Datei, eine Mail oder eine Seite kommt herein, der Prüfer sagt, was darin steckt — und was jetzt zu tun ist. Alle Bilder sind echte Aufnahmen der App mit erfundenen Testvorlagen.</p>
+ <div class="knoepfe">
+  <button class="knopf haupt" id="vorfuehren" type="button">▶ Vorführen</button>
+  <button class="knopf" id="vorfuehren-en" type="button" lang="en">▶ Watch in English</button>
+  <button class="knopf" id="vorfuehren-ru" type="button" lang="ru">▶ Смотреть по-русски</button>
+  <a class="knopf" href="auslieferungspruefer.html">Zur App</a>
+  <a class="knopf" href="testvorlagen/">Testvorlagen</a>
+  <a class="knopf" href="start.html">Überblick: was die App kann</a>
+ </div>
+</header>
+
+<div class="rahmen">
+ <nav class="film" aria-label="Szenen"><a href="#szene-seite" data-zu="seite"><span>01</span> Die Seite öffnen</a><a href="#szene-foto" data-zu="foto"><span>02</span> Ein Foto prüfen</a><a href="#szene-pdf" data-zu="pdf"><span>03</span> Ein PDF mit verstecktem Text</a><a href="#szene-mail" data-zu="mail"><span>04</span> Eine Mail mit Anhängen</a><a href="#szene-karte" data-zu="karte"><span>05</span> Eine Befundkarte lesen</a><a href="#szene-was-tun" data-zu="was-tun"><span>06</span> Was jetzt tun</a><a href="#szene-verdacht" data-zu="verdacht"><span>07</span> Bildpunkte auf Verdacht prüfen</a><a href="#szene-testvorlagen" data-zu="testvorlagen"><span>08</span> Testvorlagen zum Ausprobieren</a></nav>
+ <div class="szenen">
+
+<section class="szene" id="szene-seite" data-szene="seite" data-nr="1" data-sprech-en="This is the delivery checker. At the top you choose what to check: a page, a text, a PDF, an email or a photo. Everything stays in your browser." data-sprech-ru="Это проверка перед отправкой. Вверху вы выбираете, что проверить: страницу, текст, PDF, письмо или фото. Всё остаётся в вашем браузере.">
+ <div class="kopfzeile"><span class="nr">01</span><h2>Die Seite öffnen</h2></div>
+ <figure class="bild">
+  <img src="handbuch/01-seite.jpg" width="1280" height="800" alt="Die Seite öffnen — Bildschirmfoto der App" loading="eager" decoding="async">
+  <span class="ring" data-ring style="left:10.2%;top:46.9%;width:79.7%;height:20%"></span>
+ </figure>
+ <p class="text">Oben wählen Sie, was geprüft wird: eine <b>HTML-Seite</b>, ein <b>Text</b>, ein <b>PDF</b>, eine <b>Adresse</b>, eine <b>Mail</b> oder ein <b>Foto · eine Datei</b>. Alles läuft in diesem Browser. Nichts wird hochgeladen, nichts wird ausgeführt.</p>
+ <p class="sprech" data-sprech><span class="mikro" aria-hidden="true">🎙</span> Das ist der Auslieferungsprüfer. Oben wählen Sie, was Sie prüfen wollen: eine Seite, einen Text, ein PDF, eine Mail oder ein Foto. Alles bleibt in Ihrem Browser.</p>
+</section>
+
+<section class="szene" id="szene-foto" data-szene="foto" data-nr="2" data-sprech-en="A photo with text. The checker reads it on the device and finds a hidden instruction to an AI, plus an email address and an account number. Each number at the top jumps to its place." data-sprech-ru="Фото с текстом. Программа читает его прямо на устройстве и находит скрытую инструкцию для ИИ, а также адрес почты и номер счёта. Каждое число вверху ведёт к нужному месту.">
+ <div class="kopfzeile"><span class="nr">02</span><h2>Ein Foto prüfen</h2></div>
+ <figure class="bild">
+  <img src="handbuch/02-foto.jpg" width="1280" height="800" alt="Ein Foto prüfen — Bildschirmfoto der App" loading="eager" decoding="async">
+  <span class="ring" data-ring style="left:10.2%;top:51.8%;width:79.7%;height:5.3%"></span>
+ </figure>
+ <p class="text">Im Reiter <b>Foto · Datei prüfen</b> wählen Sie ein Bild. Der Prüfer liest den Text darin auf dem Gerät und meldet, was er findet: hier eine <b>Anweisung an eine KI</b>, eine Mailadresse und eine IBAN. Oben steht die Zusammenfassung; jede Zahl springt zu ihrer Karte.</p>
+ <p class="sprech" data-sprech><span class="mikro" aria-hidden="true">🎙</span> Ein Foto mit Text. Der Prüfer liest es auf dem Gerät und findet eine versteckte Anweisung an eine KI, dazu eine Mailadresse und eine Kontonummer. Jede Zahl oben springt zur passenden Stelle.</p>
+</section>
+
+<section class="szene" id="szene-pdf" data-szene="pdf" data-nr="3" data-sprech-en="A PDF. The checker compares the text inside the file with what you can see on the page. Here there is invisible text – white on white. It names the page and the words." data-sprech-ru="PDF-файл. Программа сравнивает текст в файле с тем, что видно на странице. Здесь есть невидимый текст – белым по белому. Она называет страницу и слова.">
+ <div class="kopfzeile"><span class="nr">03</span><h2>Ein PDF mit verstecktem Text</h2></div>
+ <figure class="bild">
+  <img src="handbuch/03-pdf.jpg" width="1280" height="800" alt="Ein PDF mit verstecktem Text — Bildschirmfoto der App" loading="lazy" decoding="async">
+  <span class="ring" data-ring style="left:10.2%;top:12.4%;width:79.7%;height:83.9%"></span>
+ </figure>
+ <p class="text">Bei einem PDF liest der Prüfer die Textebene und vergleicht sie mit dem, was auf der Seite zu <b>sehen</b> ist. Steht Text darin, den man nicht sieht — winzig, weiß auf weiß —, meldet er: <b>Was man sieht und was im Text steht, weicht ab</b>, mit Seite und Wörtern.</p>
+ <p class="sprech" data-sprech><span class="mikro" aria-hidden="true">🎙</span> Ein PDF. Der Prüfer vergleicht den Text in der Datei mit dem, was man auf der Seite sieht. Hier steht unsichtbarer Text darin – weiß auf weiß. Er nennt die Seite und die Wörter.</p>
+</section>
+
+<section class="szene" id="szene-mail" data-szene="mail" data-nr="4" data-sprech-en="A saved email. The checker opens every attachment and reads it – nothing is run. Each finding says which attachment it comes from." data-sprech-ru="Сохранённое письмо. Программа открывает каждое вложение и читает его – ничего не запускается. У каждой находки указано, из какого вложения она.">
+ <div class="kopfzeile"><span class="nr">04</span><h2>Eine Mail mit Anhängen</h2></div>
+ <figure class="bild">
+  <img src="handbuch/04-mail.jpg" width="1280" height="800" alt="Eine Mail mit Anhängen — Bildschirmfoto der App" loading="lazy" decoding="async">
+  <span class="ring" data-ring style="left:10.2%;top:51.8%;width:79.7%;height:5.3%"></span>
+ </figure>
+ <p class="text">Eine gespeicherte Mail (<b>.eml</b>) prüft der Prüfer samt Anhängen. Jeder Anhang wird geöffnet und gelesen, nie ausgeführt. Befunde aus einem Anhang tragen seinen Namen.</p>
+ <p class="sprech" data-sprech><span class="mikro" aria-hidden="true">🎙</span> Eine gespeicherte Mail. Der Prüfer öffnet jeden Anhang und liest ihn – ausgeführt wird nichts. Bei jedem Fund steht, aus welchem Anhang er kommt.</p>
+</section>
+
+<section class="szene" id="szene-karte" data-szene="karte" data-nr="5" data-sprech-en="Each card says what was found and where: line, page or attachment. In a picture the spot is marked in red, and you can save the marked copy." data-sprech-ru="Каждая карточка говорит, что найдено и где: строка, страница или вложение. На картинке это место обведено красным, и отмеченную копию можно сохранить.">
+ <div class="kopfzeile"><span class="nr">05</span><h2>Eine Befundkarte lesen</h2></div>
+ <figure class="bild">
+  <img src="handbuch/05-karte.jpg" width="1280" height="800" alt="Eine Befundkarte lesen — Bildschirmfoto der App" loading="lazy" decoding="async">
+  <span class="ring" data-ring style="left:10.2%;top:7.1%;width:79.7%;height:92.9%"></span>
+ </figure>
+ <p class="text">Jede Karte nennt die <b>Art</b> des Fundes, die <b>Stelle</b> (Zeile, Seite, Anhang) und den Satz, um den es geht. Bei Bildern liegt eine <b>markierte Kopie</b> dabei: die Stelle ist rot umrandet.</p>
+ <p class="sprech" data-sprech><span class="mikro" aria-hidden="true">🎙</span> Jede Karte sagt, was gefunden wurde und wo: Zeile, Seite oder Anhang. Bei einem Bild ist die Stelle rot markiert, und die markierte Kopie lässt sich speichern.</p>
+</section>
+
+<section class="szene hoch" id="szene-was-tun" data-szene="was-tun" data-nr="6" data-sprech-en="Under every serious finding it says what to do now. First: stay calm. Then ask the sender – by another route than the one the file came by." data-sprech-ru="Под каждой серьёзной находкой написано, что делать дальше. Сначала: сохраняйте спокойствие. Потом спросите отправителя – другим путём, не тем, которым пришёл файл.">
+ <div class="kopfzeile"><span class="nr">06</span><h2>Was jetzt tun</h2></div>
+ <figure class="bild">
+  <img src="handbuch/06-was-tun.jpg" width="390" height="844" alt="Was jetzt tun — Bildschirmfoto der App" loading="lazy" decoding="async">
+  <span class="ring" data-ring style="left:11.5%;top:7.3%;width:76.9%;height:92.7%"></span>
+ </figure>
+ <p class="text">Unter einer Anweisung an eine KI oder einem Verdacht steht <b>Was jetzt tun</b>: ruhige Schritte, zuerst „Ruhig bleiben“, dann beim Absender auf einem anderen Weg nachfragen. So sieht es am Handy aus.</p>
+ <p class="sprech" data-sprech><span class="mikro" aria-hidden="true">🎙</span> Unter jedem ernsten Fund steht, was jetzt zu tun ist. Zuerst: ruhig bleiben. Dann beim Absender nachfragen – auf einem anderen Weg als dem, auf dem die Datei kam.</p>
+</section>
+
+<section class="szene" id="szene-verdacht" data-szene="verdacht" data-nr="7" data-sprech-en="Some pictures carry a message inside their pixels, invisible to the eye. Only when you press this button does the checker look for it. What it finds is called a suspicion – shown with the hidden sentence." data-sprech-ru="Некоторые картинки несут сообщение в пикселях, невидимое глазу. Только когда вы нажмёте эту кнопку, программа начнёт искать. Найденное называется подозрением – вместе со скрытой фразой.">
+ <div class="kopfzeile"><span class="nr">07</span><h2>Bildpunkte auf Verdacht prüfen</h2></div>
+ <figure class="bild">
+  <img src="handbuch/07-verdacht.jpg" width="1280" height="800" alt="Bildpunkte auf Verdacht prüfen — Bildschirmfoto der App" loading="lazy" decoding="async">
+  <span class="ring" data-ring style="left:10.2%;top:8.9%;width:79.7%;height:91.1%"></span>
+ </figure>
+ <p class="text">Eine Botschaft kann in den untersten Bits der Farben stecken; das Auge sieht sie nicht. Erst auf den Knopf <b>🔍 Bildpunkte auf Verdacht prüfen</b> sucht der Prüfer danach. Das Ergebnis heißt <b>Verdacht</b>, nie „gefunden“. Bei JPEG-Fotos steht „nicht geprüft“ mit Grund.</p>
+ <p class="sprech" data-sprech><span class="mikro" aria-hidden="true">🎙</span> Manche Bilder tragen eine Botschaft in den Bildpunkten, unsichtbar fürs Auge. Erst wenn Sie diesen Knopf drücken, sucht der Prüfer danach. Was er findet, heißt Verdacht – mit dem versteckten Satz.</p>
+</section>
+
+<section class="szene" id="szene-testvorlagen" data-szene="testvorlagen" data-nr="8" data-sprech-en="To try it out, there are test files. One tap loads a file straight into the checker. Everything in them is made up – and a finding here is exactly right." data-sprech-ru="Для пробы есть тестовые файлы. Одно касание загружает файл прямо в программу. Всё в них выдумано – и находка здесь как раз то, что нужно.">
+ <div class="kopfzeile"><span class="nr">08</span><h2>Testvorlagen zum Ausprobieren</h2></div>
+ <figure class="bild">
+  <img src="handbuch/08-testvorlagen.jpg" width="1280" height="800" alt="Testvorlagen zum Ausprobieren — Bildschirmfoto der App" loading="lazy" decoding="async">
+  <span class="ring" data-ring style="left:10.2%;top:61.4%;width:79.7%;height:38.6%"></span>
+ </figure>
+ <p class="text">Über den Reitern steht <b>🧪 Testvorlagen zum Ausprobieren</b>. Aufgeklappt zeigt es erfundene Dateien: Bilder, PDFs, eine Mail, Word, Text. Ein Tipp lädt die Vorlage direkt in den Prüfer. Ein Befund ist dort das Soll.</p>
+ <p class="sprech" data-sprech><span class="mikro" aria-hidden="true">🎙</span> Zum Ausprobieren gibt es Testvorlagen. Ein Tipp lädt die Datei direkt in den Prüfer. Alles darin ist erfunden – und ein Fund ist hier genau richtig.</p>
+</section>
+ </div>
+</div>
+
+<footer class="grenzen">
+ <p><b>Was der Auslieferungsprüfer nicht ist:</b> kein Virenscanner. Er liest Dateien, führt sie nie aus und schickt nichts ins Netz. Eine umformulierte Anweisung an eine KI kann durchfallen. Dieses Handbuch holt nichts aus dem Netz. „▶ Vorführen“ spielt eine aufgenommene Stimme ab, die mit dieser Seite kommt; fehlt sie, liest nur eine Stimme vor, die auf diesem Gerät liegt. Die Bilder zeigen die deutsche Oberfläche, auch beim Vorführen auf Englisch oder Russisch. <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a></p>
+</footer>
+
+<div class="buehne" id="buehne" hidden role="region" aria-label="Abspieler">
+ <div class="zeile"><span class="ut" id="ut" aria-live="polite"></span><button class="knopf zu" id="stopp" type="button" aria-label="Schließen">✕</button></div>
+ <div class="spur"><div class="marken" id="marken" aria-hidden="true"></div><input type="range" id="zeit" min="0" max="1" step="0.1" value="0" aria-label="Stelle in der Vorführung"></div>
+ <div class="steuer">
+  <button class="knopf" id="zurueck" type="button" aria-label="Vorige Szene">⏮</button>
+  <button class="knopf haupt" id="spielen" type="button" aria-label="Pause">⏸</button>
+  <button class="knopf" id="vor" type="button" aria-label="Nächste Szene">⏭</button>
+  <span class="uhr" id="uhr"></span>
+  <span class="welche" id="welche"></span>
+ </div>
+ <div class="stimme" id="stimme"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var ruhig = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var szenen = [].slice.call(document.querySelectorAll(".szene"));
+  var links = [].slice.call(document.querySelectorAll(".film a"));
+  if (!ruhig) document.documentElement.classList.add("bewegt");
+
+  /* Einblenden beim Rollen, und die Szene im Filmstreifen markieren. */
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (e) {
+      e.forEach(function (x) {
+        if (!x.isIntersecting) return;
+        x.target.classList.add("da");
+        links.forEach(function (a) { a.setAttribute("aria-current", String(a.dataset.zu === x.target.dataset.szene)); });
+      });
+    }, { rootMargin: "-35% 0px -45% 0px" });
+    szenen.forEach(function (s) { io.observe(s); });
+  } else szenen.forEach(function (s) { s.classList.add("da"); });
+
+  /* ▶ Vorführen: Szene für Szene, mit Untertitel. Trägt die Szene eine
+     Aufnahme (data-ton, Klaus 2026-10-02: „nicht die Browserstimme, die so
+     abgehackt klingt"), wird sie abgespielt — eine Datei von dieser Seite,
+     kein Aufruf nach draußen. Fehlt sie oder spielt sie nicht, liest nur
+     eine Stimme, die AUF DEM GERÄT liegt (localService). Eine Netz-Stimme
+     schickte den Text an ihren Anbieter; dann gibt es nur den Untertitel. */
+  var buehne = document.getElementById("buehne"), ut = document.getElementById("ut"), stimmeZeile = document.getElementById("stimme");
+  /* EIN Spieler für alle Szenen, angelegt beim Tipp auf „▶ Vorführen“:
+     Handys erlauben Ton nur aus einer Berührung heraus — ein neues
+     Audio-Element je Szene stünde nach der ersten stumm da. */
+  /* Englisch (Klaus 2026-10-02): dieselbe Vorführung mit data-sprech-en und
+     data-ton-en. Die Bilder bleiben die der deutschen Oberfläche — der
+     Bilder werden nur deutsch aufgenommen. Russisch genauso
+     (data-sprech-ru, data-ton-ru, Knopf „▶ Смотреть по-русски“). */
+  /* Abspieler (Klaus 2026-10-02: „wie ein Videoplayer, in jeder Sprache"):
+     der Regler steht über der ganzen Vorführung; ziehen springt mitsamt Bild
+     an die Stelle, ⏸/▶ hält an und spielt weiter, ⏮/⏭ springen eine Szene.
+     Die Länge einer Szene kommt aus den Schnitten (data-dauer…); fehlt die
+     Aufnahme, wird sie aus der Textlänge geschätzt. */
+  var zeit = document.getElementById("zeit"), uhrZeile = document.getElementById("uhr"), welche = document.getElementById("welche"),
+      knopfSpielen = document.getElementById("spielen"), marken = document.getElementById("marken");
+  var laeuft = false, pausiert = false, ziehen = false, warSpielend = false, uhr = null, ticker = null,
+      i = 0, pos = 0, ton = null, lauf = 0, sprache = "de", anfang = [], gesamt = 0;
+  var TXT = {
+    de: { ton: "Aufgenommene Stimme, abgespielt von dieser Seite.", geraet: function (n) { return "Vorgelesen von „" + n + "“ auf diesem Gerät."; }, keine: "Keine Stimme auf diesem Gerät — nur Untertitel.",
+      pause: "Pause", spielen: "Abspielen", zurueck: "Vorige Szene", vor: "Nächste Szene", zu: "Schließen", stelle: "Stelle in der Vorführung", szene: "Szene", spieler: "Abspieler" },
+    en: { ton: "Recorded voice, played from this page.", geraet: function (n) { return "Read by “" + n + "” on this device."; }, keine: "No voice on this device — subtitles only.",
+      pause: "Pause", spielen: "Play", zurueck: "Previous scene", vor: "Next scene", zu: "Close", stelle: "Position in the tour", szene: "Scene", spieler: "Player" },
+    ru: { ton: "Записанный голос, воспроизводится с этой страницы.", geraet: function (n) { return "Читает «" + n + "» на этом устройстве."; }, keine: "На этом устройстве нет голоса — только субтитры.",
+      pause: "Пауза", spielen: "Воспроизвести", zurueck: "Предыдущая сцена", vor: "Следующая сцена", zu: "Закрыть", stelle: "Позиция в показе", szene: "Сцена", spieler: "Проигрыватель" }
+  };
+  function gross() { return sprache.charAt(0).toUpperCase() + sprache.slice(1); }
+  function textVon(s) { return sprache === "de" ? s.querySelector("[data-sprech]").textContent.replace("🎙", "").trim() : (s.dataset["sprech" + gross()] || ""); }
+  function tonVon(s) { return sprache === "de" ? s.dataset.ton : s.dataset["ton" + gross()]; }
+  function dauerVon(s) { var d = Number(sprache === "de" ? s.dataset.dauer : s.dataset["dauer" + gross()]);
+    return d > 0 ? d : Math.max(5, textVon(s).length * 0.065); }
+  function mmss(t) { t = Math.max(0, Math.round(t)); return Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0"); }
+  function stimme() {
+    var s = window.speechSynthesis; if (!s) return null;
+    var re = new RegExp("^" + sprache, "i");
+    var alle = s.getVoices().filter(function (v) { return v.localService && re.test(v.lang); });
+    return alle[0] || null;
+  }
+  window.__handbuchStimme = stimme;
+  /* Hält jede laufende Wiedergabe an, ohne die Leiste zu schließen. */
+  function halt() {
+    lauf++; clearTimeout(uhr); clearInterval(ticker);
+    if (ton) { try { ton.onended = ton.onerror = ton.ontimeupdate = null; ton.pause(); } catch (_e) {} }
+    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (_e) {}
+  }
+  function stopp() {
+    halt(); laeuft = false; pausiert = false; buehne.hidden = true;
+    szenen.forEach(function (s) { s.classList.remove("aktiv"); });
+  }
+  function anzeigen() {
+    var t = (anfang[i] || 0) + pos;
+    if (!ziehen) zeit.value = String(Math.round(t * 10) / 10);
+    uhrZeile.textContent = mmss(t) + " / " + mmss(gesamt);
+    welche.textContent = TXT[sprache].szene + " " + (i + 1) + "/" + szenen.length;
+    var spielt = laeuft && !pausiert;
+    knopfSpielen.textContent = spielt ? "⏸" : "▶";
+    knopfSpielen.setAttribute("aria-label", spielt ? TXT[sprache].pause : TXT[sprache].spielen);
+  }
+  /* Zeigt Szene k (Bild, Ring, Untertitel), ohne zu spielen. */
+  function zeigeSzene(k, sanft) {
+    var neu = k !== i || !szenen[k].classList.contains("aktiv"); i = k;
+    var s = szenen[i];
+    szenen.forEach(function (x) { x.classList.toggle("aktiv", x === s); });
+    s.classList.add("da");
+    if (neu) s.scrollIntoView({ behavior: ruhig || !sanft ? "instant" : "smooth", block: "start" });
+    ut.textContent = textVon(s);
+  }
+  function naechste() { if (!laeuft || pausiert) return; if (i + 1 >= szenen.length) { pos = dauerVon(szenen[i]); pausiert = true; anzeigen(); return; }
+    uhr = setTimeout(function () { gehe(i + 1, 0, true); }, 300); }
+  /* Springt an Szene k, Sekunde off; spielen = gleich weiterspielen. */
+  function gehe(k, off, spielen) {
+    halt();
+    k = Math.max(0, Math.min(szenen.length - 1, k));
+    zeigeSzene(k, true); pos = Math.max(0, off || 0);
+    if (spielen) { pausiert = false; abspielen(); } else pausiert = true;
+    anzeigen();
+  }
+  function abspielen() {
+    var s = szenen[i], text = textVon(s), q = tonVon(s), d = dauerVon(s), mein = lauf;
+    if (q) {
+      var a = ton || (ton = new Audio()), fertig = false;
+      var aus = function (geklappt) {
+        if (fertig || mein !== lauf || !laeuft) return; fertig = true; clearTimeout(uhr);
+        if (geklappt) naechste(); else sprechen(s, text, d, mein);
+      };
+      a.onended = function () { pos = d; anzeigen(); aus(true); };
+      a.onerror = function () { aus(false); };
+      a.ontimeupdate = function () { if (mein === lauf && !ziehen) { pos = Math.min(d, a.currentTime || 0); anzeigen(); } };
+      if (a.getAttribute("src") !== q) a.src = q;
+      try { a.currentTime = pos; } catch (_e) {}
+      stimmeZeile.textContent = TXT[sprache].ton;
+      uhr = setTimeout(function () { aus(true); }, (d - pos + 6) * 1000 + text.length * 40);
+      var p = a.play(); if (p && p.catch) p.catch(function () { aus(false); });
+      return;
+    }
+    sprechen(s, text, d, mein);
+  }
+  /* Ohne Aufnahme: eine Stimme auf dem Gerät oder nur Untertitel. Eine
+     Geräte-Stimme kann nicht mitten im Satz einsetzen — sie liest die Szene
+     von vorn; der Regler läuft nach der Uhr. */
+  function sprechen(s, text, d, mein) {
+    var v = stimme(), los = Date.now() - pos * 1000;
+    stimmeZeile.textContent = v ? TXT[sprache].geraet(v.name) : TXT[sprache].keine;
+    clearInterval(ticker);
+    ticker = setInterval(function () { if (mein !== lauf) return; pos = Math.min(d, (Date.now() - los) / 1000); anzeigen(); }, 250);
+    var fertig = false; var ende = function () { if (fertig || mein !== lauf) return; fertig = true; clearInterval(ticker); naechste(); };
+    if (v) {
+      var u = new SpeechSynthesisUtterance(text); u.voice = v; u.lang = v.lang; u.rate = 1;
+      u.onend = ende; u.onerror = ende;
+      uhr = setTimeout(ende, 4000 + text.length * 90);
+      window.speechSynthesis.speak(u);
+    } else uhr = setTimeout(ende, Math.max(0, d - pos) * 1000);
+  }
+  function umschalten() {
+    if (!laeuft) return;
+    if (pausiert) { if (i === szenen.length - 1 && pos >= dauerVon(szenen[i]) - 0.05) gehe(0, 0, true); else { pausiert = false; abspielen(); anzeigen(); } }
+    else { halt(); pausiert = true; anzeigen(); }
+  }
+  function stelle(t) {
+    var k = 0; while (k + 1 < szenen.length && t >= anfang[k + 1]) k++;
+    return [k, Math.max(0, t - anfang[k])];
+  }
+  function start(spr) {
+    stopp(); if (!ton && window.Audio) ton = new Audio();
+    sprache = spr; buehne.lang = spr;
+    var T = TXT[spr];
+    buehne.setAttribute("aria-label", T.spieler); zeit.setAttribute("aria-label", T.stelle);
+    document.getElementById("zurueck").setAttribute("aria-label", T.zurueck);
+    document.getElementById("vor").setAttribute("aria-label", T.vor);
+    document.getElementById("stopp").setAttribute("aria-label", T.zu);
+    anfang = []; gesamt = 0;
+    szenen.forEach(function (s) { anfang.push(gesamt); gesamt += dauerVon(s); });
+    zeit.max = String(Math.round(gesamt * 10) / 10);
+    marken.textContent = "";
+    anfang.slice(1).forEach(function (t) { var m = document.createElement("i"); m.style.left = (t / gesamt * 100) + "%"; marken.appendChild(m); });
+    laeuft = true; buehne.hidden = false; gehe(0, 0, true);
+  }
+  zeit.addEventListener("input", function () {
+    if (!laeuft) return;
+    if (!ziehen) { ziehen = true; warSpielend = !pausiert; halt(); pausiert = true; }
+    var st = stelle(Number(zeit.value)); zeigeSzene(st[0], false); pos = st[1]; anzeigen();
+  });
+  zeit.addEventListener("change", function () {
+    if (!laeuft) return;
+    var st = stelle(Number(zeit.value)), weiter = ziehen ? warSpielend : !pausiert;
+    ziehen = false; gehe(st[0], st[1], weiter);
+  });
+  knopfSpielen.addEventListener("click", umschalten);
+  document.getElementById("zurueck").addEventListener("click", function () { if (laeuft) gehe(i - 1, 0, !pausiert); });
+  document.getElementById("vor").addEventListener("click", function () { if (laeuft) gehe(i + 1, 0, !pausiert); });
+  document.getElementById("vorfuehren").addEventListener("click", function () { start("de"); });
+  var en = document.getElementById("vorfuehren-en");
+  if (en) en.addEventListener("click", function () { start("en"); });
+  var ru = document.getElementById("vorfuehren-ru");
+  if (ru) ru.addEventListener("click", function () { start("ru"); });
+  document.getElementById("stopp").addEventListener("click", stopp);
+  document.addEventListener("keydown", function (e) {
+    if (!laeuft) return;
+    if (e.key === "Escape") { stopp(); return; }
+    var feld = e.target && /^(INPUT|BUTTON|TEXTAREA|SELECT|A)$/.test(e.target.tagName);
+    if (feld) return;
+    if (e.key === " " || e.key === "k") { e.preventDefault(); umschalten(); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); gehe(i - 1, 0, !pausiert); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); gehe(i + 1, 0, !pausiert); }
+  });
+  window.__handbuch = { stopp: stopp, laeuft: function () { return laeuft; }, pausiert: function () { return pausiert; }, szene: function () { return i; },
+    sprache: function () { return sprache; }, position: function () { return (anfang[i] || 0) + pos; }, gesamt: function () { return gesamt; } };
+})();
+</script>
+</body>
+</html>
