@@ -9,8 +9,8 @@
  * der Pause. Sprechtexte: `sprech` (de) bzw. `sprechText.<sprache>`.
  *
  * ⚠ GEMESSEN WIRD NUR DIE LAGE, NICHT DER WORTLAUT. Ohne Spracherkennung
- * prüft das Werkzeug: jedes Satzende trifft eine Pause, und keine liegt
- * mehr als 2,5 s neben der Stelle, die die Zeichenzahl erwarten lässt.
+ * prüft das Werkzeug: jedes Satzende trifft eine Pause, und kein Satz ist
+ * mehr als 2,5 s länger oder kürzer, als seine Zeichenzahl erwarten lässt.
  * Weicht etwas ab, sagt es das. Ob die Stimme den Text richtig liest,
  * hört nur ein Mensch.
  *
@@ -33,8 +33,8 @@ if (!/^[a-z]{2}$/.test(sprache)) { console.error("Sprache: zwei Buchstaben, z. B
  * Pause als zwischen zwei Sätzen (gemessen: beides 0,40–0,46 s). Eine Grenze
  * „die nächste lange Pause" traf dort mitten in eine Szene. Zugeordnet wird
  * deshalb SATZ für Satz: jedes Satzende bekommt eine eigene Pause (≥ 0,3 s),
- * der Reihe nach, so dass die Summe der Abstände zur erwarteten Stelle
- * (Zeichenanteil × Dauer) am kleinsten ist; längere Pausen wiegen etwas
+ * der Reihe nach, so dass die Summe der Abweichungen von der erwarteten
+ * Satzlänge (Zeichen × Sprechtempo der ganzen Aufnahme) am kleinsten ist; längere Pausen wiegen etwas
  * mehr. Pausen, die übrig bleiben, sind Kommas und Doppelpunkte. Die
  * Szenengrenzen sind dann die Satzenden am Ende einer Szene. */
 const PAUSE_MIN = 0.3, ABWEICHUNG_MAX = 2.5, LANG_GEWICHT = 4;
@@ -45,10 +45,27 @@ const lauf = spawnSync("ffmpeg", ["-hide_banner", "-i", quelle, "-af", "silenced
 if (lauf.status !== 0) { console.error("✗ ffmpeg konnte die Aufnahme nicht lesen:\n" + lauf.stderr.slice(-400)); process.exit(1); }
 const text = lauf.stderr;
 const dauer = Number(execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", quelle], { encoding: "utf8" }).trim());
-const pausen = [];
+/* Ava (Deutsch, 2026-10-03): Klaus hat zwischen die Szenen eine Zeile „…"
+ * gesetzt. Die Stimme macht daraus ZWEI Pausen mit einem Hauch dazwischen
+ * (gemessen: 19,31–19,66 und 19,72–20,16 s). Einzeln ist jede so lang wie
+ * eine Satzpause, und die Szenengrenze fiel einmal einen ganzen Satz zu früh.
+ * Pausen, zwischen denen weniger als VERBINDEN s Klang liegt, zählen deshalb
+ * als EINE — dann ist die Szenenpause länger als jede Satzpause daneben. */
+const VERBINDEN = 0.15;
+const roh = [];
 for (const m of text.matchAll(/silence_end: ([\d.]+) \| silence_duration: ([\d.]+)/g)) {
   const ende = Number(m[1]), d = Number(m[2]);
-  if (d >= PAUSE_MIN && ende < dauer - 0.3) pausen.push({ mitte: ende - d / 2, ende, d });
+  roh.push({ anfang: ende - d, ende });
+}
+const verbunden = [];
+for (const p of roh) {
+  const vor = verbunden[verbunden.length - 1];
+  if (vor && p.anfang - vor.ende < VERBINDEN) vor.ende = p.ende; else verbunden.push({ ...p });
+}
+const pausen = [];
+for (const { anfang, ende } of verbunden) {
+  const d = ende - anfang;
+  if (d >= PAUSE_MIN && ende < dauer - 0.3) pausen.push({ mitte: anfang + d / 2, ende, d });
 }
 /* Sätze der Reihe nach, je mit Szene und erwarteter Endzeit. */
 const saetze = [];
@@ -57,38 +74,53 @@ const gesamt = saetze.reduce((a, b) => a + b.n, 0);
 let summe = 0; saetze.forEach((x) => { summe += x.n; x.erwartet = (summe / gesamt) * dauer; });
 const K = saetze.length - 1, M = pausen.length;
 if (M < K) { console.error(`✗ ${K} Satzenden, aber nur ${M} Pausen ≥ ${PAUSE_MIN} s`); process.exit(1); }
-const kosten = (k, j) => Math.abs(pausen[j].mitte - saetze[k].erwartet) - LANG_GEWICHT * pausen[j].d;
+/* Ein Satzende am SZENEN-Ende wiegt die Pausenlänge doppelt: dort hat der
+ * Sprecher (seit Ava, 2026-10-03) eine eigene, längere Pause gemacht. Ohne das
+ * fiel die Grenze zwischen Szene 5 und 6 einen ganzen Satz zu früh — auf das
+ * Ende des ERSTEN Satzes (0,41 s statt 0,61 s Pause, 1 s näher an der Stelle,
+ * die die Zeichenzahl erwarten ließ). */
+const szenenEnde = (k) => saetze[k + 1] && saetze[k + 1].si !== saetze[k].si;
+/* Sonia (Englisch, 2026-10-03) liest die erste Szene langsamer als den Rest:
+ * die erwartete Stelle (Zeichenanteil × Dauer) lag dadurch in der Mitte der
+ * Aufnahme bis zu 2 s hinter der echten, und die Zuordnung rutschte von Szene
+ * 2 an um einen Satz zu früh. Gemessen wird deshalb die LÄNGE jedes Satzes
+ * (von der Pause davor bis zu seiner), nicht seine Lage — eine Verschiebung
+ * des Tempos zieht dann nicht alle folgenden Sätze mit. */
+const tempo = dauer / gesamt;
+const kosten = (k, i, j) => Math.abs(pausen[j].mitte - (i < 0 ? 0 : pausen[i].mitte) - saetze[k].n * tempo) - LANG_GEWICHT * (szenenEnde(k) ? 2 : 1) * pausen[j].d;
 /* D[k][j]: beste Summe, wenn Satzende k auf Pause j liegt. */
 const D = Array.from({ length: K }, () => new Float64Array(M).fill(Infinity));
 const V = Array.from({ length: K }, () => new Int32Array(M).fill(-1));
-for (let j = 0; j < M; j++) D[0][j] = kosten(0, j);
+for (let j = 0; j < M; j++) D[0][j] = kosten(0, -1, j);
 for (let k = 1; k < K; k++) {
-  let best = Infinity, bj = -1;
   for (let j = k; j < M; j++) {
-    if (D[k - 1][j - 1] < best) { best = D[k - 1][j - 1]; bj = j - 1; }
-    if (bj >= 0) { D[k][j] = best + kosten(k, j); V[k][j] = bj; }
+    for (let i = k - 1; i < j; i++) {
+      if (D[k - 1][i] === Infinity) continue;
+      const w = D[k - 1][i] + kosten(k, i, j);
+      if (w < D[k][j]) { D[k][j] = w; V[k][j] = i; }
+    }
   }
 }
-let j = 0; for (let x = 1; x < M; x++) if (D[K - 1][x] < D[K - 1][j]) j = x;
+const rest = (x) => D[K - 1][x] + Math.abs(dauer - pausen[x].mitte - saetze[K].n * tempo);
+let j = 0; for (let x = 1; x < M; x++) if (rest(x) < rest(j)) j = x;
 const zuordnung = new Array(K);
 for (let k = K - 1; k >= 0; k--) { zuordnung[k] = j; j = V[k][j]; }
 const grenzen = [];
 for (let k = 0; k < K; k++) if (saetze[k + 1].si !== saetze[k].si) grenzen.push({ ...pausen[zuordnung[k]], erwartet: saetze[k].erwartet });
-const satzAb = saetze.slice(0, K).map((x, k) => Math.abs(pausen[zuordnung[k]].mitte - x.erwartet));
+/* Geprüft wird, was auch die Zuordnung misst: wie weit die LÄNGE eines
+ * Satzes von der abweicht, die seine Zeichenzahl erwarten lässt. */
+const satzAb = saetze.map((x, k) => Math.abs((k < K ? pausen[zuordnung[k]].mitte : dauer) - (k ? pausen[zuordnung[k - 1]].mitte : 0) - x.n * tempo));
 const ziel = path.join(W, "handbuch", "ton", sprache);
 fs.rmSync(ziel, { recursive: true, force: true }); fs.mkdirSync(ziel, { recursive: true });
 const zwei = (n) => String(n).padStart(2, "0");
-/* Russisch (Svetlana, 2026-10-02): genau so viele Pausen ≥ PAUSE_MIN wie
- * Satzenden. Dann gibt es nur EINE Zuordnung — der Reihe nach —, und eine
- * große Abweichung heißt nur, dass das Sprechtempo vom Zeichenanteil
- * abweicht (gemessen: sie wuchs in Szene 06/07 stetig bis 3,9 s und fiel
- * danach wieder, kein Sprung). Das wird vermerkt, nicht verschwiegen; die
- * Grenze von 2,5 s bleibt für jede andere Aufnahme. */
+/* Sind es genau so viele Pausen ≥ PAUSE_MIN wie Satzenden (Svetlana,
+ * Russisch, 2026-10-03: 15 für 15), gibt es nur EINE Zuordnung — der Reihe
+ * nach. Das wird vermerkt. */
 const eindeutig = M === K;
 const schnitte = []; let warnungen = 0;
 SZENEN.forEach((s, i) => {
   const von = i ? grenzen[i - 1].mitte : 0, bis = i < grenzen.length ? grenzen[i].mitte : dauer;
-  const sk = saetze.map((x, k) => k).filter((k) => k < K && saetze[k].si === i);
+  const sk = saetze.map((x, k) => k).filter((k) => saetze[k].si === i);
   const ab = sk.length ? Math.max(...sk.map((k) => satzAb[k])) : 0;
   const zahl = saetze.filter((x) => x.si === i).length;
   const passt = ab <= ABWEICHUNG_MAX;
@@ -96,11 +128,11 @@ SZENEN.forEach((s, i) => {
   const datei = `${zwei(i + 1)}-${s.id}.mp3`;
   execFileSync("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y", "-i", quelle, "-ss", von.toFixed(3), "-to", bis.toFixed(3), "-c", "copy", path.join(ziel, datei)]);
   schnitte.push({ nr: i + 1, id: s.id, datei: `handbuch/ton/${sprache}/${datei}`, von: +von.toFixed(2), bis: +bis.toFixed(2), saetze: zahl, groessteAbweichung: +ab.toFixed(2) });
-  console.log(`${passt ? "✓" : "⚠"} ${zwei(i + 1)} ${s.id.padEnd(11)} ${von.toFixed(2).padStart(7)} – ${bis.toFixed(2).padStart(7)} s · ${zahl} Sätze · Satzenden höchstens ${ab.toFixed(1)} s von der erwarteten Stelle`);
+  console.log(`${passt ? "✓" : "⚠"} ${zwei(i + 1)} ${s.id.padEnd(11)} ${von.toFixed(2).padStart(7)} – ${bis.toFixed(2).padStart(7)} s · ${zahl} Sätze · Satzlänge höchstens ${ab.toFixed(1)} s neben der erwarteten`);
 });
 fs.writeFileSync(path.join(ziel, "schnitte.json"), JSON.stringify({
   hinweis: "Gebaut von tools/handbuch-ton.mjs aus einer Aufnahme aller Sprechtexte. Geschnitten in der Mitte einer Pause; gemessen ist die Lage, nicht der Wortlaut.",
   sprache, quelle: path.basename(quelle), dauer: +dauer.toFixed(2), pauseMin: PAUSE_MIN, abweichungMax: ABWEICHUNG_MAX, eindeutig, schnitte,
 }, null, 1) + "\n");
 if (eindeutig) console.log(`= ${M} Pausen für ${K} Satzenden: die Zuordnung ist eindeutig (der Reihe nach).`);
-console.log(warnungen ? `⚠ ${warnungen} Szene(n) mit einem Satzende über ${ABWEICHUNG_MAX} s neben der erwarteten Stelle — bitte anhören.` : `${SZENEN.length} Szenen geschnitten, jedes Satzende liegt höchstens ${ABWEICHUNG_MAX} s neben der erwarteten Stelle.`);
+console.log(warnungen ? `⚠ ${warnungen} Szene(n) mit einem Satz, der über ${ABWEICHUNG_MAX} s länger oder kürzer ist als erwartet — bitte anhören.` : `${SZENEN.length} Szenen geschnitten, kein Satz weicht mehr als ${ABWEICHUNG_MAX} s von der erwarteten Länge ab.`);

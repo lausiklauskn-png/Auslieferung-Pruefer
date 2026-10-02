@@ -628,11 +628,18 @@ Knopf **? Handbuch** (`#hilfeKnopf` → `handbuch.html`, `btn_hilfe`/`btn_hilfe_
   aus `tools/handbuch-vorlage.html` + `tools/handbuch-szenen.mjs` (8 Szenen: Seite · Foto/Datei · PDF 0D · Mail ·
   Befundkarte H6 · Was jetzt tun · Verdacht 4C · Testvorlagen). **Wer die Oberfläche oder einen Sprechtext ändert,
   baut neu** — `smoke_knoten` § HANDBUCH meldet sonst „veraltet".
-- Sprechtexte DE/EN/RU je Szene (`sprech`, `sprechText.en/.ru`) für spätere Aufnahmen (Amala/Andrew/Svetlana).
-  Aufnahmen schneidet `node tools/handbuch-ton.mjs <aufnahme.mp3> <de|en|ru>` nach `handbuch/ton/<spr>/`; bis dahin
-  liest ▶ Vorführen nur mit einer Stimme vom Gerät vor, sonst Untertitel.
+- Sprechtexte DE/EN/RU je Szene (`sprech`, `sprechText.en/.ru`). **Aufgenommen (Klaus 2026-10-03, speechma):**
+  Deutsch Ava (77 s), Englisch Sonia (71 s), Russisch Svetlana (85 s), je eine Datei mit einer „…"-Zeile zwischen
+  den Szenen; der mitgeschickte Text war je Sprache Wort für Wort gleich dem Sprechtext. Geschnitten mit
+  `node tools/handbuch-ton.mjs <aufnahme.mp3> <de|en|ru>` nach `handbuch/ton/<spr>/` (Satz für Satz: jedes Satzende
+  bekommt eine Pause, gemessen wird die LÄNGE jedes Satzes gegen Zeichen × Tempo; zwei Pausen mit < 0,15 s dazwischen
+  zählen als eine). Alle drei: jeder Satz höchstens 2,3 s neben der erwarteten Länge. ⚠ Gemessen ist die Lage, nicht
+  der Wortlaut — Klaus' Ohr bestätigt die Schnitte. Fehlt eine Aufnahme, liest ▶ Vorführen mit einer Stimme vom
+  Gerät, sonst Untertitel.
+  ⚠ Sonia macht zwischen den Szenen KEINE längere Pause und liest Szene 1 langsamer: eine Zuordnung nach Lage
+  (Zeichenanteil × Dauer) rutschte ab Szene 2 einen Satz zu früh. Deshalb misst das Werkzeug Satzlängen.
 - ⚠ **Benannte Grenze:** die Bilder zeigen die deutsche Oberfläche, auch beim englischen und russischen Vorführen.
-- `handbuch.html` steht im Vorrat, die Bilder nicht (der Worker legt sie beim ersten Abruf ab). Cache v31, `?v=104`.
+- `handbuch.html` steht im Vorrat, die Bilder nicht (der Worker legt sie beim ersten Abruf ab). Cache v32, `?v=105`.
 - Proben: `smoke_knoten` § HANDBUCH (Szenen, Sprechtexte aktuell, Bilder, Knopf, Vorrat, Wörterbuch) · `smoke_start`
   (Knopf bei 360/1300 px neben ⟳, spricht DE/EN/RU, Link auf der Startseite) · Gegenprobe `NUR_FALL="HANDBUCH:"` (5 Fälle).
 - ⚠ Am Tablet nicht gemessen.

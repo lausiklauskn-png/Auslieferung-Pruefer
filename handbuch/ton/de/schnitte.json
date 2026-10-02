@@ -1,0 +1,83 @@
+{
+ "hinweis": "Gebaut von tools/handbuch-ton.mjs aus einer Aufnahme aller Sprechtexte. Geschnitten in der Mitte einer Pause; gemessen ist die Lage, nicht der Wortlaut.",
+ "sprache": "de",
+ "quelle": "ava-de.mp3",
+ "dauer": 77.4,
+ "pauseMin": 0.3,
+ "abweichungMax": 2.5,
+ "eindeutig": false,
+ "schnitte": [
+  {
+   "nr": 1,
+   "id": "seite",
+   "datei": "handbuch/ton/de/01-seite.mp3",
+   "von": 0,
+   "bis": 10.6,
+   "saetze": 3,
+   "groessteAbweichung": 0.76
+  },
+  {
+   "nr": 2,
+   "id": "datei",
+   "datei": "handbuch/ton/de/02-datei.mp3",
+   "von": 10.6,
+   "bis": 19.73,
+   "saetze": 2,
+   "groessteAbweichung": 0.18
+  },
+  {
+   "nr": 3,
+   "id": "pdf",
+   "datei": "handbuch/ton/de/03-pdf.mp3",
+   "von": 19.73,
+   "bis": 29.97,
+   "saetze": 2,
+   "groessteAbweichung": 0.42
+  },
+  {
+   "nr": 4,
+   "id": "mail",
+   "datei": "handbuch/ton/de/04-mail.mp3",
+   "von": 29.97,
+   "bis": 39.32,
+   "saetze": 2,
+   "groessteAbweichung": 0.2
+  },
+  {
+   "nr": 5,
+   "id": "befund",
+   "datei": "handbuch/ton/de/05-befund.mp3",
+   "von": 39.32,
+   "bis": 48.04,
+   "saetze": 2,
+   "groessteAbweichung": 0.12
+  },
+  {
+   "nr": 6,
+   "id": "was-tun",
+   "datei": "handbuch/ton/de/06-was-tun.mp3",
+   "von": 48.04,
+   "bis": 57.23,
+   "saetze": 1,
+   "groessteAbweichung": 0.89
+  },
+  {
+   "nr": 7,
+   "id": "verdacht",
+   "datei": "handbuch/ton/de/07-verdacht.mp3",
+   "von": 57.23,
+   "bis": 67.22,
+   "saetze": 2,
+   "groessteAbweichung": 0.56
+  },
+  {
+   "nr": 8,
+   "id": "testvorlagen",
+   "datei": "handbuch/ton/de/08-testvorlagen.mp3",
+   "von": 67.22,
+   "bis": 77.4,
+   "saetze": 2,
+   "groessteAbweichung": 0.47
+  }
+ ]
+}
