@@ -232,6 +232,18 @@
            "an der Stelle, ist der Satz hellgrau auf hellem Grund und mit bloßem " +
            "Auge kaum zu sehen — genau das ist der Trick (Stufe 2 B)."
     },
+    /* Stufe 0 (Klaus 2026-10-05): der Text IN den Metadaten (Ersteller,
+       Beschreibung, Kommentar, XMP, IPTC, PNG-Text) mit derselben Liste. */
+    "BILD-METADATEN-KI-ANWEISUNG": {
+      kurz: "Anweisung in den Metadaten",
+      kopf: "In den Metadaten des Bildes steht eine Anweisung an einen KI-Assistenten.",
+      rat: "Im Bild selbst ist davon nichts zu sehen. Gibt jemand die Datei einer KI, " +
+           "kann sie die Metadaten mitlesen und den Satz als Auftrag verstehen. " +
+           "⚠ Ein Treffer ist kein Beweis: ein Feld kann einen Satz über solche " +
+           "Angriffe zitieren. Abhilfe: beim Absender nachfragen; wird das Bild " +
+           "gebraucht, ein Bildschirmfoto davon weitergeben — es trägt die " +
+           "Metadaten nicht mit."
+    },
 
     /* Stufe 2 C (2026-10-01): nur auf den Knopf „Verdacht prüfen". */
     "BILD-LSB-VERDACHT": {

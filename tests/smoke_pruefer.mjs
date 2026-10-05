@@ -2343,6 +2343,12 @@ if (!browser) {
       const l6 = await perLink("Vorlage-H6-Text-mit-KI-Anweisung.txt");
       ok(l6.datei && l6.arten.includes("KI-ANWEISUNG") && /Zeile 5/.test(l6.text),
          `KITEXT: 🧪 ?test=Vorlage-H6 → „Anweisung an eine KI“ in Zeile 5 (${l6.arten.join(", ")}; ${(l6.text.match(/Zeile \d+/g) || []).join(" ")})`);
+      const l7 = await perLink("Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg");
+      ok(l7.datei && l7.arten.includes("BILD-METADATEN-KI-ANWEISUNG") && /Feld EXIF K/.test(l7.text),
+         `META: 🧪 ?test=Vorlage-H7 → „Anweisung in den Metadaten“, Feld EXIF Künstler (${l7.arten.join(", ")})`);
+      const l0 = await perLink("Vorlage-H0-Foto-sauber.jpg");
+      ok(l0.datei && !l0.arten.includes("BILD-METADATEN-KI-ANWEISUNG"),
+         `META: Gegenrichtung: H0 (dasselbe Foto ohne Feld) trägt keine Anweisung in den Metadaten (${l0.arten.join(", ")})`);
       const l2 = await perLink("Vorlage-Alle-als-Mail.eml");
       ok(l2.mail && l2.arten.length > 0 && /mitgelieferte Test-Datei/.test(l2.text),
          `🧪 ?test=Vorlage-Alle-als-Mail.eml → im Mail-Eingang geprüft (${l2.arten.length} Befundarten)`);

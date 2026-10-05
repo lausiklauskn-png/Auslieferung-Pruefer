@@ -158,6 +158,22 @@ lege("Vorlage-H3-Grafik-laedt-von-fremdem-Rechner.svg", Buffer.from(
 /* H5 · ein Bild, das sich als PDF ausgibt (Endung passt nicht zum Inhalt) */
 lege("Vorlage-H5-Bild-als-PDF-getarnt.pdf", dateien["Vorlage-H0-Foto-sauber.jpg"]);
 
+/* H7 · dasselbe Foto wie H0, aber im EXIF-Feld „Künstler“ (Ersteller) steht
+ * eine Anweisung an eine KI (Stufe 0, Klaus 2026-10-05). Im Bild selbst ist
+ * nichts zu sehen. Steht NICHT in der Sammel-Mail (wie H6), damit deren
+ * Befunde unverändert bleiben. */
+{
+  const h0 = dateien["Vorlage-H0-Foto-sauber.jpg"];
+  const wert = Buffer.from(KI + "\0", "utf8");
+  const tiff = Buffer.alloc(26 + wert.length);
+  tiff.write("II", 0, "latin1"); tiff.writeUInt16LE(42, 2); tiff.writeUInt32LE(8, 4);
+  tiff.writeUInt16LE(1, 8); tiff.writeUInt16LE(0x013B, 10); tiff.writeUInt16LE(2, 12);
+  tiff.writeUInt32LE(wert.length, 14); tiff.writeUInt32LE(26, 18); wert.copy(tiff, 26);
+  const daten = Buffer.concat([Buffer.from("Exif\0\0", "latin1"), tiff]);
+  const app1 = Buffer.concat([Buffer.from([0xFF, 0xE1, (daten.length + 2) >> 8, (daten.length + 2) & 255]), daten]);
+  lege("Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg", Buffer.concat([h0.subarray(0, 2), app1, h0.subarray(2)]));
+}
+
 /* ── PDFs mit pdf-lib ── */
 globalThis.self = globalThis;
 vm.runInThisContext(fs.readFileSync(PDFLIB, "utf8"));
@@ -223,7 +239,7 @@ const winAnsi = (s) => s.replace(/·/g, "-");
 const reihen = (b) => b.toString("base64").replace(/.{76}/g, "$&\r\n");
 const TYP = (n) => ({ pdf: "application/pdf", png: "image/png", jpg: "image/jpeg", txt: "text/plain; charset=utf-8",
   svg: "image/svg+xml", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" })[n.split(".").pop()];
-const namen = Object.keys(dateien).filter((n) => !n.startsWith("Vorlage-H6-")).sort();
+const namen = Object.keys(dateien).filter((n) => !n.startsWith("Vorlage-H6-") && !n.startsWith("Vorlage-H7-")).sort();
 const grenze = "----testvorlagen-2026-09-30";
 let eml = [
   "From: Max Muster <max.muster@beispiel.example>",

@@ -4207,6 +4207,26 @@ probe "HANDBUCH: die Startseite führt nicht mehr zum Handbuch" \
       start.html \
       's|id="handbuchLink" href="handbuch.html"|id="handbuchLink" href="#"|'
 
+# ---- META: Anweisung an eine KI in den Bild-Metadaten (Stufe 0, 2026-10-05) ----
+probe "META: der Metadaten-Text wird gar nicht mehr geprüft" \
+      assets/pruefer-anhang.js \
+      's|return metatextPruefen(|return false \&\& metatextPruefen(|'
+probe "META: der Befund heißt nur noch Metadaten statt Anweisung in den Metadaten" \
+      assets/pruefer-anhang.js \
+      's|melde("BILD-METADATEN-KI-ANWEISUNG", st.satz|melde("BILD-METADATEN", st.satz|'
+probe "META: der Befund nennt das Feld nicht mehr" \
+      assets/pruefer-anhang.js \
+      's|" (Metadaten, Feld " + x.feld + ")"|" (Metadaten)"|'
+probe "META: ohne KI-Liste heißen die Metadaten nicht mehr ungeprüft" \
+      assets/pruefer-anhang.js \
+      's|stand.textUngeprueft = true; ungeprueft(stand, "Metadaten ungeprüft");|stand.textUngeprueft = false;|'
+probe "META: an der Vorlage H7 fehlt der Link „Im Prüfer prüfen“" \
+      testvorlagen/index.html \
+      's|?test=Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg|?test=Vorlage-H7-fehlt.jpg|'
+probe "META: H7 fehlt in der Testliste der App" \
+      auslieferungspruefer.html \
+      's|data-testlink="Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg"|data-testlink="Vorlage-H7-weg.jpg"|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1
