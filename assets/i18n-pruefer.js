@@ -102,6 +102,7 @@ window.PT_SEITE_I18N = {
     "pr_83": "3E · sichtbar 120 €, unsichtbar 12 000 €",
     "pr_84": "4C · Bild mit versteckter Botschaft",
     "pr_85": "4C · dasselbe Bild ohne Botschaft",
+    "pr_86": "H7 · Foto mit Anweisung in den Metadaten",
     "pr_bsp_hier": "— der Marktplatz PWA Toolpoint",
     "pr_fuss_recht": "Impressum & Datenschutz",
     "pr_fuss_satz": "Läuft im Browser. Kein Konto, kein Hochladen, keine fremde Adresse."
@@ -199,6 +200,7 @@ window.PT_SEITE_I18N = {
     "pr_83": "3E · visible €120, invisible €12,000",
     "pr_84": "4C · image with a hidden message",
     "pr_85": "4C · the same image without a message",
+    "pr_86": "H7 · photo with an instruction in its metadata",
     "pr_bsp_hier": "— the PWA Toolpoint marketplace",
     "pr_fuss_recht": "Imprint & Privacy",
     "pr_fuss_satz": "Runs in the browser. No account, no upload, no outside address."
@@ -296,6 +298,7 @@ window.PT_SEITE_I18N = {
     "pr_83": "3E · видно 120 €, невидимо 12 000 €",
     "pr_84": "4C · изображение со скрытым сообщением",
     "pr_85": "4C · то же изображение без сообщения",
+    "pr_86": "H7 · фото с указанием в метаданных",
     "pr_bsp_hier": "— маркетплейс PWA Toolpoint",
     "pr_fuss_recht": "Выходные данные и конфиденциальность",
     "pr_fuss_satz": "Работает в браузере. Без учётной записи, без загрузки, без чужого адреса."

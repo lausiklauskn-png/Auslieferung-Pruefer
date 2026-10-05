@@ -493,8 +493,8 @@ console.log("\nA3 · der Mail-Eingang");
 await import("file://" + path.join(WURZEL, "assets/pruefer-mail.js"));
 const ML = globalThis.PrueferMail;
 ok(ML && typeof ML.pruefeMail === "function", "assets/pruefer-mail.js lädt");
-ok(Array.isArray(ML.BEFUNDE_MAIL) && ML.BEFUNDE_MAIL.length === 14,
-   `vierzehn Befundarten benannt (${ML.BEFUNDE_MAIL.length})`);
+ok(Array.isArray(ML.BEFUNDE_MAIL) && ML.BEFUNDE_MAIL.length === 15,
+   `fünfzehn Befundarten benannt (${ML.BEFUNDE_MAIL.length})`);
 /* Die fehlende zweite Fassung steht als Tatsache im Modul, nicht nur in einem
    Kommentar — sonst ist sie beim nächsten Umbau vergessen. */
 ok(ML._meta && ML._meta.zwilling === false,
@@ -1554,7 +1554,7 @@ if (!browser) {
     marke: e.getAttribute("data-testmail"), text: e.textContent,
   }));
   ok(testmail.marke === "bestanden",
-     `die Test-Mail löst ALLE vierzehn Befundarten aus (${testmail.marke})`);
+     `die Test-Mail löst ALLE fünfzehn Befundarten aus (${testmail.marke})`);
   /* ⚠ UND SIE SAGT VOR DEN FUNDEN, DASS SIE SO SEIN SOLLEN. Ohne diesen Satz
      liest man vierzehn Funde als Zeugnis über das Werkzeug — genau der
      Eigentor-Fehler, der den „Selbsttest" den Namen gekostet hat. */
@@ -1780,6 +1780,14 @@ if (!browser) {
   const txtAnh = await dateiPruefen("notiz.txt", "text/plain", Buffer.from("Notiz (erfunden)\nKontakt: max.muster@firma-4711.test\n"));
   ok(txtAnh.arten.includes("PERSONENBEZUG") && /Textdatei/.test(txtAnh.text),
      `eine Textdatei wird als Text geprüft (${txtAnh.arten.join(", ") || txtAnh.zahl})`);
+  /* KI-BEGRIFF (Klaus 2026-10-05): eine .md ÜBER Angriffe auf KI-Assistenten
+     nennt „prompt injection". Das ist ein Fachbegriff, keine Anweisung — die
+     Karte sagt das und wie der Befund zustande kommt, ohne „Was jetzt tun“. */
+  const md = await dateiPruefen("marktluecke.md", "text/markdown", Buffer.from("# Marktlücke (erfunden)\n\nViele fürchten prompt injection.\n"));
+  const mdTun = await seite.evaluate(() => document.querySelectorAll("#ergebnis [data-was-tun]").length);
+  ok(md.arten.includes("KI-BEGRIFF") && !md.arten.includes("KI-ANWEISUNG") && /Fachbegriff/.test(md.text) && /feste[n]? Wortliste/.test(md.text),
+     `BEGRIFF: .md mit „prompt injection“ → „Fachbegriff“ samt Herkunft, nicht „Anweisung an eine KI“ (${md.arten.join(", ")})`);
+  ok(mdTun === 0 && !/Ruhig bleiben/.test(md.text), `BEGRIFF: kein „Was jetzt tun“-Kasten beim bloßen Fachbegriff (${mdTun})`);
   /* HTML-Anhang (2026-09-30): eine Seite als Datei geht durch den HTML-Prüfer.
      Erfunden, alle Adressen .example; das eingebettete Skript darf NICHT laufen. */
   const HTML_BOESE = '<!DOCTYPE html>\n<html lang="de"><head><script>window.__schaden="html lief"</script>\n' +
@@ -2343,6 +2351,12 @@ if (!browser) {
       const l6 = await perLink("Vorlage-H6-Text-mit-KI-Anweisung.txt");
       ok(l6.datei && l6.arten.includes("KI-ANWEISUNG") && /Zeile 5/.test(l6.text),
          `KITEXT: 🧪 ?test=Vorlage-H6 → „Anweisung an eine KI“ in Zeile 5 (${l6.arten.join(", ")}; ${(l6.text.match(/Zeile \d+/g) || []).join(" ")})`);
+      const l7 = await perLink("Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg");
+      ok(l7.datei && l7.arten.includes("BILD-METADATEN-KI-ANWEISUNG") && /Feld EXIF K/.test(l7.text),
+         `META: 🧪 ?test=Vorlage-H7 → „Anweisung in den Metadaten“, Feld EXIF Künstler (${l7.arten.join(", ")})`);
+      const l0 = await perLink("Vorlage-H0-Foto-sauber.jpg");
+      ok(l0.datei && !l0.arten.includes("BILD-METADATEN-KI-ANWEISUNG"),
+         `META: Gegenrichtung: H0 (dasselbe Foto ohne Feld) trägt keine Anweisung in den Metadaten (${l0.arten.join(", ")})`);
       const l2 = await perLink("Vorlage-Alle-als-Mail.eml");
       ok(l2.mail && l2.arten.length > 0 && /mitgelieferte Test-Datei/.test(l2.text),
          `🧪 ?test=Vorlage-Alle-als-Mail.eml → im Mail-Eingang geprüft (${l2.arten.length} Befundarten)`);

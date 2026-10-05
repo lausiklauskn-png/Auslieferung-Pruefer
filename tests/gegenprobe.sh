@@ -54,7 +54,12 @@ trap aufraeumen INT TERM EXIT
 # Dreissigfache; eine Maschine muesste dreissigmal langsamer sein, damit ein
 # gesunder Lauf hier faellt. `timeout` meldet 124 — also nicht null, also „rot",
 # und genau das ist fuer einen haengenden Laeufer richtig.
-FRIST=300
+# ⚠ GEMESSEN 2026-10-05: der volle Lauf (`node tests/alle.mjs`) braucht inzwischen
+# 354 s — Texterkennung, Gegenlesen und Verdacht kamen seit dem 11.09. dazu. Mit
+# 300 s brach die Gegenprobe schon an der AUSGANGSLAGE ab („der Smoke ist schon
+# vor der Gegenprobe rot"), ohne dass etwas rot war. 900 s sind gut das
+# Zweieinhalbfache; die Frist bleibt ein Riegel gegen einen haengenden Lauf.
+FRIST=900
 
 # ⚠ DERSELBE DRITTE AUSGANG WIE BEI `probe`, und hier war er noch noetiger: der
 # Python-Block wirft zwar „ANKER NICHT GEFUNDEN", aber `eval` schluckt das, und
@@ -4206,6 +4211,40 @@ probe "HANDBUCH: eine Szene fehlt im Handbuch" \
 probe "HANDBUCH: die Startseite führt nicht mehr zum Handbuch" \
       start.html \
       's|id="handbuchLink" href="handbuch.html"|id="handbuchLink" href="#"|'
+
+# ---- META: Anweisung an eine KI in den Bild-Metadaten (Stufe 0, 2026-10-05) ----
+probe "META: der Metadaten-Text wird gar nicht mehr geprüft" \
+      assets/pruefer-anhang.js \
+      's|return metatextPruefen(|return false \&\& metatextPruefen(|'
+probe "META: der Befund heißt nur noch Metadaten statt Anweisung in den Metadaten" \
+      assets/pruefer-anhang.js \
+      's|melde("BILD-METADATEN-KI-ANWEISUNG", st.satz|melde("BILD-METADATEN", st.satz|'
+probe "META: der Befund nennt das Feld nicht mehr" \
+      assets/pruefer-anhang.js \
+      's|" (Metadaten, Feld " + x.feld + ")"|" (Metadaten)"|'
+probe "META: ohne KI-Liste heißen die Metadaten nicht mehr ungeprüft" \
+      assets/pruefer-anhang.js \
+      's|stand.textUngeprueft = true; ungeprueft(stand, "Metadaten ungeprüft");|stand.textUngeprueft = false;|'
+probe "META: an der Vorlage H7 fehlt der Link „Im Prüfer prüfen“" \
+      testvorlagen/index.html \
+      's|?test=Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg|?test=Vorlage-H7-fehlt.jpg|'
+probe "META: H7 fehlt in der Testliste der App" \
+      auslieferungspruefer.html \
+      's|href="?test=Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg"|href="?test=Vorlage-H7-weg.jpg"|'
+
+# ---- BEGRIFF: ein Fachbegriff ist keine Anweisung (Klaus 2026-10-05) ----
+probe "BEGRIFF: „prompt injection“ allein heißt wieder Anweisung an eine KI" \
+      assets/pruefer-mail.js \
+      's|, begriff: true,|,|'
+probe "BEGRIFF: der Fachbegriff-Befund sagt nicht mehr, wie er zustande kommt" \
+      assets/pruefer-mail.js \
+      's|Gefunden über eine feste Wortliste. |Gefunden. |'
+probe "BEGRIFF: die Anweisung an eine KI sagt nicht mehr, wie sie zustande kommt" \
+      assets/pruefer-mail.js \
+      's|über eine feste Liste solcher Wendungen|über Wendungen|'
+probe "BEGRIFF: eine echte Anweisung in derselben Zeile wird zum Fachbegriff" \
+      assets/pruefer-mail.js \
+      's|if (!KI_MUSTER\[ki\].begriff) kiAnweisung\[kz\] = true;|kiAnweisung[kz] = false;|'
 
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"

@@ -31,10 +31,10 @@
      Goldrand), aber Paket statt Brief und Waldgrün statt Navy. Als Datei aus
      dem eigenen Ordner, nie von einer fremden Adresse. Vorher (2026-08-23 bis
      2026-09-30): ein Pfosten mit zwei Pfeilen, inline als SVG. -->
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=105">
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=105">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=105">
-<link rel="stylesheet" href="assets/style.css?v=105">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=106">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=106">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=106">
+<link rel="stylesheet" href="assets/style.css?v=106">
 <script>
 /* Thema VOR dem ersten Anstrich setzen — sonst blitzt bei jedem Aufruf kurz das
    Standard-Thema auf, bevor die gespeicherte Wahl greift. Absichtlich winzig
@@ -439,6 +439,7 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
       <a class="thema-knopf" href="?test=Vorlage-H0-Foto-sauber.jpg" data-testlink="Vorlage-H0-Foto-sauber.jpg" data-i18n="pr_72">H0 · sauberes Foto (kein Befund)</a>
       <a class="thema-knopf" href="?test=Vorlage-H1-Text-mit-Angaben.txt" data-testlink="Vorlage-H1-Text-mit-Angaben.txt" data-i18n="pr_73">H1 · Text mit Angaben</a>
       <a class="thema-knopf" href="?test=Vorlage-H6-Text-mit-KI-Anweisung.txt" data-testlink="Vorlage-H6-Text-mit-KI-Anweisung.txt" data-i18n="pr_74">H6 · Text mit Anweisung an eine KI</a>
+      <a class="thema-knopf" href="?test=Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg" data-testlink="Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg" data-i18n="pr_86">H7 · Foto mit Anweisung in den Metadaten</a>
       <a class="thema-knopf" href="?test=Vorlage-H2-Foto-mit-GPS-Verweis-und-Anhaengsel.jpg" data-testlink="Vorlage-H2-Foto-mit-GPS-Verweis-und-Anhaengsel.jpg" data-i18n="pr_75">H2 · Foto mit GPS-Verweis und Anhängsel</a>
       <a class="thema-knopf" href="?test=Vorlage-H3-Grafik-laedt-von-fremdem-Rechner.svg" data-testlink="Vorlage-H3-Grafik-laedt-von-fremdem-Rechner.svg" data-i18n="pr_76">H3 · Grafik lädt von einem fremden Rechner</a>
       <a class="thema-knopf" href="?test=Vorlage-H4-Word-mit-externer-Vorlage.docx" data-testlink="Vorlage-H4-Word-mit-externer-Vorlage.docx" data-i18n="pr_77">H4 · Word-Datei mit Vorlage von außen</a>
@@ -805,24 +806,24 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
 
 </main>
 
-<script src="assets/i18n-pruefer.js?v=105"></script>
-<script src="assets/sprache.js?v=105"></script>
-<script src="assets/thema.js?v=105"></script>
-<script src="assets/pruefer.js?v=105"></script>
+<script src="assets/i18n-pruefer.js?v=106"></script>
+<script src="assets/sprache.js?v=106"></script>
+<script src="assets/thema.js?v=106"></script>
+<script src="assets/pruefer.js?v=106"></script>
 <!-- ⚠ REIHENFOLGE. `pruefer-formate.js` holt sich die Fülltext-Liste aus
      `pruefer.js` — eine zweite, eigene Liste wäre eine Drift-Quelle mit Ansage.
      Und `pruefer-ui.js` steht zuletzt, weil es alle drei bedient. -->
-<script src="assets/pruefer-formate.js?v=105"></script>
-<script src="assets/pruefer-browser.js?v=105"></script>
+<script src="assets/pruefer-formate.js?v=106"></script>
+<script src="assets/pruefer-browser.js?v=106"></script>
 <!-- ⚠ NACH `pruefer-formate.js`: der Mail-Eingang leiht sich dessen
      Schlüssel-Muster und die IBAN-Prüfung, statt zweite Listen zu führen.
      Fehlt die Datei, sagt er das im Ergebnis, statt still weniger zu prüfen. -->
-<script src="assets/pruefer-mail.js?v=105"></script>
+<script src="assets/pruefer-mail.js?v=106"></script>
 <!-- Anhänge und einzelne Dateien öffnen — hier gepflegt, byte-1:1 im Sende-Prüfer. -->
-<script src="assets/pruefer-anhang.js?v=105"></script>
-<script src="assets/pruefer-ui.js?v=105"></script>
+<script src="assets/pruefer-anhang.js?v=106"></script>
+<script src="assets/pruefer-ui.js?v=106"></script>
 <!-- Knopf „Installieren" in der Kopfleiste (Klaus 2026-09-30, aus dem Sende-Prüfer). -->
-<script src="assets/installieren.js?v=105"></script>
+<script src="assets/installieren.js?v=106"></script>
 <!-- ══ SBKIM — der Auslieferungsprüfer als eigener Knoten im Mycel ═══════════
      Eigene Identität, eigene Spore, das schwebende Verbinden-Fenster, die
      Status-Pille von Modul 17 und das selbstausfüllende Siegel mit dem
@@ -838,9 +839,9 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
      `netz.js` steht ZUERST: die Relais-Liste des Prüfers liest die des
      Marktplatzes ab, statt sie abzuschreiben — zwei Listen derselben
      Poststellen laufen auseinander. -->
-<script src="assets/config/netz.js?v=105"></script>
-<script src="assets/config/pruefer-netz.js?v=105"></script>
-<script src="assets/pruefer-sbkim-init.js?v=105"></script>
+<script src="assets/config/netz.js?v=106"></script>
+<script src="assets/config/pruefer-netz.js?v=106"></script>
+<script src="assets/pruefer-sbkim-init.js?v=106"></script>
 <!-- ⚠ EIGENE APP SEIT 2026-09-26: im Marktplatz registrierte die STARTSEITE den
      Service-Worker, der Prüfer nicht. Als eigenständige PWA braucht er ihn selbst,
      sonst läuft er offline nicht. -->
