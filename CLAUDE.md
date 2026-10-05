@@ -653,7 +653,7 @@ dazu der JPEG-Kommentar, XMP und IPTC-Beschreibung. Ein Treffer heißt **`BILD-M
 „(Metadaten, Feld X)“ und hat ruhige Schritte. Fehlt die KI-Liste, heißt der Metadaten-Text „ungeprüft“.
 Vorlage **H7** (`testvorlagen/Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg`, = H0 plus ein Feld EXIF Künstler,
 gebaut mit `node tools/testvorlagen-bauen.mjs`) steht in der Testliste und auf `testvorlagen/`.
-Gegenprobe `NUR_FALL="META:"` (6 Fälle). Cache v33, `?v=106`.
+Gegenprobe `NUR_FALL="META:"` (6 Fälle), gefahren in einer Kopie (2026-10-05): **6 schlagen an · 0 blind · 0 tote Anker**. Im ersten Anlauf war ein Metadaten-Wächter blind (d5fb441) und der H7-Fall blind (bece9db); beide geschärft, danach neu gefahren. Cache v33, `?v=106`.
 ⚠ **Die Gegenprobe hatte eine Frist von 300 s, der volle Smoke-Lauf braucht gemessen 354 s.** Sie brach deshalb
 schon an der Ausgangslage ab („Smoke schon vor der Gegenprobe rot“) und sah dabei aus wie ein kaputter Baum.
 Jetzt `FRIST=900`.
@@ -680,3 +680,5 @@ KI-Angriff … Deswegen müsste das klar benannt werden, wie dieser Befund zusta
   „Was jetzt tun“-Kasten). Gegenprobe `NUR_FALL="BEGRIFF:"` mit 4 Fällen, alle von Hand nachgestellt, jeder wird
   rot. Der vierte Fall (die Zeile gilt nie als Anweisung) trägt seine roten Zeilen zuerst an den PDF- und
   Bild-Wächtern, weil dort nur noch `KI-ANWEISUNG` zählt.
+  Gefahren in einer Kopie (2026-10-05): **4 schlagen an · 0 blind · 0 tote Anker**. Der erste Lauf brach unter Last
+  ab (ein zweiter Lauf lief daneben) und wurde allein neu gefahren. Kein voller Lauf: die Marktplatz-Fälle blieben aus.
