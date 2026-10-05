@@ -394,7 +394,19 @@
       rat: "Liest ein Assistent dein Postfach mit, könnte er sie als Auftrag " +
            "verstehen und Inhalte weitergeben. ⚠ Ein Treffer ist kein Beweis: " +
            "ein Rundbrief ÜBER solche Angriffe enthält dieselben Sätze. " +
+           "So kommt der Befund zustande: die Prüfung sucht nach einer festen " +
+           "Liste von Wendungen wie „ignoriere alle vorherigen Anweisungen“. " +
            "Abhilfe: die Stelle unten selbst lesen und entscheiden."
+    },
+    "KI-BEGRIFF": {
+      kurz: "Fachbegriff zu KI-Angriffen",
+      kopf: "Im Text steht ein Fachbegriff für Angriffe auf KI-Assistenten — keine Anweisung.",
+      rat: "So kommt der Befund zustande: die Prüfung sucht nach einer festen " +
+           "Liste von Wörtern und Wendungen. Hier traf nur ein Fachbegriff wie " +
+           "„prompt injection“. Das ist typisch für einen Text, der ÜBER das Thema " +
+           "schreibt. Eine Anweisung an eine KI stand in dieser Zeile nicht. " +
+           "Empfehlung: die Stelle unten selbst lesen. Handelt der Text vom " +
+           "Thema, ist nichts weiter zu tun."
     },
     "ABSENDER-TARNUNG": {
       kurz: "Absender passt nicht",
@@ -1749,7 +1761,7 @@
    * das Muster einer Anweisung an einen Assistenten — er steht hier, damit die
    * Prüfung ihn findet, und er richtet sich an niemanden.
    *
-   * Sie trägt jede der vierzehn Befundarten mindestens einmal; `smoke_pruefer`
+   * Sie trägt jede der fünfzehn Befundarten mindestens einmal; `smoke_pruefer`
    * besteht darauf und meldet namentlich, welche ausbleibt. Bleibt eine aus,
    * ist der Prüfer kaputt, nicht die Test-Mail.
    */
@@ -1778,6 +1790,7 @@
     '/a></p>',
     '<p><a href=3D"https://xn--bnk-beispiel-9db.test/">Kontoauszug</a></p>',
     '<p>Kurzfassung: https://bit.ly/xyz4711</p>',
+    '<p>Mehr zum Thema prompt injection steht in unserem Blog.</p>',
     '<p>Bitte beachten Sie unsere neue Bankverbindung, IBAN DE89 3704 0044 0532 01=',
     '30 00.</p>',
     '<p>Pass=E2=80=8Bwort-Portal</p>',
@@ -1824,7 +1837,7 @@
         fehlt.join(", ") + ". Dann ist der Prüfer kaputt, nicht die Test-Mail."
       : "✓ Das ist die mitgelieferte Test-Mail, und sie ist mit Absicht " +
         "bösartig. Alles darin ist erfunden, jede Adresse endet auf .test und " +
-        "führt nirgendwohin. Alle vierzehn Befundarten sind aufgetreten — genau " +
+        "führt nirgendwohin. Alle fünfzehn Befundarten sind aufgetreten — genau " +
         "so soll es sein. Die Funde unten sind ein Zeugnis über den Prüfer, " +
         "nicht über dein Postfach.";
     var p = t("p", "feldhinweis", satz);

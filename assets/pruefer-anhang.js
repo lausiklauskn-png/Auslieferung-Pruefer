@@ -1091,7 +1091,7 @@
    * ⚠ Ein "\n" davor: pruefeMail hält eine erste Zeile wie „Hinweis: …"
    *   sonst für einen Mailkopf und verschiebt die Zeilen. Abgezogen wird 1.
    * Fehlt pruefer-mail.js, ist der Text ungeprüft, nicht sauber. */
-  var DATEI_KI_ARTEN = ["KI-ANWEISUNG", "UNSICHTBARE-ZEICHEN", "VERSTECKTER-TEXT"];
+  var DATEI_KI_ARTEN = ["KI-ANWEISUNG", "KI-BEGRIFF", "UNSICHTBARE-ZEICHEN", "VERSTECKTER-TEXT"];
   function dateitextPruefen(text, melde, hinweise, stand) {
     if (!text || !String(text).trim()) return;
     var PM = welt.PrueferMail;

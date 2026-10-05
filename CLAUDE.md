@@ -643,3 +643,40 @@ Knopf **? Handbuch** (`#hilfeKnopf` → `handbuch.html`, `btn_hilfe`/`btn_hilfe_
 - Proben: `smoke_knoten` § HANDBUCH (Szenen, Sprechtexte aktuell, Bilder, Knopf, Vorrat, Wörterbuch) · `smoke_start`
   (Knopf bei 360/1300 px neben ⟳, spricht DE/EN/RU, Link auf der Startseite) · Gegenprobe `NUR_FALL="HANDBUCH:"` (5 Fälle).
 - ⚠ Am Tablet nicht gemessen.
+
+## 🏷 Stufe 0 · Anweisung in den Bild-Metadaten (Klaus 2026-10-05)
+
+Text, den ein Bild-Programm in die Metadaten schreibt, wird gelesen und durch dieselbe KI-Liste geschickt
+wie der Mail-Eingang (`metatextPruefen` → `PrueferMail.pruefeMail`). Gelesen werden PNG-Text (tEXt, zTXt,
+iTXt, auch gepackt) sowie bei JPEG EXIF Künstler, Beschreibung, Kommentar (Windows) und Benutzerkommentar,
+dazu der JPEG-Kommentar, XMP und IPTC-Beschreibung. Ein Treffer heißt **`BILD-METADATEN-KI-ANWEISUNG`**
+„(Metadaten, Feld X)“ und hat ruhige Schritte. Fehlt die KI-Liste, heißt der Metadaten-Text „ungeprüft“.
+Vorlage **H7** (`testvorlagen/Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg`, = H0 plus ein Feld EXIF Künstler,
+gebaut mit `node tools/testvorlagen-bauen.mjs`) steht in der Testliste und auf `testvorlagen/`.
+Gegenprobe `NUR_FALL="META:"` (6 Fälle). Cache v33, `?v=106`.
+⚠ **Die Gegenprobe hatte eine Frist von 300 s, der volle Smoke-Lauf braucht gemessen 354 s.** Sie brach deshalb
+schon an der Ausgangslage ab („Smoke schon vor der Gegenprobe rot“) und sah dabei aus wie ein kaputter Baum.
+Jetzt `FRIST=900`.
+
+## 📖 Ein Fachbegriff ist keine Anweisung (Klaus 2026-10-05)
+
+Klaus prüfte eine .md über eine Marktlücke. Darin stand „prompt injection“ in drei Zeilen, und das kam als
+„Anweisung an eine KI“ samt „keine Panik“ an: *„Er denkt natürlich automatisch, hier geht es gleich um einen
+KI-Angriff … Deswegen müsste das klar benannt werden, wie dieser Befund zustande kommt.“*
+
+- In `KI_MUSTER` (`pruefer-mail.js`) trägt das Muster „prompt injection“ jetzt `begriff: true`. Trifft in einer
+  Zeile **nur** ein solches Muster, heißt der Befund **`KI-BEGRIFF`** („Fachbegriff zu KI-Angriffen“). Der Satz
+  nennt, dass er über eine feste Wortliste gefunden wurde, und dass in der Zeile keine Anweisung steht. Es gibt
+  **keinen** Kasten „Was jetzt tun“.
+  Steht in derselben Zeile eine echte Wendung, bleibt es `KI-ANWEISUNG`.
+- Auch `KI-ANWEISUNG` sagt jetzt, wie der Befund entsteht: über eine feste Liste von Wendungen, und ein Text,
+  der eine solche Wendung nur zitiert, wird ebenso gemeldet.
+- `KI-BEGRIFF` steht in `BEFUNDE_MAIL`, also gibt es jetzt **fünfzehn** Befundarten. Die Test-Mail trägt dafür
+  die Zeile „Mehr zum Thema prompt injection …“. Außerdem steht es in `DATEI_KI_ARTEN`.
+- ⚠ **Benannte Grenze:** In Bildtext, PDF-Seitentext und Metadaten wird eine bloße Nennung weiter **nicht**
+  gemeldet, denn dort zählt nur `KI-ANWEISUNG`.
+- Byte-1:1 nach Sende-Pruefer und Mein-In-and-Out-Book (`pruefer-mail.js`, `pruefer-anhang.js`).
+- Proben: `smoke_anhang` (§ BEGRIFF) und `smoke_pruefer` (eine .md mit Fachbegriff ergibt keinen
+  „Was jetzt tun“-Kasten). Gegenprobe `NUR_FALL="BEGRIFF:"` mit 4 Fällen, alle von Hand nachgestellt, jeder wird
+  rot. Der vierte Fall (die Zeile gilt nie als Anweisung) trägt seine roten Zeilen zuerst an den PDF- und
+  Bild-Wächtern, weil dort nur noch `KI-ANWEISUNG` zählt.
