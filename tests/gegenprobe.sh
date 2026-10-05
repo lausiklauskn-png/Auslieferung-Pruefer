@@ -4230,7 +4230,7 @@ probe "META: an der Vorlage H7 fehlt der Link „Im Prüfer prüfen“" \
       's|?test=Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg|?test=Vorlage-H7-fehlt.jpg|'
 probe "META: H7 fehlt in der Testliste der App" \
       auslieferungspruefer.html \
-      's|data-testlink="Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg"|data-testlink="Vorlage-H7-weg.jpg"|'
+      's|href="?test=Vorlage-H7-Foto-mit-KI-Anweisung-in-Metadaten.jpg"|href="?test=Vorlage-H7-weg.jpg"|'
 
 # ---- BEGRIFF: ein Fachbegriff ist keine Anweisung (Klaus 2026-10-05) ----
 probe "BEGRIFF: „prompt injection“ allein heißt wieder Anweisung an eine KI" \
