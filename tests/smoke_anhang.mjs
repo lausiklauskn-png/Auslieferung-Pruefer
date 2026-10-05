@@ -482,6 +482,8 @@ if (!fs.existsSync(join(PDFJS, "pdf.min.js")) || !fs.existsSync(PDFLIB)) {
   q = await p("meta.png", M.pngMeta({}));
   ok("META: ohne die KI-Liste heißt der Metadaten-Text „ungeprüft“, kein stilles Nichts",
      q.hinweise.some((h) => /Metadaten wurde gelesen.*ungeprüft/.test(h)) && !kennungen(q).includes(KI), JSON.stringify(q.hinweise));
+  ok("META: … und der Stand der Datei sagt „Metadaten ungeprüft“ (textUngeprueft), nicht nur ein Hinweis",
+     q.textUngeprueft === true && /Metadaten ungeprüft/.test(q.ungeprueftSatz || ""), JSON.stringify({t: q.textUngeprueft, s: q.ungeprueftSatz}));
   globalThis.PrueferMail = pm;
 }
 
