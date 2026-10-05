@@ -54,7 +54,12 @@ trap aufraeumen INT TERM EXIT
 # Dreissigfache; eine Maschine muesste dreissigmal langsamer sein, damit ein
 # gesunder Lauf hier faellt. `timeout` meldet 124 — also nicht null, also „rot",
 # und genau das ist fuer einen haengenden Laeufer richtig.
-FRIST=300
+# ⚠ GEMESSEN 2026-10-05: der volle Lauf (`node tests/alle.mjs`) braucht inzwischen
+# 354 s — Texterkennung, Gegenlesen und Verdacht kamen seit dem 11.09. dazu. Mit
+# 300 s brach die Gegenprobe schon an der AUSGANGSLAGE ab („der Smoke ist schon
+# vor der Gegenprobe rot"), ohne dass etwas rot war. 900 s sind gut das
+# Zweieinhalbfache; die Frist bleibt ein Riegel gegen einen haengenden Lauf.
+FRIST=900
 
 # ⚠ DERSELBE DRITTE AUSGANG WIE BEI `probe`, und hier war er noch noetiger: der
 # Python-Block wirft zwar „ANKER NICHT GEFUNDEN", aber `eval` schluckt das, und
