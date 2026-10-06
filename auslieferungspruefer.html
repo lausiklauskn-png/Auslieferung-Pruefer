@@ -31,10 +31,10 @@
      Goldrand), aber Paket statt Brief und Waldgrün statt Navy. Als Datei aus
      dem eigenen Ordner, nie von einer fremden Adresse. Vorher (2026-08-23 bis
      2026-09-30): ein Pfosten mit zwei Pfeilen, inline als SVG. -->
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=106">
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=106">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=106">
-<link rel="stylesheet" href="assets/style.css?v=106">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=107">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=107">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=107">
+<link rel="stylesheet" href="assets/style.css?v=107">
 <script>
 /* Thema VOR dem ersten Anstrich setzen — sonst blitzt bei jedem Aufruf kurz das
    Standard-Thema auf, bevor die gespeicherte Wahl greift. Absichtlich winzig
@@ -291,6 +291,15 @@ footer.pr-fussleiste {
 footer.pr-fussleiste p { margin: 0 0 var(--s1); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 .pr-grenzen { margin-top: var(--s4); }
+/* ⭐ Prioritätenliste — Einstellungen (Klassen des Kerns) und Treffer-Kasten */
+#prio-einst .prio-gruppe { border: 1px solid var(--rand, rgba(127,127,127,.35)); border-radius: 10px; padding: 8px 12px; margin: 10px 0 0; }
+#prio-einst .prio-stufe { margin-right: 12px; white-space: nowrap; }
+#prio-einst .reihe { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0 0; }
+#prio-einst .leise { opacity: .78; font-size: .92em; }
+#prio-einst input[type=text] { min-width: 0; flex: 1 1 12em; }
+.pr-prio { padding: 12px 16px; margin: 12px 0; }
+.pr-prio h3 { margin: 0 0 6px; font-size: 1rem; }
+.pr-prio-liste { margin: 0; padding-left: 1.2em; overflow-wrap: anywhere; }
 /* ⚠ HIER STAND `display:flex`, UND DAS WAR EIN FEHLER VON MIR (2026-08-23).
    Klaus hat es im Bild gesehen: „Was er sucht — und was er nicht kann" stand da
    als „…und ernichtkann". Ein Flex-Container macht JEDES Kind zu einem
@@ -381,6 +390,14 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
     <p style="margin:10px 0 0" data-i18n-html="pr_wann_2"><strong>Du schickst ein
     PDF an einen Kunden.</strong> Darin stecken frühere Speicherstände, und der
     Empfänger liest den Absatz, den du vor dem Verschicken herausgenommen hast.</p>
+  </details>
+
+  <!-- ⭐ PRIORITÄTENLISTE (Klaus 2026-10-05): Wörter, bei denen der Prüfer genauer
+       hinsieht. Gebaut von assets/prioritaeten.js (Kern, byte-1:1) über assets/prio.js. -->
+  <details class="pr-grenzen glass" id="prPrio" style="padding:14px 18px; margin:14px 0 0">
+    <summary data-i18n="pr_prio_kopf">⭐ Was dir wichtig ist</summary>
+    <p style="margin:10px 0 0" data-i18n="pr_prio_1">Deine Prioritätenliste: Wörter, bei denen der Prüfer genauer hinsieht — in allem, was du hier prüfst, samt Dateinamen und Anhängen. Die Treffer stehen in einem eigenen Kasten über den Befunden. Sie gilt nur in diesem Browser und nur im Auslieferungsprüfer.</p>
+    <div id="prio-einst"></div>
   </details>
 
   <!-- ══ VIER EINGÄNGE (2026-08-23) ═════════════════════════════════════════
@@ -806,24 +823,26 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
 
 </main>
 
-<script src="assets/i18n-pruefer.js?v=106"></script>
-<script src="assets/sprache.js?v=106"></script>
-<script src="assets/thema.js?v=106"></script>
-<script src="assets/pruefer.js?v=106"></script>
+<script src="assets/i18n-pruefer.js?v=107"></script>
+<script src="assets/sprache.js?v=107"></script>
+<script src="assets/thema.js?v=107"></script>
+<script src="assets/pruefer.js?v=107"></script>
 <!-- ⚠ REIHENFOLGE. `pruefer-formate.js` holt sich die Fülltext-Liste aus
      `pruefer.js` — eine zweite, eigene Liste wäre eine Drift-Quelle mit Ansage.
      Und `pruefer-ui.js` steht zuletzt, weil es alle drei bedient. -->
-<script src="assets/pruefer-formate.js?v=106"></script>
-<script src="assets/pruefer-browser.js?v=106"></script>
+<script src="assets/pruefer-formate.js?v=107"></script>
+<script src="assets/pruefer-browser.js?v=107"></script>
 <!-- ⚠ NACH `pruefer-formate.js`: der Mail-Eingang leiht sich dessen
      Schlüssel-Muster und die IBAN-Prüfung, statt zweite Listen zu führen.
      Fehlt die Datei, sagt er das im Ergebnis, statt still weniger zu prüfen. -->
-<script src="assets/pruefer-mail.js?v=106"></script>
+<script src="assets/pruefer-mail.js?v=107"></script>
 <!-- Anhänge und einzelne Dateien öffnen — hier gepflegt, byte-1:1 im Sende-Prüfer. -->
-<script src="assets/pruefer-anhang.js?v=106"></script>
-<script src="assets/pruefer-ui.js?v=106"></script>
+<script src="assets/pruefer-anhang.js?v=107"></script>
+<script src="assets/prioritaeten.js?v=107"></script>
+<script src="assets/prio.js?v=107"></script>
+<script src="assets/pruefer-ui.js?v=107"></script>
 <!-- Knopf „Installieren" in der Kopfleiste (Klaus 2026-09-30, aus dem Sende-Prüfer). -->
-<script src="assets/installieren.js?v=106"></script>
+<script src="assets/installieren.js?v=107"></script>
 <!-- ══ SBKIM — der Auslieferungsprüfer als eigener Knoten im Mycel ═══════════
      Eigene Identität, eigene Spore, das schwebende Verbinden-Fenster, die
      Status-Pille von Modul 17 und das selbstausfüllende Siegel mit dem
@@ -839,9 +858,9 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
      `netz.js` steht ZUERST: die Relais-Liste des Prüfers liest die des
      Marktplatzes ab, statt sie abzuschreiben — zwei Listen derselben
      Poststellen laufen auseinander. -->
-<script src="assets/config/netz.js?v=106"></script>
-<script src="assets/config/pruefer-netz.js?v=106"></script>
-<script src="assets/pruefer-sbkim-init.js?v=106"></script>
+<script src="assets/config/netz.js?v=107"></script>
+<script src="assets/config/pruefer-netz.js?v=107"></script>
+<script src="assets/pruefer-sbkim-init.js?v=107"></script>
 <!-- ⚠ EIGENE APP SEIT 2026-09-26: im Marktplatz registrierte die STARTSEITE den
      Service-Worker, der Prüfer nicht. Als eigenständige PWA braucht er ihn selbst,
      sonst läuft er offline nicht. -->

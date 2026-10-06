@@ -2868,6 +2868,51 @@ if (!browser) {
     await ctx.close();
   }
 
+  /* PRIO: Prioritätenliste (Klaus 2026-10-05). Eigener Kontext, eigener Schlüssel,
+     H6 trägt „Besprechung“ — kein Standardwort, nur als eigenes Wort ein Treffer. */
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1300, height: 900 } });
+    await ctx.route(/^https?:\/\/(?!127\.0\.0\.1)/, (r) => r.abort());
+    const sp = await ctx.newPage();
+    await sp.goto("http://127.0.0.1:8213/auslieferungspruefer.html");
+    await sp.waitForFunction(() => !!document.querySelector("#prio-einst[data-prioritaeten] #prioEigen"), null, { timeout: 15000 }).catch(() => {});
+    const e0 = await sp.evaluate(() => ({ da: !!document.querySelector("#prio-einst[data-prioritaeten]"),
+      gruppen: document.querySelectorAll("#prio-einst [data-prio-gruppe]").length,
+      vorlagen: document.querySelectorAll("#prio-einst [data-prio-vorlage]").length }));
+    ok(e0.da && e0.gruppen >= 6 && e0.vorlagen >= 4, `PRIO: die Einstellungen entstehen in #prio-einst (${JSON.stringify(e0)})`);
+    /* Gegenrichtung zuerst: ohne eigenes Wort kein Treffer, und der Kasten sagt das. */
+    async function h6() {
+      const s2 = await ctx.newPage();
+      await s2.goto("http://127.0.0.1:8213/auslieferungspruefer.html?test=Vorlage-H6-Text-mit-KI-Anweisung.txt");
+      await s2.waitForFunction(() => !!document.querySelector("#ergebnis [data-prio-treffer]") && !!document.querySelector("#ergebnis .pr-kennung"), null, { timeout: 60000 }).catch(() => {});
+      const r = await s2.evaluate(() => { const k = document.querySelector("#ergebnis [data-prio-treffer]");
+        return { n: k && k.dataset.prioTreffer, richtung: k && k.dataset.richtung, text: k ? k.textContent : "",
+          woerter: [...document.querySelectorAll("#ergebnis [data-prio-wort]")].map((x) => x.textContent),
+          empf: [...document.querySelectorAll("#ergebnis [data-prio-empf]")].map((x) => x.textContent),
+          rot: [...document.querySelectorAll("#ergebnis .pr-karte")].filter((x) => /prio/i.test(x.className)).length,
+          karten: document.querySelectorAll("#ergebnis .pr-karte").length }; });
+      await s2.close(); return r;
+    }
+    const ohne = await h6();
+    ok(ohne.n === "0" && /Kein Wort aus deiner Liste/.test(ohne.text), `PRIO: Gegenrichtung: ohne eigenes Wort 0 Treffer, und der Kasten sagt, dass das nichts beweist (${JSON.stringify(ohne)})`);
+    await sp.click("#prPrio > summary").catch(() => {});
+    const offen = await sp.evaluate(() => { const d = document.getElementById("prPrio"); const f = document.getElementById("prioEigen");
+      return !!(d && d.open && f && f.checkVisibility()); });
+    ok(offen, "PRIO: ein Tipp auf „⭐ Was dir wichtig ist“ klappt die Einstellungen auf, das Wortfeld ist zu sehen");
+    await sp.fill("#prioEigen", "Besprechung", { timeout: 5000 }).catch(() => {});
+    await sp.click("#prioEigenAdd", { timeout: 5000 }).catch(() => {});
+    const ls = await sp.evaluate(() => ({ eigen: localStorage.getItem("auslieferungspruefer_prioritaeten_v1"),
+      fremd: localStorage.getItem("sendepruefer_prioritaeten_v1") }));
+    ok(!!ls.eigen && /Besprechung/.test(ls.eigen) && ls.fremd === null, `PRIO: das eigene Wort steht unter dem eigenen Schlüssel, der Schlüssel des Sende-Prüfers bleibt leer (${JSON.stringify(ls)})`);
+    const mit = await h6();
+    ok(mit.n === "1" && mit.woerter.includes("Besprechung") && mit.richtung === "eingang",
+       `PRIO: mit „Besprechung“ in der Liste steht der Treffer im Kasten, Richtung Eingang (${JSON.stringify(mit)})`);
+    ok(mit.empf.length === 1 && /Empfehlung: \S/.test(mit.empf[0]) && /Gefunden über eine feste/.test(mit.text), `PRIO: … mit Empfehlung und dem Satz, wie er gefunden wurde (${JSON.stringify(mit.empf)})`);
+    ok(!/harmlos/i.test(mit.text), "PRIO: … und nichts heißt „harmlos“");
+    ok(mit.karten > 0 && mit.rot === 0, `PRIO: die Karten der Befunde werden nicht umgefärbt (${mit.karten} Karten)`);
+    await ctx.close();
+  }
+
   await browser.close();
 }
 

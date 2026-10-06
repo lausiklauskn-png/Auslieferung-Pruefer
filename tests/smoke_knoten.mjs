@@ -482,6 +482,24 @@ console.log('\nHANDBUCH · die Seite, ihre Bilder, ihre Szenen');
   ok('HANDBUCH: btn_hilfe und btn_hilfe_t in DE, EN und RU', (spr.match(/btn_hilfe:/g) || []).length === 3 && (spr.match(/btn_hilfe_t:/g) || []).length === 3);
 }
 
+// ── PRIO: die Prioritätenliste (Klaus 2026-10-05) ──
+{
+  console.log('\n── Prioritätenliste ──');
+  ok('PRIO: assets/prioritaeten.js ist byte-1:1 der Kern aus Mein-In-and-Out-Book',
+     sha('assets/prioritaeten.js') === 'c5afe1747210ad837b3f7868d00d1f44a91ad53ca1e998f86f0870ed07fe83b0', sha('assets/prioritaeten.js'));
+  const pj = lies('assets/prio.js').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, ''), app = lies('auslieferungspruefer.html'), sw = lies('sw.js'), i18 = lies('assets/i18n-pruefer.js');
+  ok('PRIO: kein innerHTML im Klebstoff — Wörter aus fremden Dateien sind Text', !/innerHTML/.test(pj));
+  ok('PRIO: eigener Schlüssel auslieferungspruefer_prioritaeten_v1, nicht der einer anderen App',
+     /"auslieferungspruefer_prioritaeten_v1"/.test(pj) && !/sendepruefer_prioritaeten|inandout/i.test(pj));
+  ok('PRIO: beide Dateien stehen im Offline-Vorrat', /"assets\/prioritaeten\.js\?v=\d+"/.test(sw) && /"assets\/prio\.js\?v=\d+"/.test(sw));
+  const iK = app.indexOf('assets/prioritaeten.js'), iP = app.indexOf('assets/prio.js'), iU = app.indexOf('assets/pruefer-ui.js');
+  ok('PRIO: Kern und Klebstoff werden VOR pruefer-ui.js geladen', iK > 0 && iP > iK && iU > iP, `${iK} ${iP} ${iU}`);
+  ok('PRIO: der Aufklapper #prPrio mit Platz #prio-einst steht in der Seite', /id="prPrio"/.test(app) && /<div id="prio-einst"><\/div>/.test(app));
+  ok('PRIO: pr_prio_kopf und pr_prio_1 in DE, EN und RU',
+     (i18.match(/"pr_prio_kopf":/g) || []).length === 3 && (i18.match(/"pr_prio_1":/g) || []).length === 3);
+  ok('PRIO: kein Treffer heißt „harmlos“', !/harmlos/i.test(pj));
+}
+
 // ── LAUF: fehlt der Browser, ist eine Probe NICHT grün (Punkt 8, 2026-10-01) ──
 // Gemessen, nicht gelesen: jede Browser-Probe wird mit einem Browser-Ordner
 // gestartet, den es nicht gibt, und muss mit 2 enden („nicht lauffähig").

@@ -83,7 +83,7 @@ nur_pruefer() {                 # nur_pruefer <Datei ...> — 0, wenn alle zum P
   local d
   for d in "$@"; do
     case "$d" in
-      auslieferungspruefer.html|start.html|index.html|assets/start.css|assets/sprache.js|assets/pruefer*|assets/i18n-pruefer.js|assets/installieren.js|assets/config/pruefer-netz.js|werkzeuge/*|vendor/pdfjs/*|testvorlagen/index.html|tests/smoke_*.mjs|tests/alle.mjs|handbuch.html|tools/handbuch-szenen.mjs) ;;
+      auslieferungspruefer.html|start.html|index.html|assets/start.css|assets/sprache.js|assets/pruefer*|assets/prio.js|assets/prioritaeten.js|assets/i18n-pruefer.js|assets/installieren.js|assets/config/pruefer-netz.js|werkzeuge/*|vendor/pdfjs/*|testvorlagen/index.html|tests/smoke_*.mjs|tests/alle.mjs|handbuch.html|tools/handbuch-szenen.mjs) ;;
       *) return 1 ;;
     esac
     [ -f "$d" ] || return 1
@@ -4245,6 +4245,20 @@ probe "BEGRIFF: die Anweisung an eine KI sagt nicht mehr, wie sie zustande kommt
 probe "BEGRIFF: eine echte Anweisung in derselben Zeile wird zum Fachbegriff" \
       assets/pruefer-mail.js \
       's|if (!KI_MUSTER\[ki\].begriff) kiAnweisung\[kz\] = true;|kiAnweisung[kz] = false;|'
+
+# ⭐ Prioritätenliste (Klaus 2026-10-05)
+probe "PRIO: der Kasten nennt die Richtung nicht mehr" \
+  assets/prio.js 's#"data-richtung": "eingang"#"data-richtung": "x"#'
+probe "PRIO: der Treffer verliert seine Empfehlung" \
+  assets/prio.js 's#"Empfehlung: " + t.empfehlung#""#'
+probe "PRIO: der Schlüssel einer anderen App" \
+  assets/prio.js 's#"auslieferungspruefer_prioritaeten_v1"#"sendepruefer_prioritaeten_v1"#'
+probe "PRIO: ohne Treffer steht kein Satz mehr da" \
+  assets/prio.js 's#Kein Wort aus deiner Liste gefunden#                              #'
+probe "PRIO: der Kern ist nicht mehr byte-1:1" \
+  assets/prioritaeten.js '1s#^#/* x */#'
+probe "PRIO: die Seite reicht die Texte nicht mehr durch" \
+  assets/pruefer-ui.js 's#(opt \&\& opt.prioTexte) || ##'
 
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
