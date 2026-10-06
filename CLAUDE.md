@@ -682,3 +682,24 @@ KI-Angriff … Deswegen müsste das klar benannt werden, wie dieser Befund zusta
   Bild-Wächtern, weil dort nur noch `KI-ANWEISUNG` zählt.
   Gefahren in einer Kopie (2026-10-05): **4 schlagen an · 0 blind · 0 tote Anker**. Der erste Lauf brach unter Last
   ab (ein zweiter Lauf lief daneben) und wurde allein neu gefahren. Kein voller Lauf: die Marktplatz-Fälle blieben aus.
+
+## ⭐ Prioritätenliste (Klaus 2026-10-05)
+
+Stufe 1 aus Mein-In-and-Out-Book (PR #6), jetzt auch hier. Der Kern `assets/prioritaeten.js` ist **byte-1:1** übernommen
+und in `smoke_knoten` per SHA gepinnt (`c5afe174…`). Dort pflegen, hier neu kopieren, Pin nachziehen.
+Der Klebstoff `assets/prio.js` (`window.APPrio`) nutzt den eigenen Schlüssel **`auslieferungspruefer_prioritaeten_v1`**.
+`github.io` ist eine geteilte Adresse, deshalb bleiben die Schlüssel von Sende-Prüfer und In-and-Out-Book unberührt.
+
+- **Einstellungen:** Aufklapper `<details id="prPrio">` „⭐ Was dir wichtig ist“ mit Platz `#prio-einst` (Texte pr_prio_* in DE/EN/RU).
+- **Nach jedem Ergebnis:** Kasten `[data-prio-treffer]` (`data-richtung="eingang"`) hinter der Zusammenfassung.
+  - Ein Treffer nennt Wort, Gruppe, Stufe, Stelle, den Satz „gefunden über eine feste Wortliste“ und eine Empfehlung. Nie „harmlos“.
+  - Ohne Treffer sagt der Kasten, dass das nichts beweist.
+  - Die Karten werden nicht gefärbt. Befund-Karten bekommen nur die Stufe ihrer Gruppe als Marke.
+- **Geprüfte Texte:** `pruefer-ui.js` reicht `opt.prioTexte` durch, also Quelltext, Mailtext, Anhänge (Name und gelesener Text), Bild- und PDF-Text.
+- Hier gibt es keinen Ausgang und damit keinen Halt. Den Halt gibt es nur im Sende-Prüfer.
+- Fehlt `prio.js`, bleibt alles wie vorher. Fehlt der Kern, steht „ungeprueft“ da.
+- **Proben:**
+  - `smoke_knoten` § PRIO.
+  - `smoke_pruefer` misst H6 mit und ohne eigenes Wort und öffnet den Aufklapper wie ein Nutzer.
+  - Gegenprobe `NUR_FALL="PRIO:"` (6 Fälle).
+- ⚠ **Sichttest am Tablet nicht gemessen.**

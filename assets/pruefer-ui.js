@@ -583,7 +583,16 @@
     box.appendChild(ol);
     return box;
   }
+  /* ⭐ Prioritätenliste (Klaus 2026-10-05): nach jedem Ergebnis ein Kasten mit
+     den Treffern aus der eigenen Liste (assets/prio.js). Geprüft wird, was der
+     Aufrufer in opt.prioTexte nennt, sonst der gezeigte Text. Fehlt prio.js,
+     bleibt alles wie vorher. */
   function zeige(treffer, text, opt) {
+    zeigeKern(treffer, text, opt);
+    if (window.APPrio) window.APPrio.kasten(ergebnis,
+      (opt && opt.prioTexte) || (text ? [{ text: String(text), stelle: "geprüfter Text" }] : []));
+  }
+  function zeigeKern(treffer, text, opt) {
     opt = opt || {};
     ergebnis.textContent = "";
     var zeilen = String(text || "").split("\n");
@@ -872,7 +881,8 @@
         }
       }
     }
-    zeige(treffer, text, { titel: "Auslieferungsprüfer · HTML", hinweise: hinweise });
+    zeige(treffer, text, { titel: "Auslieferungsprüfer · HTML", hinweise: hinweise,
+      prioTexte: [{ text: String(text || ""), stelle: "HTML-Quelltext" }] });
     return treffer;
   }
 
@@ -1245,6 +1255,7 @@
           } else mehr = ["Der Datei-Prüfer (assets/pruefer-anhang.js) ist nicht geladen — der Seitentext ist ungeprüft."];
           zeige(stellen, "", {
             titel: "Auslieferungsprüfer · PDF",
+            prioTexte: window.APPrio ? window.APPrio.texteAusAnhang(f.name, ra, "") : [],
             ungeprueft: !!(ra && ra.bildUngeprueft),
             ungeprueftSatz: (ra && ra.ungeprueftSatz) || "",
             hinweise: [f.name].concat(r.hinweise).concat(mehr).concat([
@@ -1462,6 +1473,7 @@
     }).then(function (r) {
       zeige(anhangTreffer(f.name, r, ""), "", {
         titel: "Auslieferungsprüfer · Datei",
+        prioTexte: window.APPrio ? window.APPrio.texteAusAnhang(f.name, r, "") : [],
         ungeprueft: r.bildUngeprueft,
         /* Eine HTML-Seite ohne HTML-Prüfer ist kein Bild — der Kopf sagt, was fehlt. */
         ungeprueftSatz: r.ungeprueftSatz || (r.art === "html" ? "HTML-Seite ungeprüft" : ""),
@@ -1698,7 +1710,7 @@
     if (!A) return;
     var liste = A.ausMail(inhalt);
     if (!liste.length) return;
-    var mein = ++anhangLauf, stellen = [], hinweise = [], bildUngeprueft = false, ungeprueftSatz = "", markiert = [];
+    var mein = ++anhangLauf, prioAnh = [], stellen = [], hinweise = [], bildUngeprueft = false, ungeprueftSatz = "", markiert = [];
     Promise.all(liste.map(function (a) {
       if (a.zuGross) {
         hinweise.push("Anhang „" + a.name + "\" (" + A.gross(a.groesse) + ") ist zu groß und wurde NICHT geöffnet — ungeprüft, nicht sauber.");
@@ -1706,6 +1718,7 @@
       }
       return A.pruefe(a.name, a.bytes).then(function (x) {
         stellen = stellen.concat(anhangTreffer(a.name, x, "Anhang "));
+        if (window.APPrio) prioAnh = prioAnh.concat(window.APPrio.texteAusAnhang(a.name, x, "Anhang "));
         markiert.push({ name: a.name, bytes: a.bytes, befunde: x.befunde });
         if (x.bildUngeprueft) { bildUngeprueft = true; if (!ungeprueftSatz && x.ungeprueftSatz) ungeprueftSatz = "Anhang „" + a.name + "\": " + x.ungeprueftSatz; }
         hinweise.push("Anhang „" + a.name + "\" geöffnet: " + x.artName + ", " + A.gross(a.groesse) + ".");
@@ -1724,6 +1737,7 @@
           "⚠ Die Anhänge wurden gelesen, nicht ausgeführt; was darin steckt, steht unter „Anhang …\"");
       }).concat(hinweise);
       var alle = r.stellen.concat(stellen);
+      o.prioTexte = [{ text: String(r.text || ""), stelle: "Mailtext" }].concat(prioAnh);
       zeige(alle, r.text, o);
       markiert.forEach(function (m) { markiertZeigen(ergebnis, m.name, m.bytes, m.befunde); });
       verdachtKnopf(liste.filter(function (a) { return !a.zuGross; }));
