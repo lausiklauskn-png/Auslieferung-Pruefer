@@ -682,3 +682,13 @@ KI-Angriff … Deswegen müsste das klar benannt werden, wie dieser Befund zusta
   Bild-Wächtern, weil dort nur noch `KI-ANWEISUNG` zählt.
   Gefahren in einer Kopie (2026-10-05): **4 schlagen an · 0 blind · 0 tote Anker**. Der erste Lauf brach unter Last
   ab (ein zweiter Lauf lief daneben) und wurde allein neu gefahren. Kein voller Lauf: die Marktplatz-Fälle blieben aus.
+
+## 🛡 Icon ohne weiße Ränder (Klaus 2026-10-11)
+
+Am Tablet stand das App-Icon mit weißem Rand da. Ursache: `icons/icon-192.png` und `icon-512.png`
+hatten **durchsichtige runde Ecken**, und der Launcher legt unter Durchsichtiges eine weiße Fläche.
+Beide sind jetzt **randlos deckend** (die Ecken mit der Randfarbe nach außen fortgesetzt), und
+`maskable-512.png` trägt das Motiv auf 82 % in einem gleichmäßigen Grund (#002120) statt eines
+sichtbaren inneren Quadrats. Favicons, `marke-96` und `apple-touch-icon` unverändert.
+Cache v34, alle `?v=107`. ⚠ Am Tablet nicht gemessen; ein installiertes Icon zieht Android erst
+beim nächsten Manifest-Abgleich nach (oder nach Deinstallieren und neu Installieren).
