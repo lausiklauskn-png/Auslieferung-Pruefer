@@ -31,10 +31,10 @@
      Goldrand), aber Paket statt Brief und Waldgrün statt Navy. Als Datei aus
      dem eigenen Ordner, nie von einer fremden Adresse. Vorher (2026-08-23 bis
      2026-09-30): ein Pfosten mit zwei Pfeilen, inline als SVG. -->
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=107">
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=107">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=107">
-<link rel="stylesheet" href="assets/style.css?v=107">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=108">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=108">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=108">
+<link rel="stylesheet" href="assets/style.css?v=108">
 <script>
 /* Thema VOR dem ersten Anstrich setzen — sonst blitzt bei jedem Aufruf kurz das
    Standard-Thema auf, bevor die gespeicherte Wahl greift. Absichtlich winzig
@@ -160,6 +160,8 @@ catch (e) {}
 .pr-zahl.pr-ungeprueft { border-color: var(--warn); color: var(--warn); border-style: dashed; }
 /* Erwartete Funde sind kein Alarm — siehe § Die Test-Seite in der Datei. */
 .pr-zahl.pr-erwartet { border-color: var(--ok); color: var(--ok); }
+/* Nur Angaben (Herkunftsnachweis, Klaus 2026-10-14): ruhig, kein Alarm. */
+.pr-zahl.pr-info { border-color: var(--line); color: var(--muted); }
 /* Die Zahlen sind Links auf ihre Karte (Klaus 2026-09-29). Sie sehen aus wie
    vorher und zeigen beim Zeigen/Tippen, dass sie ein Weg sind. */
 a.pr-zahl { text-decoration: none; cursor: pointer; }
@@ -211,6 +213,19 @@ a.pr-zahl:hover, a.pr-zahl:focus-visible { border-color: var(--accent); }
   padding: var(--s3); margin-bottom: var(--s2);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
 }
+/* Eine Angabe ist keine Gefahr: ruhiger Rand links, keine Warnfarbe. */
+.pr-karte.pr-info { border-left: 3px solid var(--muted); }
+/* „Details anzeigen" (Klaus 2026-10-14): erst auf Knopfdruck. */
+.pr-herkunft { margin: var(--s1) 0 var(--s2); }
+.pr-herkunft > summary { cursor: pointer; min-height: var(--ziel); padding: 10px 0;
+  box-sizing: border-box; font-size: var(--f-text); color: var(--accent); font-weight: 600; }
+.pr-herkunft > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.pr-angaben { display: grid; grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  gap: 4px var(--s2); margin: 0 0 var(--s1); font-size: var(--f-klein); line-height: var(--lh-klein); }
+.pr-angaben dt { color: var(--muted); }
+.pr-angaben dd { margin: 0; color: var(--text); overflow-wrap: anywhere; }
+@media (max-width: 480px) { .pr-angaben { grid-template-columns: minmax(0, 1fr); }
+  .pr-angaben dd { margin-bottom: 6px; } }
 .pr-kopf { font-size: var(--f-fund); line-height: var(--lh-fund); font-weight: 600;
            margin: 0; color: var(--text); }
 .pr-rat  { font-size: var(--f-text); line-height: var(--lh-text);
@@ -807,24 +822,24 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
 
 </main>
 
-<script src="assets/i18n-pruefer.js?v=107"></script>
-<script src="assets/sprache.js?v=107"></script>
-<script src="assets/thema.js?v=107"></script>
-<script src="assets/pruefer.js?v=107"></script>
+<script src="assets/i18n-pruefer.js?v=108"></script>
+<script src="assets/sprache.js?v=108"></script>
+<script src="assets/thema.js?v=108"></script>
+<script src="assets/pruefer.js?v=108"></script>
 <!-- ⚠ REIHENFOLGE. `pruefer-formate.js` holt sich die Fülltext-Liste aus
      `pruefer.js` — eine zweite, eigene Liste wäre eine Drift-Quelle mit Ansage.
      Und `pruefer-ui.js` steht zuletzt, weil es alle drei bedient. -->
-<script src="assets/pruefer-formate.js?v=107"></script>
-<script src="assets/pruefer-browser.js?v=107"></script>
+<script src="assets/pruefer-formate.js?v=108"></script>
+<script src="assets/pruefer-browser.js?v=108"></script>
 <!-- ⚠ NACH `pruefer-formate.js`: der Mail-Eingang leiht sich dessen
      Schlüssel-Muster und die IBAN-Prüfung, statt zweite Listen zu führen.
      Fehlt die Datei, sagt er das im Ergebnis, statt still weniger zu prüfen. -->
-<script src="assets/pruefer-mail.js?v=107"></script>
+<script src="assets/pruefer-mail.js?v=108"></script>
 <!-- Anhänge und einzelne Dateien öffnen — hier gepflegt, byte-1:1 im Sende-Prüfer. -->
-<script src="assets/pruefer-anhang.js?v=107"></script>
-<script src="assets/pruefer-ui.js?v=107"></script>
+<script src="assets/pruefer-anhang.js?v=108"></script>
+<script src="assets/pruefer-ui.js?v=108"></script>
 <!-- Knopf „Installieren" in der Kopfleiste (Klaus 2026-09-30, aus dem Sende-Prüfer). -->
-<script src="assets/installieren.js?v=107"></script>
+<script src="assets/installieren.js?v=108"></script>
 <!-- ══ SBKIM — der Auslieferungsprüfer als eigener Knoten im Mycel ═══════════
      Eigene Identität, eigene Spore, das schwebende Verbinden-Fenster, die
      Status-Pille von Modul 17 und das selbstausfüllende Siegel mit dem
@@ -840,9 +855,9 @@ footer.pr-fussleiste p { margin: 0 0 var(--s1); }
      `netz.js` steht ZUERST: die Relais-Liste des Prüfers liest die des
      Marktplatzes ab, statt sie abzuschreiben — zwei Listen derselben
      Poststellen laufen auseinander. -->
-<script src="assets/config/netz.js?v=107"></script>
-<script src="assets/config/pruefer-netz.js?v=107"></script>
-<script src="assets/pruefer-sbkim-init.js?v=107"></script>
+<script src="assets/config/netz.js?v=108"></script>
+<script src="assets/config/pruefer-netz.js?v=108"></script>
+<script src="assets/pruefer-sbkim-init.js?v=108"></script>
 <!-- ⚠ EIGENE APP SEIT 2026-09-26: im Marktplatz registrierte die STARTSEITE den
      Service-Worker, der Prüfer nicht. Als eigenständige PWA braucht er ihn selbst,
      sonst läuft er offline nicht. -->
