@@ -4246,6 +4246,26 @@ probe "BEGRIFF: eine echte Anweisung in derselben Zeile wird zum Fachbegriff" \
       assets/pruefer-mail.js \
       's|if (!KI_MUSTER\[ki\].begriff) kiAnweisung\[kz\] = true;|kiAnweisung[kz] = false;|'
 
+# ══ HERKUNFT: Herkunftsnachweis (C2PA) als Angabe, Details auf Knopfdruck (2026-10-14) ══
+probe "HERKUNFT: die Filespec mit C2PA im PDF wird nicht mehr erkannt" \
+      assets/pruefer-formate.js \
+      's|var istC2pa = /|var istC2pa = false \&\& /|'
+probe "HERKUNFT: das APP11-Segment im JPEG wird nicht mehr gelesen" \
+      assets/pruefer-anhang.js \
+      's|else if (mk === 0xEB \&\& inhalt|else if (false \&\& mk === 0xEB \&\& inhalt|'
+probe "HERKUNFT: der caBX-Block im PNG wird nicht mehr gelesen" \
+      assets/pruefer-anhang.js \
+      's|else if (typ === "caBX") c2pa.push|else if (false) c2pa.push|'
+probe "HERKUNFT: ein unlesbarer Nachweis im Bild verschwindet still" \
+      assets/pruefer-anhang.js \
+      's|else melde("BILD-HERKUNFT", "Herkunftsnachweis (Content Credentials) vorhanden, aber nicht lesbar|else if (false) melde("BILD-HERKUNFT", "Herkunftsnachweis (Content Credentials) vorhanden, aber nicht lesbar|'
+probe "HERKUNFT: die Angabe gilt wieder als Befund" \
+      assets/pruefer-ui.js \
+      's|var ANGABE = \["PDF-HERKUNFT", "BILD-HERKUNFT"\];|var ANGABE = [];|'
+probe "HERKUNFT: die Details stehen schon offen da" \
+      assets/pruefer-ui.js \
+      's|det.setAttribute("data-herkunft-details", "");|det.setAttribute("data-herkunft-details", ""); det.open = true;|'
+
 echo "$gruen Wächter schlagen an, $rot blind, $tot tote Anker — $marktplatz Marktplatz-Fälle nicht gefahren" \
      "${NUR_FALL:+— $uebersprungen Fälle ausgelassen (NUR_FALL=\"$NUR_FALL\"), das ist KEIN voller Lauf}"
 [ "$rot" -eq 0 ] || exit 1

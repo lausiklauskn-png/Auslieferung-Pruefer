@@ -1892,6 +1892,37 @@ if (!browser) {
     ok(!/%PDF-/.test(imHtml.quelle), "… und landet NICHT als Binärsalat im Quelltext-Feld");
     ok(/eine PDF-Datei, kein HTML/.test(imHtml.text), "… und das Ergebnis sagt, dass es ein PDF war");
   }
+  /* Herkunftsnachweis (C2PA, Klaus 2026-10-14): eine ANGABE, kein Befund.
+     Kurz auf der Karte, die Einzelheiten erst auf Knopfdruck. */
+  {
+    const M = await import("./anhang-muster.mjs");
+    async function herkunft(sel, name, mime, buffer) {
+      await seite.evaluate(() => { document.getElementById("ergebnis").textContent = ""; });
+      await seite.setInputFiles(sel, { name, mimeType: mime, buffer });
+      await seite.waitForFunction(() => !!document.querySelector("#ergebnis [data-herkunft-details]"), null, { timeout: 60000 }).catch(() => {});
+      return seite.evaluate(() => {
+        const det = document.querySelector("#ergebnis [data-herkunft-details]");
+        const r = { da: !!det, zuVorher: det ? !det.open : false,
+          zahl: (document.querySelector("#ergebnis .pr-zahl") || {}).textContent || "",
+          info: !!document.querySelector("#ergebnis .pr-karte.pr-info, #ergebnis .pr-treffer.pr-info"),
+          wasTun: !!document.querySelector("#ergebnis [data-was-tun]") };
+        if (det) { det.open = true; r.sichtbar = det.querySelector("dl") ? det.querySelector("dl").checkVisibility() : false; r.dl = (det.querySelector("dl") || {}).textContent || ""; }
+        return r;
+      });
+    }
+    for (const [sel, name, mime, buf] of [
+      ["#einzelDatei", "bild.jpg", "image/jpeg", Buffer.from(M.jpegC2pa())],
+      ["#einzelDatei", "bild.png", "image/png", Buffer.from(M.pngC2pa())],
+      ["#pdfDatei", "eule.pdf", "application/pdf", Buffer.from(await M.pdfC2pa())],
+    ]) {
+      const h = await herkunft(sel, name, mime, buf);
+      ok(h.da, `Herkunft (${name}): die Karte trägt „Details anzeigen“`);
+      ok(h.zuVorher, `… (${name}) die Einzelheiten sind zuerst zugeklappt`);
+      ok(h.sichtbar && h.dl.includes(M.C2PA_PROGRAMM) && h.dl.includes(M.C2PA_UNTERSCHRIEBEN),
+         `… (${name}) aufgeklappt stehen Programm und Unterzeichner da`);
+      ok(h.info && !h.wasTun, `… (${name}) es ist eine ruhige Angabe, ohne „Was jetzt tun“ (${h.zahl})`);
+    }
+  }
   const svgKnoten = await seite.$$eval("#ergebnis svg, #ergebnis script", (n) => n.length);
   ok(svgKnoten === 0, `im Ergebnis steht keine gezeichnete SVG und kein Skript (${svgKnoten})`);
   const ohneSatz = await seite.$$eval("#ergebnis .pr-treffer", (n) => n.filter((li) => {

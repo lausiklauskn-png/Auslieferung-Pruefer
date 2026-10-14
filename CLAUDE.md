@@ -692,3 +692,24 @@ Beide sind jetzt **randlos deckend** (die Ecken mit der Randfarbe nach außen fo
 sichtbaren inneren Quadrats. Favicons, `marke-96` und `apple-touch-icon` unverändert.
 Cache v34, alle `?v=107`. ⚠ Am Tablet nicht gemessen; ein installiertes Icon zieht Android erst
 beim nächsten Manifest-Abgleich nach (oder nach Deinstallieren und neu Installieren).
+
+## 🏷 Herkunftsnachweis (C2PA, Klaus 2026-10-14)
+
+Anlass: Klaus' Kaffee-Eule-PDF zeigte „weitere Datei (Salat-Name)“. Darin steckte ein C2PA-Nachweis
+(„Content Credentials“) von ChatGPT, unterschrieben von OpenAI. Klaus: *„kurz und verständlich für Nutzer …
+genauere Ausgabe auf Knopfdruck.“*
+
+- `pruefer-formate.js` (`c2paLesen`, exportiert, `_meta.fassung` 3) liest JUMBF → CBOR/COSE: Titel, Programm,
+  Werkzeug, was gemacht wurde, woher der Inhalt stammt (z. B. KI erzeugt), Zeitpunkt, Unterzeichner, Aussteller des
+  Zertifikats, Zahl der Nachweise. PDF: Filespec mit `/AFRelationship /C2PA_Manifest` → **`PDF-HERKUNFT`**
+  (der Datenstrom zählt nicht mehr als `/JS`-Fund, `ohneStr`). `pruefer-anhang.js`: JPEG APP11, PNG `caBX`,
+  WebP `C2PA` → **`BILD-HERKUNFT`**.
+- **Eine Angabe, kein Befund:** stehen nur Angaben da, heißt die Zusammenfassung „kein Befund · N Angabe(n)“ (ruhig,
+  `.pr-info`), ohne „Was jetzt tun“. Die Einzelheiten stehen in `<details data-herkunft-details>` „Details anzeigen“,
+  zuerst zu, nur `textContent`; im Bericht stehen sie mit.
+- **Nicht lesbar heißt „ungeprüft“**, nie „sauber“. ⚠ **Die Unterschrift wird NICHT geprüft** — der Rat sagt das:
+  es ist die eigene Aussage des Programms.
+- Testdateien werden in `tests/anhang-muster.mjs` gebaut (erfunden), nie Klaus' PDF.
+- Proben: `smoke_anhang` § HERKUNFT · `smoke_pruefer` (JPEG, PNG, PDF im Browser) · Gegenprobe `NUR_FALL="HERKUNFT:"`.
+  Cache v39, alle `?v=108`. Byte-1:1 weiter an Workflow-PDF, Mein-WorkFloh, Tomys-Hub, Sende-Pruefer, Mein-In-and-Out-Book.
+- ⚠ Nicht gemessen: echte C2PA-Dateien außer Klaus' einer PDF (nur gelesen, nicht eingecheckt); das Tablet.

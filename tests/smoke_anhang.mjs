@@ -506,5 +506,45 @@ if (!fs.existsSync(join(PDFJS, "pdf.min.js")) || !fs.existsSync(PDFLIB)) {
      !!a2 && /feste[n]? Liste/.test(a2.satz), a2 && a2.satz);
 }
 
+/* HERKUNFT (Klaus 2026-10-14): ein Herkunftsnachweis (C2PA, „Content Credentials“)
+   ist eine Angabe, keine Warnung — kurz in einem Satz, die Einzelheiten in `daten`.
+   Vorher stand er in einem PDF als „weitere Datei (Salat-Name)“ da, und Bilddaten
+   mit zufälligem „/JS“ darin meldeten JavaScript. */
+{ const prog = M.C2PA_PROGRAMM, unt = M.C2PA_UNTERSCHRIEBEN;
+  const her = (q, k) => q.befunde.find((x) => x.kennung === k);
+  let q = await p("eule.pdf", M.pdfC2pa());
+  let h = her(q, "PDF-HERKUNFT");
+  ok("HERKUNFT: PDF mit Nachweis → PDF-HERKUNFT", !!h, JSON.stringify(q.befunde));
+  ok("HERKUNFT: der Satz nennt Programm, KI und wer unterschrieben hat",
+     !!h && h.satz.includes(prog) && /KI erzeugt/.test(h.satz) && h.satz.includes(unt), h && h.satz);
+  ok("HERKUNFT: der Satz sagt, dass es eine Angabe ist („laut Angabe“)", !!h && /laut Angabe/.test(h.satz), h && h.satz);
+  ok("HERKUNFT: die Einzelheiten stehen in daten (Liste aus Paaren)",
+     !!h && Array.isArray(h.daten) && h.daten.length >= 5 && h.daten.every((d) => Array.isArray(d) && d.length === 2), JSON.stringify(h && h.daten));
+  ok("HERKUNFT: daten nennt Werkzeug und Zeitpunkt",
+     !!h && JSON.stringify(h.daten).includes("Pinsel-Modell 3") && JSON.stringify(h.daten).includes("2026-10-01"), JSON.stringify(h && h.daten));
+  ok("HERKUNFT: der Nachweis gilt NICHT als „weitere Datei“ (PDF-ANHANG)", !kennungen(q).includes("PDF-ANHANG"), JSON.stringify(kennungen(q)));
+  ok("HERKUNFT: „/JS“ in Bilddaten ist KEIN JavaScript-Befund (PDF-AKTION)", !kennungen(q).includes("PDF-AKTION"), JSON.stringify(kennungen(q)));
+  q = await p("ohne.pdf", M.pdfC2pa({ nachweis: false }));
+  ok("HERKUNFT: dasselbe PDF ohne Nachweis → keine Herkunft, kein JavaScript",
+     !kennungen(q).includes("PDF-HERKUNFT") && !kennungen(q).includes("PDF-AKTION"), JSON.stringify(kennungen(q)));
+  q = await p("boese.pdf", M.PDF_BOESE);
+  ok("HERKUNFT: echtes JavaScript im Wörterbuch bleibt PDF-AKTION (Gegenrichtung)", kennungen(q).includes("PDF-AKTION"), JSON.stringify(kennungen(q)));
+  for (const [n, b] of [["eule.jpg", M.jpegC2pa()], ["eule3.jpg", M.jpegC2pa({ teile: 3 })], ["eule.png", M.pngC2pa()]]) {
+    q = await p(n, b); h = her(q, "BILD-HERKUNFT");
+    ok("HERKUNFT: " + n + " → BILD-HERKUNFT mit Programm und daten",
+       !!h && h.satz.includes(prog) && Array.isArray(h.daten) && h.daten.length >= 5, JSON.stringify(q.befunde));
+  }
+  q = await p("kaputt.jpg", M.jpegC2pa({ kaputt: true })); h = her(q, "BILD-HERKUNFT");
+  ok("HERKUNFT: ein abgeschnittener Nachweis heißt „nicht lesbar — ungeprüft“, nie „keiner“",
+     !!h && /nicht lesbar/.test(h.satz) && /ungeprüft/.test(h.satz), JSON.stringify(q.befunde));
+  q = await p("leer.png", M.png());
+  ok("HERKUNFT: ein Bild ohne Nachweis meldet keine Herkunft", !kennungen(q).includes("BILD-HERKUNFT"), JSON.stringify(kennungen(q)));
+  const pf = globalThis.PrueferFormate; globalThis.PrueferFormate = undefined;
+  q = await p("eule.jpg", M.jpegC2pa()); h = her(q, "BILD-HERKUNFT");
+  globalThis.PrueferFormate = pf;
+  ok("HERKUNFT: fehlt der Leser, heißt der Nachweis „ungeprüft“", !!h && /Leser fehlt/.test(h.satz) && /ungeprüft/.test(h.satz), JSON.stringify(q.befunde));
+  ok("HERKUNFT: c2paLesen gibt null für fremde Boxen", pf.c2paLesen(new Uint8Array([0, 0, 0, 8, 102, 114, 101, 101])) === null);
+}
+
 console.log(`\n${pass} grün · ${fail} ROT${stumm ? " · " + stumm + " nicht lauffähig" : ""}`);
 process.exitCode = fail ? 1 : stumm ? 2 : 0;

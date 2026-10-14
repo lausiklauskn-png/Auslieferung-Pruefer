@@ -199,6 +199,31 @@
            "keiner Seite etwas davon zu sehen ist. Abhilfe: die " +
            "Dokument-Eigenschaften leeren, bevor es hinausgeht."
     },
+    /* Herkunftsnachweis (C2PA, „Content Credentials", Klaus 2026-10-14): eine
+       ANGABE, kein Befund. Programme wie ChatGPT, Photoshop oder eine Kamera
+       schreiben hinein, womit und wann die Datei entstand. Die Karte steht
+       ruhig da, die Einzelheiten auf Knopfdruck. */
+    "PDF-HERKUNFT": {
+      kurz: "Herkunftsnachweis",
+      kopf: "In der Datei steht, womit sie entstanden ist.",
+      rat: "Das ist eine Angabe, keine Gefahr. Das erzeugende Programm hat " +
+           "einen Herkunftsnachweis (Content Credentials) hineingeschrieben, " +
+           "etwa ChatGPT, Photoshop oder eine Kamera. Er wird mitgeliefert, " +
+           "ohne auf einer Seite sichtbar zu sein. Es ist die Aussage des " +
+           "Programms selbst; ob die Unterschrift echt ist, rechnet dieser " +
+           "Prüfer nicht nach. Wer das nicht weitergeben will, gibt das " +
+           "Dokument neu aus (Drucken als PDF)."
+    },
+    "BILD-HERKUNFT": {
+      kurz: "Herkunftsnachweis",
+      kopf: "Im Bild steht, womit es entstanden ist.",
+      rat: "Das ist eine Angabe, keine Gefahr. Das erzeugende Programm hat " +
+           "einen Herkunftsnachweis (Content Credentials) hineingeschrieben, " +
+           "etwa ChatGPT, Photoshop oder eine Kamera. Im Bild ist davon nichts " +
+           "zu sehen. Es ist die Aussage des Programms selbst; ob die " +
+           "Unterschrift echt ist, rechnet dieser Prüfer nicht nach. Wer das " +
+           "nicht weitergeben will, speichert das Bild ohne Metadaten neu."
+    },
     "PDF-ALTFASSUNG": {
       kurz: "frühere Fassung",
       kopf: "Das Dokument trägt frühere Fassungen mit sich.",
@@ -539,6 +564,8 @@
    * der Stelle, sobald die Sätze sich unterscheiden — nichts fällt weg.
    */
   var NACH_WIRT = ["FREMDE-ADRESSE", "PDF-VERWEIS", "VERSTECKT-VOR-DEM-TEXTLESER"];
+  /* Angaben statt Befunde (Klaus 2026-10-14): ruhig dargestellt. */
+  var ANGABE = ["PDF-HERKUNFT", "BILD-HERKUNFT"];
 
   function wirtAus(satz) {
     var m = /: ([A-Za-z0-9._:-]+)$/.exec(String(satz || "")) ||
@@ -588,17 +615,24 @@
     ergebnis.textContent = "";
     var zeilen = String(text || "").split("\n");
     var gruppen = gruppiere(treffer);
+    /* ANGABEN (Klaus 2026-10-14): ein Herkunftsnachweis ist keine Gefahr.
+       Stehen NUR Angaben da, heißt die Summe nicht „Befund", sondern
+       „kein Befund · N Angabe(n)", in ruhiger Farbe. */
+    var nurAngaben = treffer.length > 0 && treffer.every(function (x) {
+      return ANGABE.indexOf(x.kennung) !== -1;
+    });
 
     var summe = t("div", "pr-summe");
     /* Stufe 2 A (2026-09-30): ist Text in einem Bild NICHT gelesen worden,
        steht oben „Text im Bild ungeprüft", nie ein grünes „kein Befund". */
     var ungeprueft = !treffer.length && !opt.erwartet && !!opt.ungeprueft;
-    var art = opt.erwartet ? "pr-erwartet" : (treffer.length ? "pr-befund" : ungeprueft ? "pr-ungeprueft" : "pr-sauber");
+    var art = opt.erwartet ? "pr-erwartet" : nurAngaben ? "pr-info" : (treffer.length ? "pr-befund" : ungeprueft ? "pr-ungeprueft" : "pr-sauber");
     /* ⚠ ZWEI ZAHLEN, WEIL ES ZWEI SIND. „34 Funde" und „9 Sachen an 34 Stellen"
        sagen etwas Verschiedenes, und die zweite ist die, nach der man handelt.
        Wo beide gleich sind, steht nur eine — sonst wäre es Ziererei. */
     var stellenZahl = treffer.length;
     var text1 = ungeprueft ? (opt.ungeprueftSatz || "Text im Bild ungeprüft") : stellenZahl === 0 ? "kein Befund"
+      : nurAngaben ? "kein Befund · " + stellenZahl + (stellenZahl === 1 ? " Angabe" : " Angaben")
       : (gruppen.length === stellenZahl
           ? stellenZahl + (stellenZahl === 1 ? " Befund" : " Befunde")
           : gruppen.length + (gruppen.length === 1 ? " Sache" : " Sachen") +
@@ -665,6 +699,8 @@
       li.setAttribute("data-kennung", g.kennung);
       li.setAttribute("data-stellen", String(g.stellen.length));
       var vieleSaetze = g.saetze.length > 1;
+      var istAngabe = ANGABE.indexOf(g.kennung) !== -1;
+      if (istAngabe) { li.className += " pr-info"; li.setAttribute("data-info", "ja"); }
 
       /* Der Klartext-Satz führt. */
       li.appendChild(t("p", "pr-kopf", k.kopf));
@@ -690,6 +726,36 @@
         window.PrueferAnhang.wasTun(g.kennung).forEach(function (x, i) { bericht.push("  " + (i + 1) + ". " + x); });
       }
       g.saetze.forEach(function (satz) { bericht.push("  " + satz); });
+
+      /* ══ DIE EINZELHEITEN AUF KNOPFDRUCK (Klaus 2026-10-14) ══════════════
+         „kurz und verständlich für Nutzer … genauere Ausgabe auf Knopfdruck."
+         Die Karte nennt nur, DASS etwas in der Datei steht; was genau, steht
+         hinter „Details anzeigen". Fremder Text, nur als textContent. Jede
+         verschiedene Angaben-Liste einmal (zwei Dateien, zwei Listen). */
+      var datenListen = [], gesehen = {};
+      g.stellen.forEach(function (x) {
+        if (!x.daten || !x.daten.length) return;
+        var sch = JSON.stringify(x.daten);
+        if (gesehen[sch]) return;
+        gesehen[sch] = true;
+        datenListen.push({ stelle: x.stelle || "", daten: x.daten });
+      });
+      if (datenListen.length) {
+        var det = t("details", "pr-herkunft");
+        det.setAttribute("data-herkunft-details", "");
+        det.appendChild(t("summary", null, spracheText("pr_details_anzeigen", "Details anzeigen")));
+        datenListen.forEach(function (d) {
+          if (datenListen.length > 1 && d.stelle) det.appendChild(t("p", "pr-marke", d.stelle));
+          var dl = t("dl", "pr-angaben");
+          d.daten.forEach(function (paar) {
+            dl.appendChild(t("dt", null, String(paar[0])));
+            dl.appendChild(t("dd", null, String(paar[1])));
+            bericht.push("    " + paar[0] + ": " + paar[1]);
+          });
+          det.appendChild(dl);
+        });
+        li.appendChild(det);
+      }
 
       /* ⚠ BEI VIELEN STELLEN NUR DIE ERSTEN FÜNF IM BILD — aber ALLE im
          Bericht, und die Zahl steht dabei. Eine stille Kürzung wäre die
@@ -1278,7 +1344,9 @@
   function anhangTreffer(name, r, praefix) {
     var aus = [];
     r.befunde.forEach(function (b) {
-      aus.push({ stelle: praefix + name, kennung: b.kennung, satz: b.satz });
+      var e = { stelle: praefix + name, kennung: b.kennung, satz: b.satz };
+      if (b.daten && b.daten.length) e.daten = b.daten;
+      aus.push(e);
     });
     if (r.seiten && window.PrueferFormate) {
       /* PDF: je Seite, damit ein Fund seine Seite nennt statt einer Zeile
