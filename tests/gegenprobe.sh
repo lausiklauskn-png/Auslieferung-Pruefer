@@ -4249,7 +4249,7 @@ probe "BEGRIFF: eine echte Anweisung in derselben Zeile wird zum Fachbegriff" \
 # ══ HERKUNFT: Herkunftsnachweis (C2PA) als Angabe, Details auf Knopfdruck (2026-10-14) ══
 probe "HERKUNFT: die Filespec mit C2PA im PDF wird nicht mehr erkannt" \
       assets/pruefer-formate.js \
-      's|var istC2pa = /|var istC2pa = false \&\& /|'
+      's|if (istC2pa) {|if (false) {|'
 probe "HERKUNFT: das APP11-Segment im JPEG wird nicht mehr gelesen" \
       assets/pruefer-anhang.js \
       's|else if (mk === 0xEB \&\& inhalt|else if (false \&\& mk === 0xEB \&\& inhalt|'
