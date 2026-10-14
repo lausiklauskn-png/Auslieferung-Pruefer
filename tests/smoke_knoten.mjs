@@ -53,17 +53,17 @@ const sw      = lies('sw.js');
    hier neu kopiert UND der Pin nachgezogen — nie die Kopie abgewandelt. */
 const KANON = {
   'sbkim/01_storage.js':        '5a5a4bf64dfc',
-  'sbkim/02_spore.js':          '6789fe6e903a',
+  'sbkim/02_spore.js':          '0cbf0664e2a7',
   'sbkim/03_embedding.js':      'a6ac64d7536d',
   'sbkim/04_match.js':          '721eecc3c0d6',
   'sbkim/05_anastomose.js':     '255ac79aeb3b',
   'sbkim/05b_nostr_relay.js':   '37eee5b196b3',
   'sbkim/07_apoptose.js':       '0acdd6ab2d95',
   'sbkim/15_membran.js':        '829a5bc01976',
-  'sbkim/16_siegel.js':         'd84fa539e76e',
+  'sbkim/16_siegel.js':         '7c12bc487d44',
   'sbkim/17_floating_widget.js':'e4ee076c1295',
-  'sbkim/23_rendezvous.js':     '9464fba75e5a',
-  'sbkim/23_rendezvous_ui.js':  'a81fc9081271',
+  'sbkim/23_rendezvous.js':     '05a6eb42ec68',
+  'sbkim/23_rendezvous_ui.js':  'efecd89ea80d',
   'sbkim/noble-secp256k1.js':   '8f3879ca422c',
   /* Der Wizard: seit A18 eine Kanon-Datei (Sage 16b_andock_wizard.js), die
      Identität steht getrennt in pruefer-siegel-inhalt.js. Drüben wurde er gegen
