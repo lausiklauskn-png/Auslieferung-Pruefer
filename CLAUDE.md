@@ -713,3 +713,9 @@ genauere Ausgabe auf Knopfdruck.“*
 - Proben: `smoke_anhang` § HERKUNFT · `smoke_pruefer` (JPEG, PNG, PDF im Browser) · Gegenprobe `NUR_FALL="HERKUNFT:"`.
   Cache v39, alle `?v=108`. Byte-1:1 weiter an Workflow-PDF, Mein-WorkFloh, Tomys-Hub, Sende-Pruefer, Mein-In-and-Out-Book.
 - ⚠ Nicht gemessen: echte C2PA-Dateien außer Klaus' einer PDF (nur gelesen, nicht eingecheckt); das Tablet.
+
+
+## 🛡 Prüfliste vor dem KI-Richter (Sage Bau 04.J, 2026-10-14)
+
+Modul 04 kommt neu aus dem Kanon (Sage #1082). Der Richter prüft die Suchfrage und die Antworten fremder Knoten mit der Prüfliste (`pruefer-mail.js`). Fehlt die Liste, läuft er nicht. Eine Antwort, in der eine Anweisung an eine KI steht, geht nicht an die KI. Sie bekommt „gefahr“ und `ausgeschlossen: "ki-anweisung"`.
+Die Seite lädt die Liste schon. Gemessen im Browser: `SbkimMatch._meta.prueflisteGeladen` ist true. Das Tablet ist nicht gemessen.
