@@ -14,7 +14,7 @@
  * CACHE-BUST: bei jeder Änderung an einer Datei aus CORE die CACHE_VERSION
  * erhöhen — und die ?v=-Angaben in der Seite mitziehen.
  */
-var CACHE_VERSION = "auslieferung-pruefer-v43";
+var CACHE_VERSION = "auslieferung-pruefer-v44";
 
 var CORE = [
   "./",
