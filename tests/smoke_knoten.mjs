@@ -54,7 +54,7 @@ const sw      = lies('sw.js');
 const KANON = {
   'sbkim/01_storage.js':        '5a5a4bf64dfc',
   'sbkim/02_spore.js':          '0cbf0664e2a7',
-  'sbkim/03_embedding.js':      'a6ac64d7536d',
+  'sbkim/03_embedding.js':      '2e31baa09a29',
   'sbkim/04_match.js':          '721eecc3c0d6',
   'sbkim/05_anastomose.js':     '255ac79aeb3b',
   'sbkim/05b_nostr_relay.js':   '37eee5b196b3',
