@@ -60,9 +60,9 @@ const KANON = {
   'sbkim/05b_nostr_relay.js':   '37eee5b196b3',
   'sbkim/07_apoptose.js':       '0acdd6ab2d95',
   'sbkim/15_membran.js':        '829a5bc01976',
-  'sbkim/16_siegel.js':         '7c12bc487d44',
+  'sbkim/16_siegel.js':         '84959978d9ac',
   'sbkim/17_floating_widget.js':'e4ee076c1295',
-  'sbkim/23_rendezvous.js':     '05a6eb42ec68',
+  'sbkim/23_rendezvous.js':     '48165ffc96b6',
   'sbkim/23_rendezvous_ui.js':  'efecd89ea80d',
   'sbkim/noble-secp256k1.js':   '8f3879ca422c',
   /* Der Wizard: seit A18 eine Kanon-Datei (Sage 16b_andock_wizard.js), die
