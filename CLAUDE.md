@@ -727,3 +727,13 @@ Die Seite lädt die Liste schon. Gemessen im Browser: `SbkimMatch._meta.prueflis
 ## 🌓 Installieren-Meldung bleibt lesbar (2026-10-18)
 
 Klaus' Handy zeigte das Erklärfenster des Installieren-Knopfs hell auf weiß: `#install-meldung` setzte `background:var(--flaeche,#fff);color:inherit` — die Seite hat kein `--flaeche`, also weißer Grund, die Schrift erbt das helle Thema. Nachgemessen im Browser (headless, 380 px, Knopf getippt): Nacht 1,16 · Signal 1,09 · Tag 17,33. Jetzt misst `lesbar(m)` nach dem Einhängen den Kontrast (Logik wie Sage-Protokol #1152, von Hand eingebaut — die Datei bleibt die eigene Fassung); unter 4,5 steht die Meldung fest #1a1a1a auf #fff, Marke `data-lesbar="fest"|"seite"`. Danach: Nacht/Signal 17,40 (fest) · Tag 17,33 (seite). Cache auslieferung-pruefer-v52, alle `?v=110`. ⚠ Am Tablet nicht gemessen.
+
+## ⬇ Installieren auch oben auf der Startseite (Klaus 2026-10-18)
+
+Klaus: *„setze den Installationsbutton oben in die Navi-Leiste zusätzlich … verschwinden, wenn die App installiert ist …
+Macht das bitte überall so.“* In `auslieferungspruefer.html` stand der Knopf schon auf jeder Breite oben (gemessen 320 ·
+360 · 412 · 1280 px). Die **Startseite** `start.html` — die beim ersten Öffnen vor der App steht — hatte keinen. Jetzt lädt
+sie `assets/installieren.js`; ohne `#frischKnopf` setzt die Datei den Knopf vor „Zur App“ (`data-zur-app`, Klasse
+`knopf leise`), bis 760 px nur ⬇, bis 440 px schmalere Abstände (Regeln von der Datei gesetzt, `start.css` bleibt gleich
+mit dem Sende-Prüfer). Als App weg. Cache v53, alle `?v=111`. Probe `smoke_start.mjs` `INSTALL:` (8 Zeilen); von Hand
+gegengeprüft: ohne die Abstands-Regeln 3 rote Zeilen. `npm test` grün. Am Tablet nicht gemessen.

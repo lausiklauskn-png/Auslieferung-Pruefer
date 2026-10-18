@@ -136,9 +136,19 @@
   function einhaengen() {
     if (document.getElementById("installieren")) return;
     var vor = document.getElementById("frischKnopf");
+    var klasse = "thema-knopf";
+    /* Startseite (Klaus 2026-10-18: „oben in die Navi-Leiste … man sieht nicht auf Anhieb, dass die App
+       installiert werden kann“): dort gibt es kein ⟳ — der Knopf kommt vor „Zur App“. */
+    if (!vor) {
+      vor = document.querySelector("header [data-zur-app]"); klasse = "knopf leise";
+      if (vor) { var st = document.createElement("style");
+        st.textContent = "@media (max-width:760px){#installieren .t{display:none}}" +
+          "@media (max-width:440px){header.kopf .knopf{padding:0 9px}header.kopf .w{gap:6px;padding-left:10px;padding-right:10px}}";
+        document.head.appendChild(st); }
+    }
     if (!vor || !vor.parentNode) return;
     var k = document.createElement("button");
-    k.type = "button"; k.className = "thema-knopf"; k.id = "installieren";
+    k.type = "button"; k.className = klasse; k.id = "installieren";
     var z = document.createElement("span"); z.setAttribute("aria-hidden", "true"); z.setAttribute("data-z", "");
     var t = document.createElement("span"); t.className = "t";
     k.appendChild(z); k.appendChild(t);
