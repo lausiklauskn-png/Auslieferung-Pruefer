@@ -92,14 +92,14 @@
       "dann hier „Installieren“ tippen.\n\n" +
       "Sonst von Hand: Chrome ⋮ → „App installieren“ bzw. „Zum Startbildschirm hinzufügen“.\n\n" +
       "„App konnte nicht geöffnet werden“ kommt vom Gerät, nicht von dieser Seite. Hilft nichts: " +
-      "Chrome ⋮ → Einstellungen → Websiteeinstellungen → diese Seite → Daten löschen, dann neu installieren.",
+      "die App unter Android-Einstellungen → Apps deinstallieren, Chrome ganz schließen, diese Seite neu laden und noch einmal installieren. Bitte NICHT „Websitedaten löschen“: alle Apps unter dieser Adresse teilen sich einen Speicher, das löschte die Daten aller.",
       "The browser is not offering installation right now.\n\n" +
       "Most common reason: Chrome thinks it is already installed. If the home-screen icon carries a small " +
       "Chrome badge, it is only a SHORTCUT (opens in Chrome), not an app.\n\n" +
       "To make it an app: long-press the icon → Remove or Uninstall, reload this page, then tap “Install” here.\n\n" +
       "Otherwise by hand: Chrome ⋮ → “Install app” or “Add to home screen”.\n\n" +
       "“App could not be opened” comes from the device, not from this page. If nothing helps: " +
-      "Chrome ⋮ → Settings → Site settings → this site → Delete data, then install again.",
+      "uninstall the app under Android Settings → Apps, close Chrome completely, reload this page and install again. Please do NOT “delete site data”: all apps at this address share one storage, that would delete the data of all of them.",
       "Браузер сейчас не предлагает установку.\n\n" +
       "Чаще всего причина в том, что Chrome считает приложение уже установленным. Если на значке на главном экране " +
       "есть маленький знак Chrome, это только ЯРЛЫК (открывается в Chrome), а не приложение.\n\n" +
@@ -107,7 +107,7 @@
       "затем нажать здесь «Установить».\n\n" +
       "Иначе вручную: Chrome ⋮ → «Установить приложение» или «Добавить на главный экран».\n\n" +
       "«Не удалось открыть приложение» сообщает устройство, а не эта страница. Если ничего не помогает: " +
-      "Chrome ⋮ → Настройки → Настройки сайтов → этот сайт → Удалить данные, затем установить заново."));
+      "удалите приложение в настройках Android → Приложения, полностью закройте Chrome, перезагрузите эту страницу и установите снова. Пожалуйста, НЕ «удаляйте данные сайта»: все приложения по этому адресу используют одно хранилище, это удалило бы данные всех."));
   }
 
   function einhaengen() {

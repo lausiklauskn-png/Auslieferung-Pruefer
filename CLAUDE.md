@@ -719,3 +719,7 @@ genauere Ausgabe auf Knopfdruck.“*
 
 Modul 04 kommt neu aus dem Kanon (Sage #1082). Der Richter prüft die Suchfrage und die Antworten fremder Knoten mit der Prüfliste (`pruefer-mail.js`). Fehlt die Liste, läuft er nicht. Eine Antwort, in der eine Anweisung an eine KI steht, geht nicht an die KI. Sie bekommt „gefahr“ und `ausgeschlossen: "ki-anweisung"`.
 Die Seite lädt die Liste schon. Gemessen im Browser: `SbkimMatch._meta.prueflisteGeladen` ist true. Das Tablet ist nicht gemessen.
+
+## ⬇ Kein „Websitedaten löschen“ im Installieren-Rat (Klaus 2026-10-18)
+
+`assets/installieren.js` riet zuletzt „Chrome ⋮ → Websiteeinstellungen → Daten löschen“ (DE/EN/RU). Auf `lausiklauskn-png.github.io` teilen sich alle Apps einen Speicher — das löschte die Daten aller. Jetzt: App unter Android-Einstellungen → Apps deinstallieren, Chrome schließen, neu laden, neu installieren, mit Warnung (wortgleich Sage #1151; der russische Satz ist eigene Übersetzung, von keinem Muttersprachler gelesen). Cache v51, alle `?v=109`. `npm test` (alle.mjs) Rückgabe 0, alle Proben grün.
