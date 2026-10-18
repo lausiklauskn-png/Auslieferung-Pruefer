@@ -107,6 +107,18 @@ for (const [lang, wort] of [["en", "Guide"], ["ru", "Справка"], ["de", "H
   const t = await p.evaluate(() => { const a = document.querySelector("#hilfeKnopf"); return a.textContent.replace(/\s+/g, " ").trim() + " | " + (a.getAttribute("title") || ""); });
   ok(`HANDBUCH: der ?-Knopf spricht ${lang}: „${wort}"`, t.includes(wort), t);
 }
+/* Installieren oben auf der Startseite (Klaus 2026-10-18: „oben in die Navi-Leiste … man sieht nicht auf Anhieb,
+   dass die App installiert werden kann“). */
+for (const breite of [320, 360, 412, 1280]) {
+  const ic = await browser.newContext({ viewport: { width: breite, height: 780 } }); const ip = await ic.newPage();
+  await ip.goto(B + "start.html"); await ip.waitForSelector("#installieren", { state: "attached", timeout: 8000 }).catch(() => {});
+  const k = await ip.evaluate(() => { const b = document.getElementById("installieren"), w = document.querySelector("header.kopf .w");
+    return { da: !!b && b.checkVisibility() && !!b.closest("header.kopf"), quer: document.documentElement.scrollWidth <= innerWidth && w.scrollWidth <= w.clientWidth,
+      hoch: Math.round(document.querySelector("header.kopf").getBoundingClientRect().height) }; });
+  ok(`INSTALL: ${breite} px: der Installieren-Knopf steht sichtbar in der Kopfleiste der Startseite`, k.da, JSON.stringify(k));
+  ok(`INSTALL: ${breite} px: … ohne Querlauf und einzeilig`, k.quer && k.hoch <= 60, JSON.stringify(k));
+  await ic.close();
+}
 const mitAnhang = await ctx.newPage();
 await mitAnhang.evaluate(() => 0);
 await ctx.clearCookies();
