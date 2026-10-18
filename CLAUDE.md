@@ -723,3 +723,7 @@ Die Seite lädt die Liste schon. Gemessen im Browser: `SbkimMatch._meta.prueflis
 ## ⬇ Kein „Websitedaten löschen“ im Installieren-Rat (Klaus 2026-10-18)
 
 `assets/installieren.js` riet zuletzt „Chrome ⋮ → Websiteeinstellungen → Daten löschen“ (DE/EN/RU). Auf `lausiklauskn-png.github.io` teilen sich alle Apps einen Speicher — das löschte die Daten aller. Jetzt: App unter Android-Einstellungen → Apps deinstallieren, Chrome schließen, neu laden, neu installieren, mit Warnung (wortgleich Sage #1151; der russische Satz ist eigene Übersetzung, von keinem Muttersprachler gelesen). Cache v51, alle `?v=109`. `npm test` (alle.mjs) Rückgabe 0, alle Proben grün.
+
+## 🌓 Installieren-Meldung bleibt lesbar (2026-10-18)
+
+Klaus' Handy zeigte das Erklärfenster des Installieren-Knopfs hell auf weiß: `#install-meldung` setzte `background:var(--flaeche,#fff);color:inherit` — die Seite hat kein `--flaeche`, also weißer Grund, die Schrift erbt das helle Thema. Nachgemessen im Browser (headless, 380 px, Knopf getippt): Nacht 1,16 · Signal 1,09 · Tag 17,33. Jetzt misst `lesbar(m)` nach dem Einhängen den Kontrast (Logik wie Sage-Protokol #1152, von Hand eingebaut — die Datei bleibt die eigene Fassung); unter 4,5 steht die Meldung fest #1a1a1a auf #fff, Marke `data-lesbar="fest"|"seite"`. Danach: Nacht/Signal 17,40 (fest) · Tag 17,33 (seite). Cache auslieferung-pruefer-v52, alle `?v=110`. ⚠ Am Tablet nicht gemessen.
